@@ -104,22 +104,46 @@ Resultado actual: 33 tests pasando, 90% de cobertura.
 
 ---
 
-## Estructura del Proyecto
-
 crm_service/
-├── crm_service/          # Configuración del proyecto
-│   ├── settings/         # Separados por entorno (base/dev/prod/test)
-│   ├── exceptions.py     # Manejo centralizado de errores
-│   └── pagination.py     # Paginación estandarizada
+├── crm_service/                 # Configuración del proyecto
+│   ├── settings/                # Separados por entorno
+│   │   ├── base.py
+│   │   ├── dev.py
+│   │   ├── prod.py
+│   │   └── test.py
+│   ├── urls.py                  # Router principal
+│   ├── exceptions.py            # Manejo centralizado de errores
+│   └── pagination.py            # Paginación estandarizada
 ├── apps/
-│   ├── contacts/         # Modelo Contact + ViewSet + permisos
-│   ├── interactions/     # Modelo Interaction + ViewSet
-│   └── integrations/     # Meta webhook + OpenAI cliente + health check
-├── tests/                # 33 tests con fixtures
-├── .github/workflows/    # CI/CD con GitHub Actions
+│   ├── contacts/                # Modelo Contact + ViewSet + permisos
+│   │   ├── models.py
+│   │   ├── views.py
+│   │   ├── serializers.py
+│   │   ├── filters.py
+│   │   └── permissions.py
+│   ├── interactions/            # Modelo Interaction + ViewSet
+│   │   ├── models.py
+│   │   ├── views.py
+│   │   └── serializers.py
+│   └── integrations/            # Meta webhook + OpenAI cliente
+│       ├── views.py
+│       ├── clients.py           # MetaClient y OpenAIClient
+│       └── serializers.py
+├── tests/                       # 33 tests con fixtures
+│   ├── test_contacts.py
+│   ├── test_interactions.py
+│   ├── test_integrations.py
+│   └── conftest.py              # Fixtures compartidos
+├── .github/
+│   └── workflows/
+│       └── ci.yml               # GitHub Actions CI
+├── manage.py
 ├── Dockerfile
 ├── docker-compose.yml
 ├── requirements.txt
+├── pytest.ini
+├── load_fixtures.sh
+├── load_fixtures.ps1
 └── README.md
 
 ---
