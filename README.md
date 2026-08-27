@@ -104,47 +104,39 @@ Resultado actual: 33 tests pasando, 90% de cobertura.
 
 ---
 
-crm_service/
-├── crm_service/                 # Configuración del proyecto
-│   ├── settings/                # Separados por entorno
-│   │   ├── base.py
-│   │   ├── dev.py
-│   │   ├── prod.py
-│   │   └── test.py
-│   ├── urls.py                  # Router principal
-│   ├── exceptions.py            # Manejo centralizado de errores
-│   └── pagination.py            # Paginación estandarizada
-├── apps/
-│   ├── contacts/                # Modelo Contact + ViewSet + permisos
-│   │   ├── models.py
-│   │   ├── views.py
-│   │   ├── serializers.py
-│   │   ├── filters.py
-│   │   └── permissions.py
-│   ├── interactions/            # Modelo Interaction + ViewSet
-│   │   ├── models.py
-│   │   ├── views.py
-│   │   └── serializers.py
-│   └── integrations/            # Meta webhook + OpenAI cliente
-│       ├── views.py
-│       ├── clients.py           # MetaClient y OpenAIClient
-│       └── serializers.py
-├── tests/                       # 33 tests con fixtures
-│   ├── test_contacts.py
-│   ├── test_interactions.py
-│   ├── test_integrations.py
-│   └── conftest.py              # Fixtures compartidos
-├── .github/
-│   └── workflows/
-│       └── ci.yml               # GitHub Actions CI
-├── manage.py
-├── Dockerfile
-├── docker-compose.yml
-├── requirements.txt
-├── pytest.ini
-├── load_fixtures.sh
-├── load_fixtures.ps1
-└── README.md
+## 🗂️ Estructura del Proyecto
+
+| Ruta | Descripción |
+|------|-------------|
+| `crm_service/settings/base.py` | Configuración base |
+| `crm_service/settings/dev.py` | Configuración desarrollo |
+| `crm_service/settings/prod.py` | Configuración producción |
+| `crm_service/settings/test.py` | Configuración tests |
+| `crm_service/urls.py` | Router principal |
+| `crm_service/exceptions.py` | Manejo de errores |
+| `crm_service/pagination.py` | Paginación |
+| `apps/contacts/models.py` | Modelo Contact |
+| `apps/contacts/views.py` | Contact ViewSet |
+| `apps/contacts/serializers.py` | Serializers de Contact |
+| `apps/contacts/filters.py` | Filtros de Contact |
+| `apps/contacts/permissions.py` | Permisos de Contact |
+| `apps/interactions/models.py` | Modelo Interaction |
+| `apps/interactions/views.py` | Interaction ViewSet |
+| `apps/interactions/serializers.py` | Serializers de Interaction |
+| `apps/integrations/views.py` | Webhooks y endpoints |
+| `apps/integrations/clients.py` | MetaClient y OpenAIClient |
+| `apps/integrations/serializers.py` | Serializers de integraciones |
+| `tests/test_contacts.py` | Tests de Contact |
+| `tests/test_interactions.py` | Tests de Interaction |
+| `tests/test_integrations.py` | Tests de integraciones |
+| `tests/conftest.py` | Fixtures compartidos |
+| `.github/workflows/ci.yml` | CI/CD con GitHub Actions |
+| `manage.py` | CLI de Django |
+| `Dockerfile` | Imagen Docker |
+| `docker-compose.yml` | Orquestación Docker |
+| `requirements.txt` | Dependencias Python |
+| `pytest.ini` | Configuración de tests |
+| `README.md` | Documentación del proyecto |
 
 ---
 
