@@ -103,44 +103,53 @@ pytest tests/ -v
 
 ---
 
-## Estructura del Proyecto
+## 🗂️ Estructura del Proyecto
 
-CRM-Service-V2/
-    backend/
-        apps/
-            contacts/
-            interactions/
-            integrations/
-        crm_service/
-            settings/
-            urls.py
-            exceptions.py
-            pagination.py
-        tests/
-        manage.py
-        requirements.txt
-        pytest.ini
-    frontend/
-        src/
-            app/
-                dashboard/
-                login/
-                contacts/
-                layout.tsx
-                page.tsx
-            components/
-                ui/
-            context/
-                AuthContext.tsx
-            lib/
-                api-client.ts
-                utils.ts
-        package.json
-        next.config.ts
-    docker-compose.yml
-    .env.example
-    .gitignore
-    README.md
+| Ruta | Descripción |
+|------|-------------|
+| `backend/crm_service/settings/base.py` | Configuración base |
+| `backend/crm_service/settings/dev.py` | Configuración desarrollo |
+| `backend/crm_service/settings/prod.py` | Configuración producción |
+| `backend/crm_service/settings/test.py` | Configuración tests |
+| `backend/crm_service/urls.py` | Router principal |
+| `backend/crm_service/exceptions.py` | Manejo de errores |
+| `backend/crm_service/pagination.py` | Paginación |
+| `backend/apps/contacts/models.py` | Modelo Contact |
+| `backend/apps/contacts/views.py` | Contact ViewSet |
+| `backend/apps/contacts/serializers.py` | Serializers de Contact |
+| `backend/apps/contacts/filters.py` | Filtros de Contact |
+| `backend/apps/contacts/permissions.py` | Permisos de Contact |
+| `backend/apps/interactions/models.py` | Modelo Interaction |
+| `backend/apps/interactions/views.py` | Interaction ViewSet |
+| `backend/apps/interactions/serializers.py` | Serializers de Interaction |
+| `backend/apps/integrations/views.py` | Webhooks y endpoints |
+| `backend/apps/integrations/clients.py` | MetaClient y OpenAIClient |
+| `backend/apps/integrations/serializers.py` | Serializers de integraciones |
+| `backend/tests/test_contacts.py` | Tests de Contact |
+| `backend/tests/test_interactions.py` | Tests de Interaction |
+| `backend/tests/test_integrations.py` | Tests de integraciones |
+| `backend/tests/conftest.py` | Fixtures compartidos |
+| `backend/.github/workflows/ci.yml` | CI/CD con GitHub Actions |
+| `backend/manage.py` | CLI de Django |
+| `backend/requirements.txt` | Dependencias Python |
+| `backend/pytest.ini` | Configuración de tests |
+| `frontend/src/app/dashboard/page.tsx` | Dashboard page |
+| `frontend/src/app/login/page.tsx` | Login page |
+| `frontend/src/app/contacts/page.tsx` | Lista de contactos |
+| `frontend/src/app/contacts/[id]/page.tsx` | Detalle de contacto |
+| `frontend/src/app/contacts/new/page.tsx` | Crear contacto |
+| `frontend/src/app/layout.tsx` | Root layout |
+| `frontend/src/app/page.tsx` | Home redirect |
+| `frontend/src/components/ui/` | Componentes shadcn/ui |
+| `frontend/src/context/AuthContext.tsx` | Contexto de autenticación |
+| `frontend/src/lib/api-client.ts` | Cliente API con interceptores |
+| `frontend/src/lib/utils.ts` | Utilidades (shadcn) |
+| `frontend/package.json` | Dependencias frontend |
+| `frontend/next.config.ts` | Configuración Next.js |
+| `docker-compose.yml` | Orquestación Docker |
+| `.env.example` | Variables de entorno de ejemplo |
+| `.gitignore` | Archivos ignorados |
+| `README.md` | Documentación del proyecto |
 
 ---
 
