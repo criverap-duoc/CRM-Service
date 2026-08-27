@@ -12,91 +12,74 @@
 
 ---
 
-## 🎯 Propósito
+## Propósito
 
-**CRM Service V1** es la base sólida de un sistema CRM interno diseñado para:
+CRM Service V1 es la base sólida de un sistema CRM interno diseñado para:
 
-- **Automatizar la captura de leads** desde Meta Lead Ads mediante webhooks seguros.
-- **Clasificar leads con IA** usando OpenAI para priorizar seguimiento.
-- **Gestionar contactos e interacciones** con un modelo de permisos por roles (Manager/Agent).
-- **Servir como backend para un dashboard** (listo para conectar con Next.js en V2).
+- Automatizar la captura de leads desde Meta Lead Ads mediante webhooks seguros.
+- Clasificar leads con IA usando OpenAI para priorizar seguimiento.
+- Gestionar contactos e interacciones con un modelo de permisos por roles (Manager/Agent).
+- Servir como backend para un dashboard (listo para conectar con Next.js en V2).
 
-**El problema que resuelve:**  
-Equipos comerciales pierden oportunidades porque los leads generados en campañas digitales quedan sin seguimiento por horas. Este sistema reduce ese tiempo de **48 horas a menos de 2 horas** mediante automatización inteligente.
+El problema que resuelve: Equipos comerciales pierden oportunidades porque los leads generados en campañas digitales quedan sin seguimiento por horas. Este sistema reduce ese tiempo de 48 horas a menos de 2 horas mediante automatización inteligente.
 
 ---
 
-## 🏗️ Stack Tecnológico
+## Stack Tecnológico
 
 | Capa | Tecnología | Justificación |
 |------|------------|---------------|
-| **Backend** | Django + Django REST Framework | Framework maduro con ORM, admin y autenticación integrada |
-| **Autenticación** | JWT (SimpleJWT) + Roles (Django Groups) | Stateless, escalable para microservicios |
-| **IA/ML** | OpenAI GPT | Clasificación y resumen de interacciones |
-| **Integración** | Meta Lead Ads (webhook con HMAC-SHA256) | Captura automática de leads con validación de seguridad |
-| **Tests** | Pytest + Coverage | 90% de cobertura garantizada |
-| **Despliegue** | Docker + GitHub Actions CI | Estandarización y pipelines automatizados |
-| **Documentación** | drf-spectacular (OpenAPI/Swagger) | Generación automática de API docs |
+| Backend | Django + Django REST Framework | Framework maduro con ORM, admin y autenticación integrada |
+| Autenticación | JWT (SimpleJWT) + Roles (Django Groups) | Stateless, escalable para microservicios |
+| IA/ML | OpenAI GPT | Clasificación y resumen de interacciones |
+| Integración | Meta Lead Ads (webhook con HMAC-SHA256) | Captura automática de leads con validación de seguridad |
+| Tests | Pytest + Coverage | 90% de cobertura garantizada |
+| Despliegue | Docker + GitHub Actions CI | Estandarización y pipelines automatizados |
+| Documentación | drf-spectacular (OpenAPI/Swagger) | Generación automática de API docs |
 
 ---
 
-## 📊 Endpoints Principales
+## Endpoints Principales
 
-### Autenticación
+Autenticación:
+- POST /api/v1/auth/token/ - Obtener JWT
+- POST /api/v1/auth/token/refresh/ - Renovar access token
 
-POST /api/v1/auth/token/ # Obtener JWT
-POST /api/v1/auth/token/refresh/ # Renovar access token
-text
+Contactos (CRUD + acciones):
+- GET /api/v1/contacts/ - Listar (filtros: status, search, source)
+- POST /api/v1/contacts/ - Crear (auto-asigna usuario autenticado)
+- GET /api/v1/contacts/{id}/ - Detalle completo
+- PATCH /api/v1/contacts/{id}/ - Actualizar parcial
+- DELETE /api/v1/contacts/{id}/ - Eliminar (solo managers)
+- PATCH /api/v1/contacts/{id}/status/ - Cambiar estado (lead/cliente/inactivo)
+- PATCH /api/v1/contacts/{id}/assign/ - Reasignar (solo managers)
+- GET /api/v1/contacts/mine/ - Mis contactos asignados
 
+Interacciones:
+- GET /api/v1/interactions/ - Listar (filtro por contacto)
+- POST /api/v1/interactions/ - Registrar interacción
+- GET /api/v1/interactions/{id}/ - Detalle
 
-### Contactos (CRUD + acciones)
+Integraciones:
+- POST /api/v1/integrations/meta/webhook/ - Webhook Meta Lead Ads (AllowAny)
+- POST /api/v1/integrations/ai/summarize/ - Resumir interacción con OpenAI
 
-GET /api/v1/contacts/ # Listar (filtros: status, search, source)
-POST /api/v1/contacts/ # Crear (auto-asigna usuario autenticado)
-GET /api/v1/contacts/{id}/ # Detalle completo
-PATCH /api/v1/contacts/{id}/ # Actualizar parcial
-DELETE /api/v1/contacts/{id}/ # Eliminar (solo managers)
-PATCH /api/v1/contacts/{id}/status/ # Cambiar estado (lead/cliente/inactivo)
-PATCH /api/v1/contacts/{id}/assign/ # Reasignar (solo managers)
-GET /api/v1/contacts/mine/ # Mis contactos asignados
-text
-
-
-### Interacciones
-
-GET /api/v1/interactions/ # Listar (filtro por contacto)
-POST /api/v1/interactions/ # Registrar interacción
-GET /api/v1/interactions/{id}/ # Detalle
-text
-
-
-### Integraciones
-
-POST /api/v1/integrations/meta/webhook/ # Webhook Meta Lead Ads (AllowAny)
-POST /api/v1/integrations/ai/summarize/ # Resumir interacción con OpenAI
-text
-
-
-### Utilidades
-
-GET /health/ # Health check
-GET /api/docs/ # Swagger UI interactivo
-text
-
+Utilidades:
+- GET /health/ - Health check
+- GET /api/docs/ - Swagger UI interactivo
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
-### Opción 1: Docker (recomendado)
-```bash
+Opción 1: Docker (recomendado)
+
 git clone https://github.com/criverap-duoc/CRM-Service-V1.git
 cd CRM-Service-V1
 cp .env.example .env
 docker compose up --build
 
 Opción 2: Desarrollo local
-bash
 
 python -m venv .venv
 source .venv/bin/activate  # o .venv\Scripts\activate en Windows
@@ -106,18 +89,22 @@ python manage.py createsuperuser
 python manage.py runserver
 
 La API estará en http://localhost:8000/api/docs/ con Swagger UI.
-🧪 Tests y Cobertura
-bash
 
-# Ejecutar todos los tests
+---
+
+## Tests y Cobertura
+
+Ejecutar todos los tests:
 pytest tests/ -v
 
-# Con cobertura
+Con cobertura:
 pytest tests/ --cov=apps --cov-report=term-missing
 
 Resultado actual: 33 tests pasando, 90% de cobertura.
-🗂️ Estructura del Proyecto
-text
+
+---
+
+## Estructura del Proyecto
 
 crm_service/
 ├── crm_service/          # Configuración del proyecto
@@ -135,39 +122,50 @@ crm_service/
 ├── requirements.txt
 └── README.md
 
-🔒 Decisiones Técnicas Clave
-Decisión	Implementación	Beneficio
-Dos serializers por recurso	ContactListSerializer (listas) y ContactSerializer (detalle)	Evita over-fetching en listados grandes
-Annotate vs @property	interaction_count = Count("interactions")	Una sola query SQL vs N+1
-perform_create	Auto-asigna created_by desde request.user	Lógica de negocio en el lugar correcto
-Validación HMAC-SHA256	Webhook de Meta con hmac.compare_digest	Previene timing attacks
-Rate Limiting	WebhookRateThrottle (200 requests/hora)	Protección contra abusos
-Custom Exception Handler	Envelope {"error": {"code", "message", "details"}}	Frontend recibe formato consistente
-📈 Roadmap
+---
 
-    ☑
+## Decisiones Técnicas Clave
 
-    V1 Backend REST + Autenticación JWT + Roles + Meta/OpenAI integración
-    □
+| Decisión | Implementación | Beneficio |
+|----------|----------------|-----------|
+| Dos serializers por recurso | ContactListSerializer (listas) y ContactSerializer (detalle) | Evita over-fetching en listados grandes |
+| Annotate vs @property | interaction_count = Count("interactions") | Una sola query SQL vs N+1 |
+| perform_create | Auto-asigna created_by desde request.user | Lógica de negocio en el lugar correcto |
+| Validación HMAC-SHA256 | Webhook de Meta con hmac.compare_digest | Previene timing attacks |
+| Rate Limiting | WebhookRateThrottle (200 requests/hora) | Protección contra abusos |
+| Custom Exception Handler | Envelope {"error": {"code", "message", "details"}} | Frontend recibe formato consistente |
 
-    V2 Frontend en Next.js con dashboard comercial
-    □
+---
 
-    V3 Despliegue en AWS (ECS + RDS)
-    □
+## Roadmap
 
-    V4 WebSockets para notificaciones en tiempo real
+- [x] V1 Backend REST + Autenticación JWT + Roles + Meta/OpenAI integración
+- [ ] V2 Frontend en Next.js con dashboard comercial
+- [ ] V3 Despliegue en AWS (ECS + RDS)
+- [ ] V4 WebSockets para notificaciones en tiempo real
 
-👥 Roles y Permisos
-Rol	Permisos
-Manager	CRUD completo, eliminación, reasignación, ver todos los contactos
-Agent	CRUD propio, solo lectura de otros, no puede eliminar
-Admin	Acceso al admin de Django
-📄 Licencia
+---
+
+## Roles y Permisos
+
+| Rol | Permisos |
+|-----|----------|
+| Manager | CRUD completo, eliminación, reasignación, ver todos los contactos |
+| Agent | CRUD propio, solo lectura de otros, no puede eliminar |
+| Admin | Acceso al admin de Django |
+
+---
+
+## Licencia
 
 MIT
-🤝 Contribuciones
+
+---
+
+## Contribuciones
 
 Este es un proyecto de portafolio. Si tienes sugerencias, abre un issue o un PR.
 
-📦 Repositorio: https://github.com/criverap-duoc/CRM-Service-V1
+---
+
+Repositorio: https://github.com/criverap-duoc/CRM-Service-V1
