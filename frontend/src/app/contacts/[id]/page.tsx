@@ -8,9 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ArrowLeft, Save, Sparkles } from 'lucide-react';
+import { ArrowLeft, Save, Sparkles, Mail, Phone, Building, User } from 'lucide-react';
 
 interface Contact {
   id: number;
@@ -119,12 +118,12 @@ export default function ContactDetailPage() {
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
-      lead: 'bg-blue-100 text-blue-800',
-      prospect: 'bg-yellow-100 text-yellow-800',
-      customer: 'bg-green-100 text-green-800',
-      churned: 'bg-red-100 text-red-800',
+      lead: 'bg-blue-100 text-blue-800 border-0 font-medium',
+      prospect: 'bg-yellow-100 text-yellow-800 border-0 font-medium',
+      customer: 'bg-green-100 text-green-800 border-0 font-medium',
+      churned: 'bg-red-100 text-red-800 border-0 font-medium',
     };
-    return colors[status] || 'bg-gray-100 text-gray-800';
+    return colors[status] || 'bg-gray-100 text-gray-800 border-0 font-medium';
   };
 
   if (isLoading || loading) {
@@ -144,14 +143,15 @@ export default function ContactDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm border-b">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/40">
+      <nav className="bg-white/80 backdrop-blur-md border-b border-gray-100/50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <h1 className="text-xl font-bold cursor-pointer" onClick={() => router.push('/dashboard')}>
             CRM Service
           </h1>
           <div className="flex items-center gap-4">
             <Button variant="outline" onClick={() => router.push('/contacts')}>
+              <ArrowLeft className="h-4 w-4 mr-2" />
               Volver
             </Button>
           </div>
@@ -165,24 +165,40 @@ export default function ContactDetailPage() {
           </Alert>
         )}
 
+        <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+          <span onClick={() => router.push('/contacts')} className="hover:text-blue-600 cursor-pointer transition-colors">
+            Contactos
+          </span>
+          <span>/</span>
+          <span className="text-gray-800 font-medium">{contact.full_name}</span>
+        </div>
+
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h2 className="text-2xl font-bold">{contact.full_name}</h2>
+            <h2 className="text-2xl font-bold text-gray-800">{contact.full_name}</h2>
             <p className="text-gray-500">{contact.email}</p>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" onClick={handleSummarize} disabled={summarizing}>
-              <Sparkles className="h-4 w-4 mr-2" />
-              {summarizing ? 'Generando...' : 'Resumen con IA'}
+            <Button 
+              variant="outline" 
+              onClick={() => alert('La integración con IA estará disponible en la próxima versión')}
+              className="border-blue-200 hover:bg-blue-50 transition-colors"
+            >
+              <Sparkles className="h-4 w-4 mr-2 text-blue-500" />
+              Resumen con IA
             </Button>
-            <Button variant={editing ? 'default' : 'outline'} onClick={() => setEditing(!editing)}>
+            <Button 
+              variant={editing ? 'default' : 'outline'} 
+              onClick={() => setEditing(!editing)}
+              className={editing ? 'bg-gradient-to-r from-blue-600 to-indigo-600' : 'border-gray-300'}
+            >
               {editing ? 'Cancelar' : 'Editar'}
             </Button>
           </div>
         </div>
 
         {summary && (
-          <Card className="mb-6 bg-blue-50 border-blue-200">
+          <Card className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 shadow-sm">
             <CardContent className="pt-4">
               <p className="text-sm text-gray-600 font-medium">Resumen generado por IA:</p>
               <p className="text-gray-800">{summary}</p>
@@ -191,90 +207,102 @@ export default function ContactDetailPage() {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Card className="lg:col-span-2">
+          <Card className="lg:col-span-2 border border-gray-200/80 shadow-sm">
             <CardHeader>
-              <CardTitle>Información del Contacto</CardTitle>
+              <CardTitle className="text-gray-800">Información del Contacto</CardTitle>
             </CardHeader>
             <CardContent>
               {editing ? (
                 <div className="space-y-4">
                   <div>
-                    <label className="text-sm font-medium">Nombre</label>
+                    <label className="text-sm font-medium text-gray-700">Nombre</label>
                     <Input
                       value={formData.first_name || ''}
-                      onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+                      onChange={(e: any) => setFormData({ ...formData, first_name: e.target.value })}
+                      className="border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition-all"
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Apellido</label>
+                    <label className="text-sm font-medium text-gray-700">Apellido</label>
                     <Input
                       value={formData.last_name || ''}
-                      onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+                      onChange={(e: any) => setFormData({ ...formData, last_name: e.target.value })}
+                      className="border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition-all"
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Email</label>
+                    <label className="text-sm font-medium text-gray-700">Email</label>
                     <Input
                       value={formData.email || ''}
-                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      onChange={(e: any) => setFormData({ ...formData, email: e.target.value })}
+                      className="border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition-all"
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Teléfono</label>
+                    <label className="text-sm font-medium text-gray-700">Teléfono</label>
                     <Input
                       value={formData.phone || ''}
-                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      onChange={(e: any) => setFormData({ ...formData, phone: e.target.value })}
+                      className="border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition-all"
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Empresa</label>
+                    <label className="text-sm font-medium text-gray-700">Empresa</label>
                     <Input
                       value={formData.company || ''}
-                      onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+                      onChange={(e: any) => setFormData({ ...formData, company: e.target.value })}
+                      className="border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition-all"
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Notas</label>
-                    <Textarea
+                    <label className="text-sm font-medium text-gray-700">Notas</label>
+                    <textarea
+                      className="flex min-h-[80px] w-full rounded-md border border-gray-200 bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
                       value={formData.notes || ''}
-                      onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                      onChange={(e: any) => setFormData({ ...formData, notes: e.target.value })}
                       rows={3}
                     />
                   </div>
-                  <Button onClick={handleSave} disabled={saving}>
+                  <Button onClick={handleSave} disabled={saving} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg">
                     <Save className="h-4 w-4 mr-2" />
                     {saving ? 'Guardando...' : 'Guardar'}
                   </Button>
                 </div>
               ) : (
-                <div className="space-y-3">
-                  <div>
-                    <span className="text-sm text-gray-500">Nombre completo</span>
-                    <p className="font-medium">{contact.full_name}</p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-start gap-3 p-3 bg-gray-50/80 rounded-lg border border-gray-100">
+                    <User className="h-4 w-4 text-gray-400 mt-0.5" />
+                    <div>
+                      <p className="text-xs text-gray-500">Nombre completo</p>
+                      <p className="text-sm font-medium text-gray-800">{contact.full_name}</p>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-sm text-gray-500">Email</span>
-                    <p>{contact.email}</p>
+                  <div className="flex items-start gap-3 p-3 bg-gray-50/80 rounded-lg border border-gray-100">
+                    <Mail className="h-4 w-4 text-gray-400 mt-0.5" />
+                    <div>
+                      <p className="text-xs text-gray-500">Email</p>
+                      <p className="text-sm font-medium text-gray-800">{contact.email}</p>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-sm text-gray-500">Teléfono</span>
-                    <p>{contact.phone || '-'}</p>
+                  <div className="flex items-start gap-3 p-3 bg-gray-50/80 rounded-lg border border-gray-100">
+                    <Phone className="h-4 w-4 text-gray-400 mt-0.5" />
+                    <div>
+                      <p className="text-xs text-gray-500">Teléfono</p>
+                      <p className="text-sm font-medium text-gray-800">{contact.phone || '-'}</p>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-sm text-gray-500">Empresa</span>
-                    <p>{contact.company || '-'}</p>
+                  <div className="flex items-start gap-3 p-3 bg-gray-50/80 rounded-lg border border-gray-100">
+                    <Building className="h-4 w-4 text-gray-400 mt-0.5" />
+                    <div>
+                      <p className="text-xs text-gray-500">Empresa</p>
+                      <p className="text-sm font-medium text-gray-800">{contact.company || '-'}</p>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-sm text-gray-500">Fuente</span>
-                    <p>{contact.source}</p>
-                  </div>
-                  <div>
-                    <span className="text-sm text-gray-500">Notas</span>
-                    <p className="text-gray-600">{contact.notes || 'Sin notas'}</p>
-                  </div>
-                  <div>
-                    <span className="text-sm text-gray-500">Total interacciones</span>
-                    <p>{contact.interaction_count}</p>
+                  <div className="flex items-start gap-3 p-3 bg-gray-50/80 rounded-lg border border-gray-100 col-span-2">
+                    <div>
+                      <p className="text-xs text-gray-500">Notas</p>
+                      <p className="text-sm text-gray-700">{contact.notes || 'Sin notas'}</p>
+                    </div>
                   </div>
                 </div>
               )}
@@ -282,41 +310,48 @@ export default function ContactDetailPage() {
           </Card>
 
           <div className="space-y-6">
-            <Card>
+            <Card className="border border-gray-200/80 shadow-sm">
               <CardHeader>
-                <CardTitle>Estado</CardTitle>
+                <CardTitle className="text-gray-800">Estado</CardTitle>
               </CardHeader>
               <CardContent>
                 <Badge className={getStatusColor(contact.status)}>
                   {contact.status}
                 </Badge>
-                <p className="text-sm text-gray-500 mt-2">
-                  Creado: {new Date(contact.created_at).toLocaleDateString()}
-                </p>
-                <p className="text-sm text-gray-500">
-                  Actualizado: {new Date(contact.updated_at).toLocaleDateString()}
-                </p>
+                <div className="mt-4 space-y-1 text-sm">
+                  <p className="text-gray-500">
+                    <span className="font-medium text-gray-700">Creado:</span> {new Date(contact.created_at).toLocaleDateString()}
+                  </p>
+                  <p className="text-gray-500">
+                    <span className="font-medium text-gray-700">Actualizado:</span> {new Date(contact.updated_at).toLocaleDateString()}
+                  </p>
+                  <p className="text-gray-500">
+                    <span className="font-medium text-gray-700">Interacciones:</span> {contact.interaction_count}
+                  </p>
+                </div>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="border border-gray-200/80 shadow-sm">
               <CardHeader>
-                <CardTitle>Interacciones</CardTitle>
+                <CardTitle className="text-gray-800">Interacciones</CardTitle>
               </CardHeader>
               <CardContent>
                 {interactionList.length === 0 ? (
-                  <p className="text-gray-500">Sin interacciones registradas</p>
+                  <p className="text-gray-500 text-sm">Sin interacciones registradas</p>
                 ) : (
-                  <div className="space-y-3 max-h-60 overflow-y-auto">
+                  <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
                     {interactionList.map((interaction) => (
-                      <div key={interaction.id} className="border-b pb-2">
-                        <p className="font-medium text-sm">{interaction.subject}</p>
-                        <p className="text-xs text-gray-500">
-                          {interaction.channel} · {interaction.direction}
-                        </p>
-                        <p className="text-xs text-gray-400">
-                          {new Date(interaction.occurred_at).toLocaleDateString()}
-                        </p>
+                      <div key={interaction.id} className="flex gap-3 p-3 bg-gray-50/70 rounded-lg border-l-4 border-blue-400">
+                        <div className="flex-1">
+                          <p className="font-medium text-sm text-gray-800">{interaction.subject}</p>
+                          <p className="text-xs text-gray-500">
+                            {interaction.channel} · {interaction.direction}
+                          </p>
+                          <p className="text-xs text-gray-400">
+                            {new Date(interaction.occurred_at).toLocaleDateString()}
+                          </p>
+                        </div>
                       </div>
                     ))}
                   </div>

@@ -128,3 +128,43 @@
     @apply font-sans;
   }
 }
+
+/* Aplica Outfit a todos los títulos automáticamente */
+h1, h2, h3, h4, h5, h6,
+[class*="font-heading"],
+[data-slot="card-title"] {
+  font-family: var(--font-outfit), sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Aplica Inter al cuerpo por defecto */
+body,
+p, span, div, input, button, label,
+[class*="font-body"] {
+  font-family: var(--font-inter), sans-serif;
+}
+
+/* Para números y KPIs (más legibles) */
+[class*="font-mono"],
+.kpi-value {
+  font-family: var(--font-inter), monospace;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Ajuste fino para títulos de cards */
+.card-title,
+[data-slot="card-title"] {
+  font-family: var(--font-outfit), sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* Badges y etiquetas pequeñas */
+.badge,
+[data-slot="badge"] {
+  font-family: var(--font-inter), sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
