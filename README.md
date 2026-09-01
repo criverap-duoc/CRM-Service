@@ -1,4 +1,4 @@
-# CRM Service V2
+# CRM Service
 
 [![Python](https://img.shields.io/badge/Python-3.12-blue)](https://python.org)
 [![Django](https://img.shields.io/badge/Django-6.x-green)](https://djangoproject.com)
@@ -6,18 +6,20 @@
 [![Next.js](https://img.shields.io/badge/Next.js-16.x-black)](https://nextjs.org)
 [![Tailwind](https://img.shields.io/badge/Tailwind-4.x-38bdf8)](https://tailwindcss.com)
 [![shadcn/ui](https://img.shields.io/badge/shadcn/ui-4.x-000000)](https://ui.shadcn.com)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-1.5-orange)](https://scikit-learn.org)
 
-> Sistema CRM completo con backend Django REST Framework y frontend Next.js 14. Incluye autenticación JWT, gestión de contactos, interacciones e integración con Meta y OpenAI.
+> Sistema CRM completo con Django REST Framework, Next.js 14, y capacidades de ciencia de datos. Incluye autenticación JWT, gestión de contactos, lead scoring con Machine Learning y análisis de sentimiento.
 
 ---
 
 ## Propósito
 
-CRM Service V2 es un sistema CRM completo diseñado para:
+CRM Service es un sistema CRM inteligente diseñado para:
 
 - Gestionar contactos y leads con un sistema de roles (Manager/Agent)
 - Automatizar la captura de leads desde Meta Lead Ads
-- Clasificar leads con IA usando OpenAI
+- Predecir probabilidad de conversión usando Machine Learning (Lead Scoring)
+- Analizar sentimiento de interacciones con clientes
 - Proveer un dashboard comercial para visualizar métricas clave
 
 El problema que resuelve: Equipos comerciales pierden oportunidades porque los leads generados en campañas digitales quedan sin seguimiento por horas. Este sistema reduce ese tiempo de 48 horas a menos de 2 horas mediante automatización inteligente.
@@ -31,6 +33,8 @@ Backend:
 - Autenticación: JWT (SimpleJWT) + Roles
 - Base de Datos: SQLite (dev) / PostgreSQL (prod)
 - Integraciones: Meta Lead Ads, OpenAI
+- Machine Learning: scikit-learn (Random Forest, GridSearch)
+- Procesamiento de Datos: pandas, numpy
 - Documentación: drf-spectacular (OpenAPI/Swagger)
 
 Frontend:
@@ -43,34 +47,41 @@ Frontend:
 
 ## Endpoints Principales
 
-Autenticación:
-- POST /api/v1/auth/token/ - Login
-- POST /api/v1/auth/token/refresh/ - Refresh token
+### V1 - Autenticación y Contactos
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| POST | /api/v1/auth/token/ | Login |
+| POST | /api/v1/auth/token/refresh/ | Refresh token |
+| GET | /api/v1/contacts/ | Listar contactos |
+| POST | /api/v1/contacts/ | Crear contacto |
+| GET | /api/v1/contacts/{id}/ | Detalle de contacto |
+| PATCH | /api/v1/contacts/{id}/ | Actualizar contacto |
+| DELETE | /api/v1/contacts/{id}/ | Eliminar (solo managers) |
+| PATCH | /api/v1/contacts/{id}/status/ | Cambiar estado |
+| PATCH | /api/v1/contacts/{id}/assign/ | Reasignar (solo managers) |
 
-Contactos:
-- GET /api/v1/contacts/ - Listar (filtros: status, search, source)
-- POST /api/v1/contacts/ - Crear
-- GET /api/v1/contacts/{id}/ - Detalle
-- PATCH /api/v1/contacts/{id}/ - Actualizar
-- DELETE /api/v1/contacts/{id}/ - Eliminar (solo managers)
-- PATCH /api/v1/contacts/{id}/status/ - Cambiar estado
-- PATCH /api/v1/contacts/{id}/assign/ - Reasignar
-- GET /api/v1/contacts/mine/ - Mis contactos
+### V2 - Interacciones y Dashboard
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | /api/v1/interactions/ | Listar interacciones |
+| POST | /api/v1/interactions/ | Crear interacción |
+| POST | /api/v1/integrations/meta/webhook/ | Webhook Meta Lead Ads |
+| POST | /api/v1/integrations/ai/summarize/ | Resumir con OpenAI |
 
-Interacciones:
-- GET /api/v1/interactions/ - Listar interacciones
-- POST /api/v1/interactions/ - Crear interacción
-- GET /api/v1/interactions/{id}/ - Detalle interacción
-
-Integraciones:
-- POST /api/v1/integrations/meta/webhook/ - Webhook Meta Lead Ads
-- POST /api/v1/integrations/ai/summarize/ - Resumir con OpenAI
+### V3 - Data-Enhanced (Machine Learning)
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | /api/v3/lead-score/{contact_id}/ | Obtener lead score (0-100) |
+| POST | /api/v3/sentiment/{interaction_id}/ | Analizar sentimiento de interacción |
+| GET | /api/v3/sentiment/stats/?contact_id={id} | Estadísticas de sentimiento |
 
 ---
 
 ## Quick Start
 
-Opción 1: Desarrollo local
+Clonar el repositorio:
+git clone https://github.com/criverap-duoc/CRM-Service.git
+cd CRM-Service
 
 Backend:
 cd backend
@@ -86,9 +97,6 @@ cd frontend
 pnpm install
 pnpm dev
 
-Opción 2: Docker (producción)
-docker compose up --build
-
 La aplicación estará disponible en:
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:8000/api/v1
@@ -96,60 +104,11 @@ La aplicación estará disponible en:
 
 ---
 
-## Tests
+## Tests y Cobertura
 
 cd backend
 pytest tests/ -v
-
----
-
-## 🗂️ Estructura del Proyecto
-
-| Ruta | Descripción |
-|------|-------------|
-| `backend/crm_service/settings/base.py` | Configuración base |
-| `backend/crm_service/settings/dev.py` | Configuración desarrollo |
-| `backend/crm_service/settings/prod.py` | Configuración producción |
-| `backend/crm_service/settings/test.py` | Configuración tests |
-| `backend/crm_service/urls.py` | Router principal |
-| `backend/crm_service/exceptions.py` | Manejo de errores |
-| `backend/crm_service/pagination.py` | Paginación |
-| `backend/apps/contacts/models.py` | Modelo Contact |
-| `backend/apps/contacts/views.py` | Contact ViewSet |
-| `backend/apps/contacts/serializers.py` | Serializers de Contact |
-| `backend/apps/contacts/filters.py` | Filtros de Contact |
-| `backend/apps/contacts/permissions.py` | Permisos de Contact |
-| `backend/apps/interactions/models.py` | Modelo Interaction |
-| `backend/apps/interactions/views.py` | Interaction ViewSet |
-| `backend/apps/interactions/serializers.py` | Serializers de Interaction |
-| `backend/apps/integrations/views.py` | Webhooks y endpoints |
-| `backend/apps/integrations/clients.py` | MetaClient y OpenAIClient |
-| `backend/apps/integrations/serializers.py` | Serializers de integraciones |
-| `backend/tests/test_contacts.py` | Tests de Contact |
-| `backend/tests/test_interactions.py` | Tests de Interaction |
-| `backend/tests/test_integrations.py` | Tests de integraciones |
-| `backend/tests/conftest.py` | Fixtures compartidos |
-| `backend/.github/workflows/ci.yml` | CI/CD con GitHub Actions |
-| `backend/manage.py` | CLI de Django |
-| `backend/requirements.txt` | Dependencias Python |
-| `backend/pytest.ini` | Configuración de tests |
-| `frontend/src/app/dashboard/page.tsx` | Dashboard page |
-| `frontend/src/app/login/page.tsx` | Login page |
-| `frontend/src/app/contacts/page.tsx` | Lista de contactos |
-| `frontend/src/app/contacts/[id]/page.tsx` | Detalle de contacto |
-| `frontend/src/app/contacts/new/page.tsx` | Crear contacto |
-| `frontend/src/app/layout.tsx` | Root layout |
-| `frontend/src/app/page.tsx` | Home redirect |
-| `frontend/src/components/ui/` | Componentes shadcn/ui |
-| `frontend/src/context/AuthContext.tsx` | Contexto de autenticación |
-| `frontend/src/lib/api-client.ts` | Cliente API con interceptores |
-| `frontend/src/lib/utils.ts` | Utilidades (shadcn) |
-| `frontend/package.json` | Dependencias frontend |
-| `frontend/next.config.ts` | Configuración Next.js |
-| `docker-compose.yml` | Orquestación Docker |
-| `.env.example` | Variables de entorno de ejemplo |
-| `.gitignore` | Archivos ignorados |
-| `README.md` | Documentación del proyecto |
+pytest tests/ --cov=apps --cov-report=term-missing
 
 ---
 
@@ -163,27 +122,33 @@ pytest tests/ -v
 | Validación HMAC-SHA256 | Webhook de Meta con hmac.compare_digest | Previene timing attacks |
 | Rate Limiting | WebhookRateThrottle (200 requests/hora) | Protección contra abusos |
 | Custom Exception Handler | Envelope {"error": {"code", "message", "details"}} | Frontend recibe formato consistente |
-| shadcn/ui | Componentes pre-construidos | Desarrollo rápido y consistente |
-| Context API + React Query | Manejo de estado y caché | Mejor experiencia de usuario |
+| Lead Scoring | Random Forest con GridSearch | Predicción de conversión de leads |
+| Análisis de Sentimiento | OpenAI + modo simulado | Clasificación de interacciones |
+
+---
+
+## Estructura del Proyecto
+
+| Ruta | Descripción |
+|------|-------------|
+| backend/apps/analytics/ | Módulo de ciencia de datos y ML |
+| backend/apps/analytics/ml/ | Modelos de Machine Learning |
+| backend/apps/contacts/ | Gestión de contactos |
+| backend/apps/interactions/ | Gestión de interacciones |
+| backend/apps/integrations/ | Integraciones con Meta y OpenAI |
+| backend/crm_service/settings/ | Configuración por entorno |
+| backend/data/processed/ | Datasets procesados |
+| frontend/src/app/ | Páginas de Next.js |
+| frontend/src/components/ui/ | Componentes shadcn/ui |
 
 ---
 
 ## Roadmap
 
-- [x] V1 Backend REST + Autenticación JWT + Roles + Meta/OpenAI
-- [x] V2 Frontend Next.js + Dashboard + Lista de Contactos
-- [ ] V3 Despliegue en AWS (ECS + RDS)
-- [ ] V4 WebSockets para notificaciones en tiempo real
-
----
-
-## Roles y Permisos
-
-| Rol | Permisos |
-|-----|----------|
-| Manager | CRUD completo, eliminación, reasignación, ver todos los contactos |
-| Agent | CRUD propio, solo lectura de otros, no puede eliminar |
-| Admin | Acceso al admin de Django |
+- [x] v1.0.0 - Backend REST + Autenticación JWT + Meta/OpenAI
+- [x] v2.0.0 - Frontend Next.js + Dashboard + Lista de Contactos
+- [x] v3.0.0 - Data-Enhanced (Lead Scoring, Sentimiento, Analítica)
+- [ ] v4.0.0 - Despliegue en AWS + WebSockets
 
 ---
 
@@ -193,10 +158,5 @@ MIT
 
 ---
 
-## Contribuciones
-
-Este es un proyecto de portafolio. Si tienes sugerencias, abre un issue o un PR.
-
----
-
-Repositorio: https://github.com/criverap-duoc/CRM-Service-V2
+Repositorio: https://github.com/criverap-duoc/CRM-Service
+Versiones: v1.0.0, v2.0.0, v3.0.0
