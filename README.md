@@ -170,10 +170,10 @@ pytest tests/ -v
 
 ## Roadmap
 
-- [x] V1 Backend REST + Autenticación JWT + Roles + Meta/OpenAI
-- [x] V2 Frontend Next.js + Dashboard + Lista de Contactos
-- [ ] V3 Despliegue en AWS (ECS + RDS)
-- [ ] V4 WebSockets para notificaciones en tiempo real
+- [x] **v1.0.0** - Backend REST + Autenticación JWT + Meta/OpenAI
+- [x] **v2.0.0** - Frontend Next.js + Dashboard + Lista de Contactos
+- [ ] **v3.0.0** - Data-Enhanced (Lead Scoring, Sentimiento, Analítica)
+- [ ] **v4.0.0** - Despliegue en AWS + WebSockets
 
 ---
 
