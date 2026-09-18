@@ -12,6 +12,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Search, Eye, Sparkles, LogOut } from 'lucide-react';
+import { analytics } from '@/lib/analytics-client';
 
 interface Contact {
   id: number;
@@ -32,6 +33,7 @@ export default function ContactsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [leadScores, setLeadScores] = useState<Record<number, any>>({});
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -52,7 +54,20 @@ export default function ContactsPage() {
       if (statusFilter) params.status = statusFilter;
       
       const response = await contacts.list(params);
-      setContactList(response.data.results || response.data);
+      const data = response.data.results || response.data;
+      setContactList(data);
+      
+      // Cargar lead scores para cada contacto
+      const scores: Record<number, any> = {};
+      for (const contact of data) {
+        try {
+          const scoreRes = await analytics.getLeadScore(contact.id);
+          scores[contact.id] = scoreRes.data;
+        } catch (e) {
+          // Ignorar errores
+        }
+      }
+      setLeadScores(scores);
     } catch (error) {
       console.error('Error fetching contacts:', error);
     } finally {
@@ -222,6 +237,7 @@ export default function ContactsPage() {
                       <TableHead className="font-semibold text-gray-600 text-xs uppercase tracking-wider">Email</TableHead>
                       <TableHead className="font-semibold text-gray-600 text-xs uppercase tracking-wider hidden md:table-cell">Empresa</TableHead>
                       <TableHead className="font-semibold text-gray-600 text-xs uppercase tracking-wider">Estado</TableHead>
+                      <TableHead className="font-semibold text-gray-600 text-xs uppercase tracking-wider">Lead Score</TableHead>
                       <TableHead className="font-semibold text-gray-600 text-xs uppercase tracking-wider hidden lg:table-cell">Fuente</TableHead>
                       <TableHead className="font-semibold text-gray-600 text-xs uppercase tracking-wider">Acciones</TableHead>
                     </TableRow>
@@ -236,6 +252,19 @@ export default function ContactsPage() {
                           <Badge className={`${getStatusColor(contact.status)} border font-medium rounded-full px-2.5 py-0.5 text-xs`}>
                             {contact.status}
                           </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {leadScores[contact.id] ? (
+                            <Badge className={`${
+                              leadScores[contact.id].lead_score >= 70 ? 'bg-emerald-100 text-emerald-700' :
+                              leadScores[contact.id].lead_score >= 40 ? 'bg-amber-100 text-amber-700' :
+                              'bg-rose-100 text-rose-700'
+                            } border-0 font-medium text-xs`}>
+                              {leadScores[contact.id].lead_score}
+                            </Badge>
+                          ) : (
+                            <span className="text-xs text-gray-400">-</span>
+                          )}
                         </TableCell>
                         <TableCell className="hidden lg:table-cell">
                           <span className="text-xs text-gray-400 font-medium">{contact.source}</span>

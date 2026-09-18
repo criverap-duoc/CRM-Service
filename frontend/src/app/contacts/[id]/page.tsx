@@ -9,7 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ArrowLeft, Save, Sparkles, Mail, Phone, Building, User } from 'lucide-react';
+import { ArrowLeft, Save, Sparkles, Mail, Phone, Building, User, TrendingUp } from 'lucide-react';
+import { analytics } from '@/lib/analytics-client';
 
 interface Contact {
   id: number;
@@ -53,6 +54,8 @@ export default function ContactDetailPage() {
   const [error, setError] = useState('');
   const [summary, setSummary] = useState('');
   const [summarizing, setSummarizing] = useState(false);
+  const [leadScore, setLeadScore] = useState<any>(null);
+  const [sentimentMap, setSentimentMap] = useState<Record<number, any>>({});
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -64,6 +67,7 @@ export default function ContactDetailPage() {
     if (isAuthenticated && id) {
       fetchContact();
       fetchInteractions();
+      fetchLeadScore();
     }
   }, [isAuthenticated, id]);
 
@@ -81,11 +85,33 @@ export default function ContactDetailPage() {
   };
 
   const fetchInteractions = async () => {
-    try {
-      const response = await interactions.list({ contact: id });
-      setInteractionList(response.data.results || response.data);
+  try {
+    const response = await interactions.list({ contact: id });
+    const data = response.data.results || response.data;
+    setInteractionList(data);
+    
+    // Cargar sentimiento para cada interacción
+  const sentimentData: Record<number, any> = {};
+      for (const interaction of data) {
+        try {
+          const sentimentRes = await analytics.analyzeSentiment(interaction.id);
+          sentimentData[interaction.id] = sentimentRes.data;
+        } catch (e) {
+          // Si falla, ignorar
+        }
+      }
+      setSentimentMap(sentimentData);
     } catch (error) {
       console.error('Error fetching interactions:', error);
+    }
+  };
+
+  const fetchLeadScore = async () => {
+    try {
+      const response = await analytics.getLeadScore(parseInt(id));
+      setLeadScore(response.data);
+    } catch (error) {
+      console.error('Error fetching lead score:', error);
     }
   };
 
@@ -172,6 +198,20 @@ export default function ContactDetailPage() {
           <span>/</span>
           <span className="text-gray-800 font-medium">{contact.full_name}</span>
         </div>
+        {leadScore && (
+        <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 flex items-center gap-4">
+          <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-500 text-white shadow-md">
+            <TrendingUp className="h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 font-medium">Lead Score</p>
+            <p className="text-2xl font-bold text-blue-600">{leadScore.lead_score}</p>
+          </div>
+          <Badge className="ml-auto bg-blue-100 text-blue-700 border-blue-200">
+            {leadScore.label}
+          </Badge>
+        </div>
+      )}
 
         <div className="flex justify-between items-center mb-6">
           <div>
@@ -341,19 +381,34 @@ export default function ContactDetailPage() {
                   <p className="text-gray-500 text-sm">Sin interacciones registradas</p>
                 ) : (
                   <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
-                    {interactionList.map((interaction) => (
-                      <div key={interaction.id} className="flex gap-3 p-3 bg-gray-50/70 rounded-lg border-l-4 border-blue-400">
-                        <div className="flex-1">
-                          <p className="font-medium text-sm text-gray-800">{interaction.subject}</p>
-                          <p className="text-xs text-gray-500">
-                            {interaction.channel} · {interaction.direction}
-                          </p>
-                          <p className="text-xs text-gray-400">
-                            {new Date(interaction.occurred_at).toLocaleDateString()}
-                          </p>
+                    {interactionList.map((interaction) => {
+                      const sentiment = sentimentMap[interaction.id];
+                      const sentimentColor = sentiment?.label === 'positive' ? 'border-emerald-400' :
+                                            sentiment?.label === 'negative' ? 'border-rose-400' :
+                                            'border-blue-400';
+                      const sentimentBadge = sentiment?.label === 'positive' ? 'bg-emerald-100 text-emerald-700' :
+                                            sentiment?.label === 'negative' ? 'bg-rose-100 text-rose-700' :
+                                            'bg-blue-100 text-blue-700';
+                      
+                      return (
+                        <div key={interaction.id} className={`flex gap-3 p-3 bg-gray-50/70 rounded-lg border-l-4 ${sentimentColor}`}>
+                          <div className="flex-1">
+                            <p className="font-medium text-sm text-gray-800">{interaction.subject}</p>
+                            <p className="text-xs text-gray-500">
+                              {interaction.channel} · {interaction.direction}
+                            </p>
+                            <p className="text-xs text-gray-400">
+                              {new Date(interaction.occurred_at).toLocaleDateString()}
+                            </p>
+                          </div>
+                          {sentiment && (
+                            <Badge className={`${sentimentBadge} border-0 text-xs h-5`}>
+                              {sentiment.label === 'positive' ? '😊' : sentiment.label === 'negative' ? '😟' : '😐'}
+                            </Badge>
+                          )}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </CardContent>
