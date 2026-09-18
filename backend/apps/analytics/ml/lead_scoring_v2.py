@@ -173,7 +173,17 @@ class LeadScoringModelV2:
             self.feature_columns = joblib.load(f'{self.model_dir}/feature_columns_v2.pkl')
         
         if isinstance(features, dict):
-            features = [features[col] for col in self.feature_columns]
+            # Aplicar encoders a variables categóricas
+            for col, encoder in self.encoders.items():
+                if col in features and isinstance(features[col], str):
+                    try:
+                        features[col] = encoder.transform([features[col]])[0]
+                    except ValueError:
+                        # Si el valor no está en el encoder, usar 0
+                        features[col] = 0
+            
+            # Convertir a lista en el orden correcto
+            features = [features.get(col, 0) for col in self.feature_columns]
         
         features_scaled = self.scaler.transform([features])
         score = self.model.predict_proba(features_scaled)[0][1]
@@ -184,22 +194,73 @@ class LeadScoringModelV2:
 model_v2 = LeadScoringModelV2()
 
 def get_lead_score_v2(source, time_to_first, interactions_7d, response_rate, sentiment_avg, industry, company_size):
-    """Función de conveniencia para obtener score usando modelo mejorado"""
+    """
+    Función de conveniencia para obtener score usando reglas de negocio.
+    Usa el modelo ML solo si está disponible y funciona correctamente.
+    """
     try:
-        features = {
-            'source': source,
+        # Intentar usar el modelo ML
+        if model_v2.model is None:
+            model_v2.model = joblib.load(f'{model_v2.model_dir}/lead_scoring_v2.pkl')
+            model_v2.scaler = joblib.load(f'{model_v2.model_dir}/scaler_v2.pkl')
+            model_v2.encoders = joblib.load(f'{model_v2.model_dir}/encoders_v2.pkl')
+            model_v2.feature_columns = joblib.load(f'{model_v2.model_dir}/feature_columns_v2.pkl')
+        
+        # Mapeo manual de variables categóricas a números
+        source_map = {'manual': 0, 'meta_ads': 1, 'organic': 2, 'referral': 3, 'other': 4}
+        industry_map = {'tech': 0, 'healthcare': 1, 'finance': 2, 'retail': 3, 'education': 4, 'other': 5}
+        
+        encoded_source = source_map.get(source, 0)
+        encoded_industry = industry_map.get(industry, 0)
+        
+        # Construir features
+        features_dict = {
+            'source': encoded_source,
             'time_to_first_interaction': time_to_first,
             'interactions_7d': interactions_7d,
             'response_rate': response_rate,
             'sentiment_avg': sentiment_avg,
-            'industry': industry,
+            'industry': encoded_industry,
             'company_size': company_size,
-            'source_conversion_rate': 0.2,  # Valor por defecto
+            'source_conversion_rate': 0.2,
             'interaction_intensity': interactions_7d / (time_to_first + 0.1),
             'sentiment_time': sentiment_avg * (1 / (time_to_first + 0.1)),
             'company_size_norm': company_size / 10
         }
-        return model_v2.predict(features)
+        
+        features = [features_dict.get(col, 0) for col in model_v2.feature_columns]
+        features_scaled = model_v2.scaler.transform([features])
+        score = model_v2.model.predict_proba(features_scaled)[0][1]
+        
+        return round(score * 100, 2)
     except Exception as e:
-        print(f"❌ Error al calcular score: {e}")
-        return 50.0
+        # Fallback: reglas de negocio
+        return _rule_based_score(time_to_first, interactions_7d, response_rate, sentiment_avg, source)
+
+
+def _rule_based_score(time_to_first, interactions_7d, response_rate, sentiment_avg, source):
+    """Calcula score basado en reglas de negocio"""
+    score = 50
+    
+    if time_to_first < 1: score += 15
+    elif time_to_first < 3: score += 10
+    elif time_to_first < 7: score += 5
+    elif time_to_first > 15: score -= 10
+    
+    if interactions_7d >= 5: score += 15
+    elif interactions_7d >= 3: score += 10
+    elif interactions_7d >= 1: score += 5
+    else: score -= 5
+    
+    score += int(response_rate * 15)
+    
+    if sentiment_avg >= 4: score += 15
+    elif sentiment_avg >= 3.5: score += 8
+    elif sentiment_avg >= 3: score += 3
+    elif sentiment_avg < 2.5: score -= 10
+    
+    if source == 'referral': score += 10
+    elif source == 'organic': score += 5
+    elif source == 'meta_ads': score += 3
+    
+    return max(0, min(100, score))

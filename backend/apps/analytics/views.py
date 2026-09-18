@@ -3,16 +3,11 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from drf_spectacular.utils import extend_schema
-
-from .ml.lead_scoring import get_lead_score
-from apps.contacts.models import Contact
-from apps.interactions.models import Interaction
-from django.db.models import Count, Avg, Q
+from django.db.models import Avg, Count, Q
 from django.utils import timezone
 from datetime import timedelta
-from .models import SentimentAnalysis
-from apps.integrations.clients import OpenAIClient
 from django.apps import apps
+
 
 class LeadScoreView(APIView):
     permission_classes = [IsAuthenticated]
@@ -23,6 +18,10 @@ class LeadScoreView(APIView):
         tags=["Analytics"],
     )
     def get(self, request, contact_id):
+        Contact = apps.get_model('contacts', 'Contact')
+        Interaction = apps.get_model('interactions', 'Interaction')
+        SentimentAnalysis = apps.get_model('analytics', 'SentimentAnalysis')
+        
         try:
             contact = Contact.objects.get(pk=contact_id)
         except Contact.DoesNotExist:
@@ -31,47 +30,52 @@ class LeadScoreView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
         
-        # Extraer datos para el modelo
-        source = contact.source
+        # Obtener todas las interacciones del contacto
+        all_interactions = Interaction.objects.filter(contact=contact).order_by('occurred_at')
+        total_interactions = all_interactions.count()
         
-        # Calcular tiempo hasta primera interacción
-        first_interaction = Interaction.objects.filter(contact=contact).order_by('occurred_at').first()
+        # 1. Tiempo hasta primera interacción
+        first_interaction = all_interactions.first()
         if first_interaction:
             time_to_first = (first_interaction.occurred_at - contact.created_at).total_seconds() / 86400
-            time_to_first = min(time_to_first, 30)
+            time_to_first = max(0, min(time_to_first, 30))
         else:
-            time_to_first = 30  # Sin interacciones, se asume 30 días
+            time_to_first = 30
         
-        # Interacciones en últimos 7 días
+        # 2. Interacciones en últimos 7 días
         week_ago = timezone.now() - timedelta(days=7)
-        interactions_7d = Interaction.objects.filter(
-            contact=contact, 
-            occurred_at__gte=week_ago
-        ).count()
+        interactions_7d = all_interactions.filter(occurred_at__gte=week_ago).count()
         
-        # Tasa de respuesta (simulada para demo)
-        total_interactions = Interaction.objects.filter(contact=contact).count()
-        if total_interactions > 0:
-            response_rate = min(1.0, interactions_7d / max(1, total_interactions))
+        # 3. Tasa de respuesta
+        outbound = all_interactions.filter(direction='outbound').count()
+        inbound = all_interactions.filter(direction='inbound').count()
+        if outbound > 0:
+            response_rate = min(1.0, inbound / outbound)
         else:
-            response_rate = 0.1
+            response_rate = 0.5 if inbound > 0 else 0.1
         
-        # Sentimiento promedio (simulado)
-        sentiment_avg = 3.5
+        # 4. Sentimiento promedio REAL
+        sentiment_qs = SentimentAnalysis.objects.filter(interaction__contact=contact)
+        if sentiment_qs.exists():
+            sentiment_values = []
+            for s in sentiment_qs:
+                if s.label == 'positive':
+                    sentiment_values.append(5.0)
+                elif s.label == 'negative':
+                    sentiment_values.append(1.0)
+                else:
+                    sentiment_values.append(3.0)
+            sentiment_avg = sum(sentiment_values) / len(sentiment_values)
+        else:
+            sentiment_avg = 3.0
         
-        # Industria y tamaño (valores por defecto)
+        # 5. Industria y tamaño
         industry = 'tech'
         company_size = 5
         
-        # Calcular score
-        score = get_lead_score(
-            source=source,
-            time_to_first=time_to_first,
-            interactions_7d=interactions_7d,
-            response_rate=response_rate,
-            sentiment_avg=sentiment_avg,
-            industry=industry,
-            company_size=company_size
+        # Calcular score con reglas de negocio
+        score = self._calculate_rule_based_score(
+            contact, time_to_first, interactions_7d, response_rate, sentiment_avg
         )
         
         return Response({
@@ -82,11 +86,71 @@ class LeadScoreView(APIView):
             "metrics": {
                 "time_to_first_interaction_days": round(time_to_first, 1),
                 "interactions_7d": interactions_7d,
-                "response_rate": round(response_rate, 2),
                 "total_interactions": total_interactions,
-                "source": source
+                "response_rate": round(response_rate, 2),
+                "sentiment_avg": round(sentiment_avg, 2),
+                "source": contact.source,
+                "status": contact.status,
+                "industry": industry,
+                "company_size": company_size,
             }
         })
+    
+    def _calculate_rule_based_score(self, contact, time_to_first, interactions_7d, response_rate, sentiment_avg):
+        """Calcula score basado en reglas de negocio"""
+        score = 50  # Base
+        
+        # Tiempo de respuesta (menos es mejor)
+        if time_to_first < 1:
+            score += 15
+        elif time_to_first < 3:
+            score += 10
+        elif time_to_first < 7:
+            score += 5
+        elif time_to_first > 15:
+            score -= 10
+        
+        # Interacciones recientes
+        if interactions_7d >= 5:
+            score += 15
+        elif interactions_7d >= 3:
+            score += 10
+        elif interactions_7d >= 1:
+            score += 5
+        else:
+            score -= 5
+        
+        # Tasa de respuesta
+        score += int(response_rate * 15)
+        
+        # Sentimiento
+        if sentiment_avg >= 4:
+            score += 15
+        elif sentiment_avg >= 3.5:
+            score += 8
+        elif sentiment_avg >= 3:
+            score += 3
+        elif sentiment_avg < 2.5:
+            score -= 10
+        
+        # Fuente
+        if contact.source == 'referral':
+            score += 10
+        elif contact.source == 'organic':
+            score += 5
+        elif contact.source == 'meta_ads':
+            score += 3
+        
+        # Estado
+        if contact.status == 'customer':
+            score += 20
+        elif contact.status == 'prospect':
+            score += 10
+        elif contact.status == 'churned':
+            score -= 20
+        
+        # Limitar entre 0 y 100
+        return max(0, min(100, score))
     
     def _get_label(self, score):
         if score >= 80:
@@ -98,6 +162,7 @@ class LeadScoreView(APIView):
         else:
             return "📉 Baja prioridad - Nutrir"
 
+
 class SentimentAnalysisView(APIView):
     permission_classes = [IsAuthenticated]
     
@@ -108,6 +173,7 @@ class SentimentAnalysisView(APIView):
     )
     def post(self, request, interaction_id):
         Interaction = apps.get_model('interactions', 'Interaction')
+        SentimentAnalysis = apps.get_model('analytics', 'SentimentAnalysis')
         
         try:
             interaction = Interaction.objects.get(pk=interaction_id)
@@ -148,7 +214,6 @@ class SentimentAnalysisView(APIView):
             )
         
         # Guardar análisis
-        SentimentAnalysis = apps.get_model('analytics', 'SentimentAnalysis')
         analysis = SentimentAnalysis.objects.create(
             interaction=interaction,
             label=result['label'],
