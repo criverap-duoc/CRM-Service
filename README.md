@@ -75,6 +75,15 @@ Frontend:
 | POST | /api/v3/sentiment/{interaction_id}/ | Analizar sentimiento de interacción |
 | GET | /api/v3/sentiment/stats/?contact_id={id} | Estadísticas de sentimiento |
 
+### V3.4 - Analytics Avanzados
+| Método | Endpoint | Descripción |
+|--------|----------|-------------|
+| GET | /api/v3/churn/{contact_id}/ | Predicción de churn |
+| GET | /api/v3/segment/{contact_id}/ | Segmentación de lead |
+| GET | /api/v3/export/contacts/ | Exportar contactos a CSV |
+| GET | /api/v3/export/interactions/ | Exportar interacciones a CSV |
+| GET | /api/v3/agents/dashboard/ | Dashboard de agentes |
+
 ---
 
 ## Quick Start
