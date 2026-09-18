@@ -104,6 +104,8 @@ class ContactViewSet(viewsets.ModelViewSet):
     def change_assigned(self, request, pk=None):
         contact = self.get_object()
         from django.contrib.auth.models import User
+        from django.core.mail import send_mail
+        from django.conf import settings
 
         user_id = request.data.get("assigned_to_id")
         try:
@@ -114,7 +116,40 @@ class ContactViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_404_NOT_FOUND,
             )
 
+        # Guardar el agente anterior
+        previous_agent = contact.assigned_to
+        
         contact.assigned_to = agent
         contact.save(update_fields=["assigned_to", "updated_at"])
+        
+        # Enviar email de notificación al nuevo agente
+        if agent.email:
+            try:
+                send_mail(
+                    subject=f"Nuevo lead asignado: {contact.full_name}",
+                    message=f"""
+                    Hola {agent.username},
+
+                    Se te ha asignado un nuevo lead:
+
+                    Nombre: {contact.full_name}
+                    Email: {contact.email}
+                    Empresa: {contact.company or 'No especificada'}
+                    Fuente: {contact.source}
+                    Estado: {contact.status}
+
+                    Por favor, contacta a este lead lo antes posible.
+
+                    ---
+                    CRM Service
+                                        """,
+                    from_email=settings.DEFAULT_FROM_EMAIL if hasattr(settings, 'DEFAULT_FROM_EMAIL') else 'noreply@crm.com',
+                    recipient_list=[agent.email],
+                    fail_silently=True,
+                )
+                print(f"✅ Email enviado a {agent.email}")
+            except Exception as e:
+                print(f"❌ Error al enviar email: {e}")
+        
         serializer = ContactSerializer(contact, context={"request": request})
         return Response(serializer.data)

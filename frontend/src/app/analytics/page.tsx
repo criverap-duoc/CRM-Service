@@ -10,11 +10,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, 
-  ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line 
+  ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts';
 import { 
-  Sparkles, LogOut, ArrowLeft, TrendingUp, 
-  Users, Target, Heart, Brain
+  LogOut, TrendingUp, 
+  Users, Target, Heart, Brain,
+  ChartColumn
 } from 'lucide-react';
 
 interface Contact {
@@ -113,6 +114,9 @@ export default function AnalyticsPage() {
   }
 
   if (!isAuthenticated) return null;
+  
+  // Paleta de matices para las barras (azules/índigos)
+  const BAR_COLORS = ['#6366f1', '#818cf8', '#a5b4fc', '#c7d2fe', '#e0e7ff'];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/40">
@@ -121,7 +125,7 @@ export default function AnalyticsPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 shadow-md">
-              <Sparkles className="h-5 w-5 text-white" />
+              <ChartColumn className="h-5 w-5 text-white" />
             </div>
             <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent tracking-tight">
               CRM Service
@@ -136,7 +140,7 @@ export default function AnalyticsPage() {
             </Button>
             <Button variant="ghost" size="sm" onClick={logout} className="text-rose-500 hover:text-rose-600 hover:bg-rose-50/50 rounded-xl transition-all duration-200">
               <LogOut className="h-4 w-4 mr-1.5" />
-              Salir
+              Cerrar sesión
             </Button>
           </div>
         </div>
@@ -263,8 +267,19 @@ export default function AnalyticsPage() {
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                     <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                     <YAxis tick={{ fontSize: 12 }} />
-                    <Tooltip />
-                    <Bar dataKey="value" fill="#6366f1" radius={[6, 6, 0, 0]} />
+                    <Tooltip 
+                      contentStyle={{
+                        backgroundColor: 'white',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '12px',
+                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                      }}
+                    />
+                    <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                      {sourceData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={BAR_COLORS[index % BAR_COLORS.length]} />
+                      ))}
+                    </Bar>
                   </BarChart>
                 </ResponsiveContainer>
               ) : (

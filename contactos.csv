@@ -1,0 +1,56 @@
+ID,Nombre,Email,Teléfono,Empresa,Estado,Fuente,Asignado a,Interacciones,Sentimiento Promedio,Creado,Actualizado
+55,Tomás Morales,tomás.morales49@ejemplo.com,+56949516711,Consultora Andina,lead,organic,admin,2,3.0,2026-09-18,2026-09-18
+54,Bruno Torres,bruno.torres48@ejemplo.com,+56971462530,Innovación Digital Ltda,customer,organic,admin,1,5.0,2026-09-18,2026-09-18
+53,Benjamín López,benjamín.lópez47@ejemplo.com,+56962586325,Automatización Total,prospect,organic,admin,1,3.0,2026-09-18,2026-09-18
+52,Agustín Rojas,agustín.rojas46@ejemplo.com,+56952441659,Sistemas Integrales,customer,other,admin,3,3.67,2026-09-18,2026-09-18
+51,Fernanda González,fernanda.gonzález45@ejemplo.com,+56937964017,ERP Consultores,customer,meta_ads,admin,4,3.0,2026-09-18,2026-09-18
+50,Trinidad Bravo,trinidad.bravo44@ejemplo.com,+56948537003,Software Factory,lead,organic,admin,8,4.0,2026-09-18,2026-09-18
+49,Ignacio Valenzuela,ignacio.valenzuela43@ejemplo.com,+56929972292,Soluciones TI,churned,meta_ads,admin,7,3.29,2026-09-18,2026-09-18
+48,Josefa García,josefa.garcía42@ejemplo.com,+56921745202,Blockchain Chile,prospect,manual,admin,7,3.57,2026-09-18,2026-09-18
+47,Agustín Martínez,agustín.martínez41@ejemplo.com,+56914788453,Soluciones TI,churned,referral,admin,6,3.67,2026-09-18,2026-09-18
+46,Amanda Rodríguez,amanda.rodríguez40@ejemplo.com,+56924543197,Cloud Services,lead,meta_ads,admin,4,3.5,2026-09-18,2026-09-18
+45,Agustín Reyes,agustín.reyes39@ejemplo.com,+56939429952,Sistemas Integrales,customer,manual,admin,8,3.75,2026-09-18,2026-09-18
+44,Ignacio Cáceres,ignacio.cáceres38@ejemplo.com,+56958009620,Sistemas Integrales,churned,organic,admin,4,4.5,2026-09-18,2026-09-18
+43,Fernanda Cortés,fernanda.cortés37@ejemplo.com,+56968495260,Inteligencia de Negocios,lead,meta_ads,admin,3,2.33,2026-09-18,2026-09-18
+42,Javiera Fernández,javiera.fernández36@ejemplo.com,+56939573392,Transformación Digital,churned,organic,admin,3,4.33,2026-09-18,2026-09-18
+41,Martina Reyes,martina.reyes35@ejemplo.com,+56964610190,Software Factory,prospect,organic,admin,5,2.6,2026-09-18,2026-09-18
+40,Benjamín Cortés,benjamín.cortés34@ejemplo.com,+56954560729,Redes y Comunicaciones,prospect,meta_ads,admin,7,3.57,2026-09-18,2026-09-18
+39,Constanza Contreras,constanza.contreras33@ejemplo.com,+56915280610,Grupo Vertice,lead,other,admin,2,5.0,2026-09-18,2026-09-18
+38,Amanda Herrera,amanda.herrera32@ejemplo.com,+56972368927,Análisis y Datos,lead,organic,admin,5,4.6,2026-09-18,2026-09-18
+37,Bruno Pizarro,bruno.pizarro31@ejemplo.com,+56996212411,Marketing Pro,churned,other,admin,1,1.0,2026-09-18,2026-09-18
+36,Lucas Álvarez,lucas.álvarez30@ejemplo.com,+56995401676,Redes y Comunicaciones,lead,manual,admin,8,3.25,2026-09-18,2026-09-18
+35,Martina Vargas,martina.vargas29@ejemplo.com,+56925740801,Marketing Pro,prospect,manual,admin,1,1.0,2026-09-18,2026-09-18
+34,Cristóbal Martínez,cristóbal.martínez28@ejemplo.com,+56952567987,StartupLab,lead,organic,admin,5,1.8,2026-09-18,2026-09-18
+33,Ignacio Rojas,ignacio.rojas27@ejemplo.com,+56992060354,Automatización Total,churned,other,admin,3,5.0,2026-09-18,2026-09-18
+32,María Cortés,maría.cortés26@ejemplo.com,+56919152230,Análisis y Datos,lead,organic,admin,2,4.0,2026-09-18,2026-09-18
+31,Nicolás Reyes,nicolás.reyes25@ejemplo.com,+56997649662,StartupLab,lead,organic,admin,3,3.67,2026-09-18,2026-09-18
+30,Paz Salazar,paz.salazar24@ejemplo.com,+56917652773,Cloud Services,customer,organic,admin,2,3.0,2026-09-18,2026-09-18
+29,Lucas Soto,lucas.soto23@ejemplo.com,+56979125856,Visión Artificial,lead,meta_ads,admin,6,4.0,2026-09-18,2026-09-18
+28,Sofía Cáceres,sofía.cáceres22@ejemplo.com,+56929651695,StartupLab,customer,other,admin,4,2.0,2026-09-18,2026-09-18
+27,Catalina Núñez,catalina.núñez21@ejemplo.com,+56953800876,Blockchain Chile,lead,meta_ads,admin,1,3.0,2026-09-18,2026-09-18
+26,Valentina Silva,valentina.silva20@ejemplo.com,+56952730428,Blockchain Chile,lead,referral,admin,8,4.0,2026-09-18,2026-09-18
+25,Agustín Bravo,agustín.bravo19@ejemplo.com,+56973665189,Cloud Services,lead,organic,admin,4,2.5,2026-09-18,2026-09-18
+24,Carlos García,carlos.garcía18@ejemplo.com,+56978059775,Blockchain Chile,prospect,referral,admin,4,2.5,2026-09-18,2026-09-18
+23,Vicente Reyes,vicente.reyes17@ejemplo.com,+56977572557,Software Factory,customer,other,admin,2,5.0,2026-09-18,2026-09-18
+22,Vicente Soto,vicente.soto16@ejemplo.com,+56984689274,CRM Expertos,customer,referral,admin,5,2.6,2026-09-18,2026-09-18
+21,Tomás Carrasco,tomás.carrasco15@ejemplo.com,+56965646284,Visión Artificial,lead,meta_ads,admin,3,3.0,2026-09-18,2026-09-18
+20,Sebastián Herrera,sebastián.herrera14@ejemplo.com,+56924968189,Cloud Services,churned,manual,admin,7,2.43,2026-09-18,2026-09-18
+19,Trinidad Martínez,trinidad.martínez13@ejemplo.com,+56954955662,Grupo Vertice,prospect,manual,admin,2,3.0,2026-09-18,2026-09-18
+18,Josefa Araya,josefa.araya12@ejemplo.com,+56993107802,CRM Expertos,churned,manual,admin,3,3.0,2026-09-18,2026-09-18
+17,Ana Muñoz,ana.muñoz11@ejemplo.com,+56912096909,Software Factory,lead,organic,admin,4,4.0,2026-09-18,2026-09-18
+16,María Miranda,maría.miranda10@ejemplo.com,+56914021743,Análisis y Datos,lead,meta_ads,admin,3,2.33,2026-09-18,2026-09-18
+15,Camila Salazar,camila.salazar9@ejemplo.com,+56920139854,Inteligencia de Negocios,prospect,manual,admin,4,3.0,2026-09-18,2026-09-18
+14,Valentina Flores,valentina.flores8@ejemplo.com,+56915180069,Innovación Digital Ltda,prospect,other,admin,7,3.0,2026-09-18,2026-09-18
+13,Nicolás Guzmán,nicolás.guzmán7@ejemplo.com,+56988036491,Inteligencia de Negocios,prospect,other,admin,2,2.0,2026-09-18,2026-09-18
+12,Catalina Fernández,catalina.fernández6@ejemplo.com,+56927923443,Consultora Andina,lead,manual,admin,5,2.6,2026-09-18,2026-09-18
+11,Agustín Rojas,agustín.rojas5@ejemplo.com,+56925128234,Innovación Digital Ltda,lead,manual,admin,6,4.33,2026-09-18,2026-09-18
+10,Sebastián Muñoz,sebastián.muñoz4@ejemplo.com,+56954079891,Grupo Vertice,prospect,other,admin,8,4.0,2026-09-18,2026-09-18
+9,Facundo Carrasco,facundo.carrasco3@ejemplo.com,+56978525773,Visión Artificial,churned,manual,admin,8,3.0,2026-09-18,2026-09-18
+8,Sofía Rodríguez,sofía.rodríguez2@ejemplo.com,+56966308089,CRM Expertos,lead,referral,admin,3,4.33,2026-09-18,2026-09-18
+7,Sofía Pérez,sofía.pérez1@ejemplo.com,+56931656767,Análisis y Datos,lead,meta_ads,admin,4,4.0,2026-09-18,2026-09-18
+6,Gabriel Tapia,gabriel.tapia0@ejemplo.com,+56930854501,Soluciones TI,churned,manual,admin,4,3.5,2026-09-18,2026-09-18
+5,Laura Fernández,laura.fernandez@ejemplo.com,+56956781234,Consulting Group,prospect,manual,admin,5,3.8,2026-08-27,2026-09-17
+4,Pedro Sánchez,pedro.sanchez@ejemplo.com,+56912349876,Digital Marketing,lead,meta_ads,admin,0,-,2026-08-27,2026-08-27
+3,Ana Martínez,ana.martinez@ejemplo.com,+56998765432,Global Services,customer,referral,admin,0,-,2026-08-27,2026-08-31
+2,Carlos Rodríguez,carlos.rodriguez@ejemplo.com,+56987654321,Innovation Corp,prospect,organic,admin,0,-,2026-08-27,2026-08-27
+1,María González,maria.gonzalez@ejemplo.com,+56912345678,Tech Solutions,lead,meta_ads,admin,0,-,2026-08-27,2026-08-27

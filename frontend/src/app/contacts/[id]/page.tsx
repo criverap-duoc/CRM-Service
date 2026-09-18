@@ -9,7 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ArrowLeft, Save, Sparkles, Mail, Phone, Building, User, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Save, Sparkles, Mail, Phone, Building, User, TrendingUp, CircleUserRound } from 'lucide-react';
 import { analytics } from '@/lib/analytics-client';
 
 interface Contact {
@@ -170,14 +170,23 @@ export default function ContactDetailPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/40">
-      <nav className="bg-white/80 backdrop-blur-md border-b border-gray-100/50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-          <h1 className="text-xl font-bold cursor-pointer" onClick={() => router.push('/dashboard')}>
-            CRM Service
-          </h1>
-          <div className="flex items-center gap-4">
-            <Button variant="outline" onClick={() => router.push('/contacts')}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
+      <nav className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-gray-200/30 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 shadow-md">
+              <CircleUserRound className="h-5 w-5 text-white" />
+            </div>
+            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent tracking-tight">
+              CRM Service
+            </h1>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button 
+              variant="outline" 
+              onClick={() => router.push('/contacts')} 
+              className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl"
+            >
+              <ArrowLeft className="h-4 w-4 mr-1.5" />
               Volver
             </Button>
           </div>

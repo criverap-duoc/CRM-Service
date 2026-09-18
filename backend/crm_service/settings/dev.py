@@ -9,5 +9,6 @@ DATABASES = {
     }
 }
 
-# Mostrar emails en consola en vez de enviarlos
-EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+# Email backend para desarrollo (imprime en consola)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@crm-service.com'
