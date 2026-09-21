@@ -1,6 +1,6 @@
-## crm_service\apps\contacts\serializers.py
 from rest_framework import serializers
 from django.contrib.auth.models import User
+from apps.companies.models import Company
 from .models import Contact
 
 
@@ -8,6 +8,13 @@ class AssignedUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id", "username", "email"]
+        read_only_fields = fields
+
+
+class CompanyBriefSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = ["id", "name", "industry", "size"]
         read_only_fields = fields
 
 
@@ -20,27 +27,24 @@ class ContactSerializer(serializers.ModelSerializer):
         required=False,
         allow_null=True,
     )
+    company = serializers.CharField(source="company.name", read_only=True, default="")
+    company_id = serializers.PrimaryKeyRelatedField(
+        queryset=Company.objects.all(),
+        source="company",
+        write_only=True,
+        required=False,
+        allow_null=True,
+    )
     full_name = serializers.CharField(read_only=True)
     interaction_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Contact
         fields = [
-            "id",
-            "first_name",
-            "last_name",
-            "full_name",
-            "email",
-            "phone",
-            "company",
-            "status",
-            "source",
-            "assigned_to",
-            "assigned_to_id",
-            "notes",
-            "interaction_count",
-            "created_at",
-            "updated_at",
+            "id", "first_name", "last_name", "full_name", "email", "phone",
+            "company", "company_id", "status", "source",
+            "assigned_to", "assigned_to_id", "notes", "interaction_count",
+            "created_at", "updated_at",
         ]
         read_only_fields = ["id", "created_at", "updated_at", "full_name", "interaction_count"]
 
@@ -56,6 +60,7 @@ class ContactSerializer(serializers.ModelSerializer):
 
 class ContactListSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(read_only=True)
+    company = serializers.CharField(source="company.name", read_only=True, default="")
 
     class Meta:
         model = Contact

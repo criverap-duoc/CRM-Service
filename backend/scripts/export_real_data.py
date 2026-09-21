@@ -1,4 +1,5 @@
-﻿"""
+﻿## backend\scripts\export_real_data.py
+"""
 Exporta datos reales de la base de datos para entrenar el modelo ML.
 """
 import os

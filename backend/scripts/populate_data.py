@@ -1,3 +1,4 @@
+## backend\scripts\populate_data.py
 """
 Script para poblar la base de datos con datos de prueba diversos.
 Genera contactos, interacciones y análisis de sentimiento.
@@ -18,6 +19,7 @@ from django.utils import timezone
 from apps.contacts.models import Contact
 from apps.interactions.models import Interaction
 from apps.analytics.models import SentimentAnalysis
+from apps.companies.models import Company
 
 # Datos para generar
 NOMBRES = [
@@ -38,13 +40,31 @@ APELLIDOS = [
     'Miranda', 'Soto', 'Paredes', 'Carrasco', 'Núñez', 'Álvarez'
 ]
 
-EMPRESAS = [
-    'Tech Solutions SpA', 'Innovación Digital Ltda', 'Consultora Andina',
-    'DataCorp Chile', 'Marketing Pro', 'Soluciones TI', 'Grupo Vertice',
-    'StartupLab', 'Cloud Services', 'Análisis y Datos', 'ERP Consultores',
-    'Sistemas Integrales', 'Redes y Comunicaciones', 'Software Factory',
-    'Transformación Digital', 'Inteligencia de Negocios', 'CRM Expertos',
-    'Automatización Total', 'Visión Artificial', 'Blockchain Chile'
+# Empresas con metadata realista para features de ML
+EMPRESAS_DATA = [
+    ("Tech Solutions SpA", "technology", "medium"),
+    ("Innovación Digital Ltda", "technology", "small"),
+    ("Consultora Andina", "services", "medium"),
+    ("DataCorp Chile", "technology", "large"),
+    ("Marketing Pro", "services", "small"),
+    ("Soluciones TI", "technology", "medium"),
+    ("Grupo Vertice", "finance", "large"),
+    ("StartupLab", "technology", "startup"),
+    ("Cloud Services", "technology", "medium"),
+    ("Análisis y Datos", "technology", "small"),
+    ("ERP Consultores", "services", "medium"),
+    ("Sistemas Integrales", "technology", "medium"),
+    ("Redes y Comunicaciones", "technology", "large"),
+    ("Software Factory", "technology", "medium"),
+    ("Transformación Digital", "services", "small"),
+    ("Inteligencia de Negocios", "technology", "small"),
+    ("CRM Expertos", "technology", "startup"),
+    ("Automatización Total", "manufacturing", "large"),
+    ("Visión Artificial", "technology", "startup"),
+    ("Blockchain Chile", "finance", "startup"),
+    ("Retail Express", "retail", "medium"),
+    ("Clínica Vida", "health", "large"),
+    ("Colegio Futuro", "education", "medium"),
 ]
 
 INDUSTRIAS = ['tech', 'healthcare', 'finance', 'retail', 'education', 'other']
@@ -92,44 +112,59 @@ DIRECTIONS = ['inbound', 'outbound']
 STATUSES = ['lead', 'prospect', 'customer', 'churned']
 SOURCES = ['manual', 'meta_ads', 'organic', 'referral', 'other']
 
+def ensure_companies(users):
+    """Crea las empresas si no existen. Devuelve la lista de Company."""
+    companies = []
+    for name, industry, size in EMPRESAS_DATA:
+        company, _ = Company.objects.get_or_create(
+            name=name,
+            defaults={
+                "industry": industry,
+                "size": size,
+                "country": "Chile",
+                "annual_revenue": random.randint(50_000_000, 5_000_000_000),
+                "created_by": random.choice(users) if users else None,
+            },
+        )
+        companies.append(company)
+    return companies
 
 def generate_contacts(n=50):
-    """Genera n contactos aleatorios"""
-    # Obtener usuarios para asignar
+    """Genera n contactos aleatorios, con empresa asignada."""
     users = list(User.objects.all())
     if not users:
         print("❌ No hay usuarios. Crea un superusuario primero.")
         return []
-    
+
+    companies = ensure_companies(users)
     contacts_created = []
     used_emails = set()
-    
+
     for i in range(n):
         first_name = random.choice(NOMBRES)
         last_name = random.choice(APELLIDOS)
         email = f"{first_name.lower()}.{last_name.lower()}{i}@ejemplo.com"
-        
-        # Evitar duplicados
+
         while email in used_emails:
             email = f"{first_name.lower()}.{last_name.lower()}{random.randint(1000,9999)}@ejemplo.com"
         used_emails.add(email)
-        
+
         contact = Contact.objects.create(
             first_name=first_name,
             last_name=last_name,
             email=email,
             phone=f"+569{random.randint(10000000, 99999999)}",
-            company=random.choice(EMPRESAS),
+            company=random.choice(companies),
             status=random.choice(STATUSES),
             source=random.choice(SOURCES),
             assigned_to=random.choice(users),
-            notes=f"Contacto generado automáticamente. Industria: {random.choice(INDUSTRIAS)}. Cargo: {random.choice(CARGOS)}",
+            notes=f"Contacto generado automáticamente. Cargo: {random.choice(CARGOS)}",
         )
         contacts_created.append(contact)
-    
-    print(f"✅ {len(contacts_created)} contactos creados")
-    return contacts_created
 
+    print(f"✅ {len(contacts_created)} contactos creados")
+    print(f"✅ {len(companies)} empresas aseguradas")
+    return contacts_created
 
 def generate_interactions(contacts, interactions_per_contact=(1, 8)):
     """Genera interacciones para cada contacto"""

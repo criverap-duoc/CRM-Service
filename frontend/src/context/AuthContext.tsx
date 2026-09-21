@@ -1,4 +1,5 @@
-﻿'use client';
+﻿// frontend\src\context\AuthContext.tsx
+'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { auth } from '@/lib/api-client';

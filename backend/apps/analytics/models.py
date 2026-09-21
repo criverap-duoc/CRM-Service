@@ -1,3 +1,4 @@
+## backend\apps\analytics\models.py
 from django.db import models
 
 class SentimentAnalysis(models.Model):

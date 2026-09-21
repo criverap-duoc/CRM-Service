@@ -21,7 +21,7 @@ from .permissions import IsManager, IsAgentOrManager
 )
 class ContactViewSet(viewsets.ModelViewSet):
     filterset_class = ContactFilter
-    search_fields = ["first_name", "last_name", "email", "company"]
+    search_fields = ["first_name", "last_name", "email", "company__name"]
     ordering_fields = ["created_at", "updated_at", "last_name", "status"]
     ordering = ["-created_at"]
 
@@ -134,7 +134,7 @@ class ContactViewSet(viewsets.ModelViewSet):
 
                     Nombre: {contact.full_name}
                     Email: {contact.email}
-                    Empresa: {contact.company or 'No especificada'}
+                    Empresa: {contact.company.name if contact.company else 'No especificada'}
                     Fuente: {contact.source}
                     Estado: {contact.status}
 

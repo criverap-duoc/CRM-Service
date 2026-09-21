@@ -21,7 +21,12 @@ class Contact(models.Model):
     last_name = models.CharField(max_length=100)
     email = models.EmailField(unique=True)
     phone = models.CharField(max_length=20, blank=True)
-    company = models.CharField(max_length=150, blank=True)
+    company = models.ForeignKey(
+        "companies.Company",
+        on_delete=models.SET_NULL,
+        null=True, blank=True,
+        related_name="contacts",
+    )
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.LEAD)
     source = models.CharField(max_length=20, choices=Source.choices, default=Source.MANUAL)
     assigned_to = models.ForeignKey(
@@ -34,6 +39,7 @@ class Contact(models.Model):
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
 
     class Meta:
         ordering = ["-created_at"]

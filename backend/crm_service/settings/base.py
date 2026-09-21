@@ -1,3 +1,4 @@
+## backend\crm_service\settings\base.py
 from pathlib import Path
 from decouple import config
 from datetime import timedelta
@@ -29,6 +30,7 @@ LOCAL_APPS = [
     "apps.interactions",
     "apps.integrations",
     "apps.analytics",
+    "apps.companies",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
