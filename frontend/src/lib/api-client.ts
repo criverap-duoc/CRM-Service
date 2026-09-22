@@ -79,3 +79,12 @@ export const integrations = {
   summarize: (interactionId: number) => 
     apiClient.post('/integrations/ai/summarize/', { interaction_id: interactionId }),
 };
+
+export const companies = {
+  list: (params?: any) => apiClient.get('/companies/', { params }),
+  get: (id: number) => apiClient.get(`/companies/${id}/`),
+  create: (data: any) => apiClient.post('/companies/', data),
+  update: (id: number, data: any) => apiClient.patch(`/companies/${id}/`, data),
+  delete: (id: number) => apiClient.delete(`/companies/${id}/`),
+  health: (id: number) => apiClient.get(`/companies/${id}/health/`),
+};

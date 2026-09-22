@@ -9,7 +9,8 @@ class ContactFilter(django_filters.FilterSet):
     assigned_to = django_filters.NumberFilter(field_name="assigned_to__id")
     created_after = django_filters.DateTimeFilter(field_name="created_at", lookup_expr="gte")
     created_before = django_filters.DateTimeFilter(field_name="created_at", lookup_expr="lte")
+    company = django_filters.NumberFilter(field_name="company__id")
 
     class Meta:
         model = Contact
-        fields = ["status", "source", "assigned_to", "created_after", "created_before"]
+        fields = ["status", "source", "assigned_to", "created_after", "created_before", "company"]
