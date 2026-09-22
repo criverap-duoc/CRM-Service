@@ -114,24 +114,13 @@ export default function CompanyDetailPage() {
 
   const fetchContacts = async () => {
     try {
-      // El backend de contacts soporta búsqueda por nombre de empresa
-      // Aquí filtramos en cliente porque no hay filtro por company_id en ContactFilter
       const response = await contacts.list({ company: parseInt(id), page_size: 200 });
-      const all = response.data.results || response.data;
-      const filtered = all.filter((c: any) => c.company && c.company === company?.name);
-      // Nota: mientras `company` no esté cargado, filtered queda vacío. Ver useEffect.
-      setCompanyContacts(filtered);
+      const data = response.data.results || response.data;
+      setCompanyContacts(data);
     } catch (error) {
       console.error('Error fetching contacts:', error);
     }
   };
-
-  // Cuando la empresa se cargue, refiltramos los contactos
-  useEffect(() => {
-    if (company && companyContacts.length === 0) {
-      fetchContacts();
-    }
-  }, [company]);
 
   const getHealthColor = (score: number) => {
     if (score >= 70) return { text: 'text-emerald-600', bg: 'bg-emerald-500', label: 'Saludable' };
