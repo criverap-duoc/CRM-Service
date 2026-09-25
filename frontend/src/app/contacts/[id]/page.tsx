@@ -4,14 +4,21 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { contacts, interactions, integrations } from '@/lib/api-client';
+import { contacts, interactions, integrations, tags as tagsApi } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ArrowLeft, Save, Sparkles, Mail, Phone, Building, User, TrendingUp, CircleUserRound } from 'lucide-react';
+import { ArrowLeft, Save, Sparkles, Mail, Phone, Building, User, TrendingUp, CircleUserRound, X, Plus as PlusIcon } from 'lucide-react';
 import { analytics } from '@/lib/analytics-client';
+
+
+interface Tag {
+  id: number;
+  name: string;
+  color: string;
+}
 
 interface Contact {
   id: number;
@@ -21,6 +28,7 @@ interface Contact {
   email: string;
   phone: string;
   company: string;
+  tags: Tag[];
   status: string;
   source: string;
   notes: string;
@@ -57,6 +65,9 @@ export default function ContactDetailPage() {
   const [summarizing, setSummarizing] = useState(false);
   const [leadScore, setLeadScore] = useState<any>(null);
   const [sentimentMap, setSentimentMap] = useState<Record<number, any>>({});
+  const [allTags, setAllTags] = useState<Tag[]>([]);
+const [tagSelectorOpen, setTagSelectorOpen] = useState(false);
+const [savingTags, setSavingTags] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -69,6 +80,7 @@ export default function ContactDetailPage() {
       fetchContact();
       fetchInteractions();
       fetchLeadScore();
+      fetchAllTags();
     }
   }, [isAuthenticated, id]);
 
@@ -113,6 +125,16 @@ export default function ContactDetailPage() {
       setLeadScore(response.data);
     } catch (error) {
       console.error('Error fetching lead score:', error);
+    }
+  };
+
+  const fetchAllTags = async () => {
+    try {
+      const response = await tagsApi.list({ page_size: 100 });
+      const data = response.data.results || response.data;
+      setAllTags(data);
+    } catch (error) {
+      console.error('Error fetching tags:', error);
     }
   };
 
@@ -168,6 +190,29 @@ export default function ContactDetailPage() {
       </div>
     );
   }
+
+  const toggleTag = async (tag: Tag) => {
+    if (!contact) return;
+
+    const hasTag = contact.tags.some((t) => t.id === tag.id);
+    const newTags = hasTag
+      ? contact.tags.filter((t) => t.id !== tag.id)
+      : [...contact.tags, tag];
+
+    // Actualización optimista
+    setContact({ ...contact, tags: newTags });
+    setSavingTags(true);
+
+    try {
+      await contacts.assignTags(contact.id, newTags.map((t) => t.id));
+    } catch (error) {
+      // Revertir si falla
+      setContact({ ...contact });
+      setError('No se pudieron guardar los tags');
+    } finally {
+      setSavingTags(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/40">
@@ -419,6 +464,80 @@ export default function ContactDetailPage() {
                         </div>
                       );
                     })}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+            <Card className="border border-gray-200/80 shadow-sm">
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-gray-800">Tags</CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setTagSelectorOpen(!tagSelectorOpen)}
+                    className="h-7 px-2 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50/50 rounded-lg"
+                  >
+                    {tagSelectorOpen ? 'Cerrar' : 'Editar'}
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {/* Tags actuales */}
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  {contact.tags && contact.tags.length > 0 ? (
+                    contact.tags.map((tag) => (
+                      <span
+                        key={tag.id}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium text-white group"
+                        style={{ backgroundColor: tag.color }}
+                      >
+                        {tag.name}
+                        {tagSelectorOpen && (
+                          <button
+                            type="button"
+                            onClick={() => toggleTag(tag)}
+                            disabled={savingTags}
+                            className="opacity-60 hover:opacity-100 transition-opacity disabled:opacity-30"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        )}
+                      </span>
+                    ))
+                  ) : (
+                    <p className="text-xs text-gray-400">Sin tags asignados</p>
+                  )}
+                </div>
+
+                {/* Selector de tags disponibles */}
+                {tagSelectorOpen && (
+                  <div className="border-t border-gray-200/50 pt-3">
+                    <p className="text-xs text-gray-500 mb-2 font-medium">Agregar tag:</p>
+                    <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto pr-1">
+                      {allTags
+                        .filter((t) => !contact.tags.some((ct) => ct.id === t.id))
+                        .map((tag) => (
+                          <button
+                            key={tag.id}
+                            type="button"
+                            onClick={() => toggleTag(tag)}
+                            disabled={savingTags}
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border transition-all hover:scale-105 disabled:opacity-50"
+                            style={{
+                              borderColor: tag.color,
+                              color: tag.color,
+                              backgroundColor: 'transparent',
+                            }}
+                          >
+                            <PlusIcon className="h-3 w-3" />
+                            {tag.name}
+                          </button>
+                        ))}
+                      {allTags.filter((t) => !contact.tags.some((ct) => ct.id === t.id)).length === 0 && (
+                        <p className="text-xs text-gray-400 italic">Todos los tags ya están asignados</p>
+                      )}
+                    </div>
                   </div>
                 )}
               </CardContent>

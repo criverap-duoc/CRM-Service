@@ -67,6 +67,8 @@ export const contacts = {
   assign: (id: number, assignedToId: number) => 
     apiClient.patch('/contacts/' + id + '/assign/', { assigned_to_id: assignedToId }),
   mine: (params?: any) => apiClient.get('/contacts/mine/', { params }),
+  assignTags: (id: number, tagIds: number[]) =>
+    apiClient.patch(`/contacts/${id}/`, { tag_ids: tagIds }),
 };
 
 export const interactions = {
@@ -87,4 +89,12 @@ export const companies = {
   update: (id: number, data: any) => apiClient.patch(`/companies/${id}/`, data),
   delete: (id: number) => apiClient.delete(`/companies/${id}/`),
   health: (id: number) => apiClient.get(`/companies/${id}/health/`),
+};
+
+export const tags = {
+  list: (params?: any) => apiClient.get('/tags/', { params }),
+  get: (id: number) => apiClient.get(`/tags/${id}/`),
+  create: (data: any) => apiClient.post('/tags/', data),
+  update: (id: number, data: any) => apiClient.patch(`/tags/${id}/`, data),
+  delete: (id: number) => apiClient.delete(`/tags/${id}/`),
 };

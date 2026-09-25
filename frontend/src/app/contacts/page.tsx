@@ -21,10 +21,17 @@ interface Contact {
   email: string;
   phone: string;
   company: string;
+  tags: Tag[];
   status: string;
   source: string;
   assigned_to: { id: number; username: string } | null;
   created_at: string;
+}
+
+interface Tag {
+  id: number;
+  name: string;
+  color: string;
 }
 
 export default function ContactsPage() {
@@ -160,6 +167,9 @@ export default function ContactsPage() {
             </Button>
             <Button variant="outline" onClick={() => router.push('/companies')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Empresas
+            </Button>
+            <Button variant="outline" onClick={() => router.push('/tags')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+              Tags
             </Button>
             <Button 
               variant="ghost" 
@@ -321,6 +331,7 @@ export default function ContactsPage() {
                       <TableHead className="font-semibold text-gray-600 text-xs uppercase tracking-wider">Estado</TableHead>
                       <TableHead className="font-semibold text-gray-600 text-xs uppercase tracking-wider">Lead Score</TableHead>
                       <TableHead className="font-semibold text-gray-600 text-xs uppercase tracking-wider hidden lg:table-cell">Fuente</TableHead>
+                      <TableHead className="font-semibold text-gray-600 text-xs uppercase tracking-wider hidden lg:table-cell">Tags</TableHead>
                       <TableHead className="font-semibold text-gray-600 text-xs uppercase tracking-wider">Acciones</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -346,6 +357,23 @@ export default function ContactsPage() {
                         </TableCell>
                         <TableCell className="hidden lg:table-cell">
                           <span className="text-xs text-gray-400 font-medium">{contact.source}</span>
+                        </TableCell>
+                        <TableCell className="hidden lg:table-cell">
+                          <div className="flex flex-wrap gap-1">
+                            {contact.tags && contact.tags.length > 0 ? (
+                              contact.tags.map((tag) => (
+                                <span
+                                  key={tag.id}
+                                  className="inline-block px-2 py-0.5 rounded-full text-[10px] font-medium text-white"
+                                  style={{ backgroundColor: tag.color }}
+                                >
+                                  {tag.name}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-xs text-gray-300">—</span>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell>
                           <Button
