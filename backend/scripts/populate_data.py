@@ -20,6 +20,7 @@ from apps.contacts.models import Contact
 from apps.interactions.models import Interaction
 from apps.analytics.models import SentimentAnalysis
 from apps.companies.models import Company
+from apps.tags.models import Tag
 
 # Datos para generar
 NOMBRES = [
@@ -65,6 +66,20 @@ EMPRESAS_DATA = [
     ("Retail Express", "retail", "medium"),
     ("Clínica Vida", "health", "large"),
     ("Colegio Futuro", "education", "medium"),
+]
+
+# Tags por defecto con metadata para UI
+TAGS_DATA = [
+    ("VIP", "#ef4444", "Cliente prioritario"),
+    ("Pyme", "#22c55e", "Pequeña o mediana empresa"),
+    ("Enterprise", "#6366f1", "Corporación grande"),
+    ("Frío", "#94a3b8", "Contacto sin actividad reciente"),
+    ("Caliente", "#f97316", "Alta intención de compra"),
+    ("En riesgo", "#f43f5e", "Riesgo de churn detectado"),
+    ("Referido", "#8b5cf6", "Llegó por recomendación"),
+    ("Meta Ads", "#0ea5e9", "Origen en campaña pagada"),
+    ("Renovación", "#14b8a6", "Contacto en ciclo de renovación"),
+    ("Onboarding", "#eab308", "En proceso de incorporación"),
 ]
 
 INDUSTRIAS = ['tech', 'healthcare', 'finance', 'retail', 'education', 'other']
@@ -129,14 +144,30 @@ def ensure_companies(users):
         companies.append(company)
     return companies
 
+def ensure_tags(users):
+    """Crea los tags si no existen. Devuelve la lista de Tag."""
+    tags = []
+    for name, color, description in TAGS_DATA:
+        tag, _ = Tag.objects.get_or_create(
+            name=name,
+            defaults={
+                "color": color,
+                "description": description,
+                "created_by": random.choice(users) if users else None,
+            },
+        )
+        tags.append(tag)
+    return tags
+
 def generate_contacts(n=50):
-    """Genera n contactos aleatorios, con empresa asignada."""
+    """Genera n contactos aleatorios, con empresa y tags asignados."""
     users = list(User.objects.all())
     if not users:
         print("❌ No hay usuarios. Crea un superusuario primero.")
         return []
 
     companies = ensure_companies(users)
+    tags = ensure_tags(users)
     contacts_created = []
     used_emails = set()
 
@@ -160,10 +191,17 @@ def generate_contacts(n=50):
             assigned_to=random.choice(users),
             notes=f"Contacto generado automáticamente. Cargo: {random.choice(CARGOS)}",
         )
+
+        # Asignar entre 1 y 3 tags aleatorios
+        num_tags = random.randint(1, 3)
+        selected_tags = random.sample(tags, num_tags)
+        contact.tags.set(selected_tags)
+
         contacts_created.append(contact)
 
     print(f"✅ {len(contacts_created)} contactos creados")
     print(f"✅ {len(companies)} empresas aseguradas")
+    print(f"✅ {len(tags)} tags asegurados")
     return contacts_created
 
 def generate_interactions(contacts, interactions_per_contact=(1, 8)):

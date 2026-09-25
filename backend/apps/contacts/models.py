@@ -27,6 +27,11 @@ class Contact(models.Model):
         null=True, blank=True,
         related_name="contacts",
     )
+    tags = models.ManyToManyField(
+        "tags.Tag",
+        blank=True,
+        related_name="contacts",
+    )
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.LEAD)
     source = models.CharField(max_length=20, choices=Source.choices, default=Source.MANUAL)
     assigned_to = models.ForeignKey(
