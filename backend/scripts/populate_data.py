@@ -21,6 +21,7 @@ from apps.interactions.models import Interaction
 from apps.analytics.models import SentimentAnalysis
 from apps.companies.models import Company
 from apps.tags.models import Tag
+from apps.tasks.models import Task
 
 # Datos para generar
 NOMBRES = [
@@ -80,6 +81,36 @@ TAGS_DATA = [
     ("Meta Ads", "#0ea5e9", "Origen en campaña pagada"),
     ("Renovación", "#14b8a6", "Contacto en ciclo de renovación"),
     ("Onboarding", "#eab308", "En proceso de incorporación"),
+]
+
+TAREAS_TITULOS = [
+    "Llamar para seguimiento",
+    "Enviar propuesta comercial",
+    "Agendar demo del producto",
+    "Revisar contrato pendiente",
+    "Confirmar datos de facturación",
+    "Enviar información adicional",
+    "Coordinar reunión técnica",
+    "Verificar satisfacción post-venta",
+    "Actualizar datos de contacto",
+    "Preparar cotización personalizada",
+    "Responder consulta técnica",
+    "Programar capacitación",
+]
+
+TAREAS_DESCRIPCIONES = [
+    "Contactar al cliente para revisar estado del proyecto.",
+    "Preparar documento con términos y condiciones.",
+    "Coordinar con el equipo técnico los detalles de la demo.",
+    "Revisar documentación pendiente del cliente.",
+    "Confirmar dirección y datos tributarios para facturación.",
+    "Enviar brochure con casos de éxito similares.",
+    "Agendar con el equipo de ingeniería la sesión de Q&A.",
+    "Consultar por nivel de satisfacción tras la última entrega.",
+    "Actualizar teléfono y email en el CRM.",
+    "Elaborar cotización con descuento por volumen.",
+    "Revisar logs y dar respuesta técnica detallada.",
+    "Coordinar sesión de onboarding para el equipo del cliente.",
 ]
 
 INDUSTRIAS = ['tech', 'healthcare', 'finance', 'retail', 'education', 'other']
@@ -257,16 +288,68 @@ def generate_interactions(contacts, interactions_per_contact=(1, 8)):
     print(f"✅ {len(interactions_created)} interacciones creadas con análisis de sentimiento")
     return interactions_created
 
+def generate_tasks(contacts, users, tasks_per_contact=(0, 3)):
+    """Genera tareas para cada contacto con diferentes estados y prioridades."""
+    tasks_created = []
+
+    for contact in contacts:
+        num_tasks = random.randint(*tasks_per_contact)
+        for _ in range(num_tasks):
+            # 60% de las tareas asignadas al dueño del contacto, 40% aleatorio
+            if random.random() < 0.6 and contact.assigned_to:
+                assigned = contact.assigned_to
+            else:
+                assigned = random.choice(users) if users else None
+
+            # Estado con distribución realista
+            status = random.choices(
+                ['pending', 'in_progress', 'completed', 'cancelled'],
+                weights=[0.4, 0.2, 0.3, 0.1]
+            )[0]
+
+            priority = random.choices(
+                ['low', 'medium', 'high', 'urgent'],
+                weights=[0.2, 0.4, 0.3, 0.1]
+            )[0]
+
+            # due_date: pasado (vencida), cercano (esta semana), futuro
+            due_scenario = random.choices(
+                ['overdue', 'this_week', 'future', 'none'],
+                weights=[0.25, 0.35, 0.3, 0.1]
+            )[0]
+
+            due_date = None
+            if due_scenario == 'overdue':
+                due_date = timezone.now() - timedelta(days=random.randint(1, 30))
+            elif due_scenario == 'this_week':
+                due_date = timezone.now() + timedelta(days=random.randint(0, 7))
+            elif due_scenario == 'future':
+                due_date = timezone.now() + timedelta(days=random.randint(8, 60))
+
+            task = Task.objects.create(
+                title=random.choice(TAREAS_TITULOS),
+                description=random.choice(TAREAS_DESCRIPCIONES),
+                contact=contact,
+                assigned_to=assigned,
+                status=status,
+                priority=priority,
+                due_date=due_date,
+                created_by=random.choice(users) if users else None,
+            )
+            tasks_created.append(task)
+
+    print(f"✅ {len(tasks_created)} tareas creadas")
+    return tasks_created
+
+# Número fijo de contactos para datos de prueba consistentes
+DEFAULT_CONTACTS = 60
 
 def main():
     print("🚀 Generando datos de prueba para CRM Service V3...")
     print("-" * 50)
     
-    # Preguntar cuántos contactos crear
-    try:
-        n = int(input("¿Cuántos contactos deseas crear? (default: 50): ") or "50")
-    except ValueError:
-        n = 50
+    n = DEFAULT_CONTACTS
+    print(f"📝 Creando {n} contactos (número fijo)...")
     
     # Generar contactos
     contacts = generate_contacts(n)
@@ -274,12 +357,18 @@ def main():
     if contacts:
         # Generar interacciones
         generate_interactions(contacts)
+        # Generar tareas
+        users = list(User.objects.all())
+        generate_tasks(contacts, users)
+
+    
     
     print("-" * 50)
     print(f"📊 Resumen:")
     print(f"   - Contactos totales: {Contact.objects.count()}")
     print(f"   - Interacciones totales: {Interaction.objects.count()}")
     print(f"   - Análisis de sentimiento: {SentimentAnalysis.objects.count()}")
+    print(f"   - Tareas totales: {Task.objects.count()}")
     print("✅ Proceso completado")
 
 
