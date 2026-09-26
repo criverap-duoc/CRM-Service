@@ -98,3 +98,13 @@ export const tags = {
   update: (id: number, data: any) => apiClient.patch(`/tags/${id}/`, data),
   delete: (id: number) => apiClient.delete(`/tags/${id}/`),
 };
+
+export const tasks = {
+  list: (params?: any) => apiClient.get('/tasks/', { params }),
+  get: (id: number) => apiClient.get(`/tasks/${id}/`),
+  create: (data: any) => apiClient.post('/tasks/', data),
+  update: (id: number, data: any) => apiClient.patch(`/tasks/${id}/`, data),
+  delete: (id: number) => apiClient.delete(`/tasks/${id}/`),
+  overdue: (params?: any) => apiClient.get('/tasks/overdue/', { params }),
+  mySummary: () => apiClient.get('/tasks/my-summary/'),
+};
