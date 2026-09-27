@@ -4,15 +4,16 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { contacts, interactions, integrations, tags as tagsApi } from '@/lib/api-client';
+import { contacts, interactions, integrations, tags as tagsApi, tasks as tasksApi } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ArrowLeft, Save, Sparkles, Mail, Phone, Building, User, TrendingUp, CircleUserRound, X, Plus as PlusIcon } from 'lucide-react';
+import { ArrowLeft, Save, Sparkles, Mail, Phone, Building, User, TrendingUp, CircleUserRound, X, Plus as PlusIcon, CheckCircle2, Clock, XCircle, AlertTriangle, CheckSquare } from 'lucide-react';
 import { analytics } from '@/lib/analytics-client';
-
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface Tag {
   id: number;
@@ -48,6 +49,19 @@ interface Interaction {
   occurred_at: string;
 }
 
+interface Task {
+  id: number;
+  title: string;
+  status: string;
+  priority: string;
+  due_date: string | null;
+  completed_at: string | null;
+  is_overdue: boolean;
+  assigned_to: { id: number; username: string } | null;
+  contact: { id: number; full_name: string; email: string };
+  created_at: string;
+}
+
 export default function ContactDetailPage() {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
@@ -66,8 +80,15 @@ export default function ContactDetailPage() {
   const [leadScore, setLeadScore] = useState<any>(null);
   const [sentimentMap, setSentimentMap] = useState<Record<number, any>>({});
   const [allTags, setAllTags] = useState<Tag[]>([]);
-const [tagSelectorOpen, setTagSelectorOpen] = useState(false);
-const [savingTags, setSavingTags] = useState(false);
+  const [tagSelectorOpen, setTagSelectorOpen] = useState(false);
+  const [savingTags, setSavingTags] = useState(false);
+  const [taskList, setTaskList] = useState<Task[]>([]);
+  const [taskDialogOpen, setTaskDialogOpen] = useState(false);
+  const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [newTaskPriority, setNewTaskPriority] = useState('medium');
+  const [newTaskDueDate, setNewTaskDueDate] = useState('');
+  const [savingTask, setSavingTask] = useState(false);
+
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -81,6 +102,7 @@ const [savingTags, setSavingTags] = useState(false);
       fetchInteractions();
       fetchLeadScore();
       fetchAllTags();
+      fetchTasks();
     }
   }, [isAuthenticated, id]);
 
@@ -138,6 +160,16 @@ const [savingTags, setSavingTags] = useState(false);
     }
   };
 
+  const fetchTasks = async () => {
+    try {
+      const response = await tasksApi.list({ contact: parseInt(id), page_size: 50 });
+      const data = response.data.results || response.data;
+      setTaskList(data);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     setError('');
@@ -173,6 +205,40 @@ const [savingTags, setSavingTags] = useState(false);
       churned: 'bg-red-100 text-red-800 border-0 font-medium',
     };
     return colors[status] || 'bg-gray-100 text-gray-800 border-0 font-medium';
+  };
+
+  const getTaskStatusColor = (status: string) => {
+    const colors: Record<string, string> = {
+      pending: 'bg-blue-100 text-blue-700',
+      in_progress: 'bg-amber-100 text-amber-700',
+      completed: 'bg-emerald-100 text-emerald-700',
+      cancelled: 'bg-gray-100 text-gray-500',
+    };
+    return colors[status] || 'bg-gray-100 text-gray-700';
+  };
+
+  const getTaskPriorityColor = (priority: string) => {
+    const colors: Record<string, string> = {
+      low: 'bg-slate-100 text-slate-600',
+      medium: 'bg-blue-100 text-blue-700',
+      high: 'bg-orange-100 text-orange-700',
+      urgent: 'bg-rose-100 text-rose-700',
+    };
+    return colors[priority] || 'bg-gray-100 text-gray-700';
+  };
+
+  const TASK_STATUS_LABELS: Record<string, string> = {
+    pending: 'Pendiente',
+    in_progress: 'En progreso',
+    completed: 'Completada',
+    cancelled: 'Cancelada',
+  };
+
+  const TASK_PRIORITY_LABELS: Record<string, string> = {
+    low: 'Baja',
+    medium: 'Media',
+    high: 'Alta',
+    urgent: 'Urgente',
   };
 
   if (isLoading || loading) {
@@ -211,6 +277,41 @@ const [savingTags, setSavingTags] = useState(false);
       setError('No se pudieron guardar los tags');
     } finally {
       setSavingTags(false);
+    }
+  };
+
+  const quickChangeTaskStatus = async (task: Task, newStatus: string) => {
+    try {
+      await tasksApi.update(task.id, { status: newStatus });
+      fetchTasks();
+    } catch (error) {
+      console.error('Error updating task:', error);
+    }
+  };
+
+  const handleCreateTask = async () => {
+    if (!newTaskTitle.trim()) return;
+    setSavingTask(true);
+    try {
+      const payload: any = {
+        title: newTaskTitle,
+        contact_id: parseInt(id),
+        status: 'pending',
+        priority: newTaskPriority,
+      };
+      if (newTaskDueDate) {
+        payload.due_date = new Date(newTaskDueDate + 'T12:00:00').toISOString();
+      }
+      await tasksApi.create(payload);
+      setNewTaskTitle('');
+      setNewTaskPriority('medium');
+      setNewTaskDueDate('');
+      setTaskDialogOpen(false);
+      fetchTasks();
+    } catch (error) {
+      console.error('Error creating task:', error);
+    } finally {
+      setSavingTask(false);
     }
   };
 
@@ -424,6 +525,153 @@ const [savingTags, setSavingTags] = useState(false);
                     <span className="font-medium text-gray-700">Interacciones:</span> {contact.interaction_count}
                   </p>
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border border-gray-200/80 shadow-sm">
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-gray-800">Tareas</CardTitle>
+                  <Dialog open={taskDialogOpen} onOpenChange={setTaskDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50/50 rounded-lg"
+                      >
+                        + Nueva
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="rounded-2xl">
+                      <DialogHeader>
+                        <DialogTitle className="text-xl font-bold text-gray-800">Nueva Tarea</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 py-2">
+                        <div>
+                          <label className="text-sm font-medium text-gray-700">Título *</label>
+                          <Input
+                            value={newTaskTitle}
+                            onChange={(e) => setNewTaskTitle(e.target.value)}
+                            placeholder="Ej: Llamar para seguimiento"
+                            className="border-gray-200/60 rounded-xl h-11"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="min-w-0">
+                            <label className="text-sm font-medium text-gray-700">Prioridad</label>
+                            <Select value={newTaskPriority} onValueChange={setNewTaskPriority}>
+                              <SelectTrigger className="w-full border-gray-200/60 rounded-xl h-11">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="low">Baja</SelectItem>
+                                <SelectItem value="medium">Media</SelectItem>
+                                <SelectItem value="high">Alta</SelectItem>
+                                <SelectItem value="urgent">Urgente</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="min-w-0">
+                            <label className="text-sm font-medium text-gray-700">Vence</label>
+                            <Input
+                              type="date"
+                              value={newTaskDueDate}
+                              onChange={(e) => setNewTaskDueDate(e.target.value)}
+                              className="border-gray-200/60 rounded-xl h-11"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-2 pt-2">
+                        <Button
+                          variant="outline"
+                          onClick={() => setTaskDialogOpen(false)}
+                          className="rounded-xl"
+                        >
+                          Cancelar
+                        </Button>
+                        <Button
+                          onClick={handleCreateTask}
+                          disabled={savingTask || !newTaskTitle.trim()}
+                          className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl"
+                        >
+                          {savingTask ? 'Creando...' : 'Crear'}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {taskList.length === 0 ? (
+                  <p className="text-gray-500 text-sm">Sin tareas registradas</p>
+                ) : (
+                  <div className="space-y-2 max-h-72 overflow-y-auto pr-2">
+                    {taskList.map((task) => (
+                      <div
+                        key={task.id}
+                        className={`flex items-start gap-2 p-2.5 bg-gray-50/70 rounded-lg border-l-4 ${
+                          task.is_overdue ? 'border-rose-400' : 'border-blue-400'
+                        }`}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            {task.is_overdue && (
+                              <AlertTriangle className="h-3.5 w-3.5 text-rose-500 shrink-0" />
+                            )}
+                            <p className="text-sm font-medium text-gray-800 truncate">{task.title}</p>
+                          </div>
+                          <div className="flex flex-wrap items-center gap-1.5 mt-1">
+                            <Badge className={`${getTaskStatusColor(task.status)} border-0 text-[10px] px-1.5 py-0`}>
+                              {TASK_STATUS_LABELS[task.status]}
+                            </Badge>
+                            <Badge className={`${getTaskPriorityColor(task.priority)} border-0 text-[10px] px-1.5 py-0`}>
+                              {TASK_PRIORITY_LABELS[task.priority]}
+                            </Badge>
+                            {task.due_date && (
+                              <span className={`text-[10px] ${task.is_overdue ? 'text-rose-600 font-semibold' : 'text-gray-400'}`}>
+                                {new Date(task.due_date).toLocaleDateString('es-CL', { day: '2-digit', month: 'short' })}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        {/* Quick actions mini */}
+                        <div className="flex gap-0.5 shrink-0">
+                          {task.status === 'pending' && (
+                            <button
+                              type="button"
+                              onClick={() => quickChangeTaskStatus(task, 'in_progress')}
+                              className="p-1 rounded hover:bg-amber-100/60 transition-colors"
+                              title="En progreso"
+                            >
+                              <Clock className="h-3.5 w-3.5 text-amber-500" />
+                            </button>
+                          )}
+                          {task.status !== 'completed' && task.status !== 'cancelled' && (
+                            <button
+                              type="button"
+                              onClick={() => quickChangeTaskStatus(task, 'completed')}
+                              className="p-1 rounded hover:bg-emerald-100/60 transition-colors"
+                              title="Completar"
+                            >
+                              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                            </button>
+                          )}
+                          {task.status !== 'cancelled' && task.status !== 'completed' && (
+                            <button
+                              type="button"
+                              onClick={() => quickChangeTaskStatus(task, 'cancelled')}
+                              className="p-1 rounded hover:bg-gray-100 transition-colors"
+                              title="Cancelar"
+                            >
+                              <XCircle className="h-3.5 w-3.5 text-gray-400" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
 

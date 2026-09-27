@@ -3,11 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { contacts } from '@/lib/api-client';
+import { contacts, tasks as tasksApi } from '@/lib/api-client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Users, UserPlus, TrendingUp, Clock, Sparkles, LogOut } from 'lucide-react';
+import { Users, UserPlus, TrendingUp, Clock, Sparkles, LogOut, CheckSquare, AlertTriangle } from 'lucide-react';
 
 interface Contact {
   id: number;
@@ -24,6 +24,8 @@ export default function DashboardPage() {
   const router = useRouter();
   const [recentContacts, setRecentContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState(true);
+  const [taskSummary, setTaskSummary] = useState<any>(null);
+  const [overdueTasks, setOverdueTasks] = useState<any[]>([]);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -34,6 +36,7 @@ export default function DashboardPage() {
   useEffect(() => {
     if (isAuthenticated) {
       fetchRecentContacts();
+      fetchTaskData();
     }
   }, [isAuthenticated]);
 
@@ -45,6 +48,20 @@ export default function DashboardPage() {
       console.error('Error fetching contacts:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchTaskData = async () => {
+    try {
+      const [summaryRes, overdueRes] = await Promise.all([
+        tasksApi.mySummary(),
+        tasksApi.overdue({ page_size: 5 }),
+      ]);
+      setTaskSummary(summaryRes.data);
+      const data = overdueRes.data.results || overdueRes.data;
+      setOverdueTasks(data);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
     }
   };
 
@@ -163,7 +180,79 @@ export default function DashboardPage() {
             );
           })}
         </div>
+        <Card className="border border-gray-200/30 shadow-sm rounded-2xl bg-white/60 backdrop-blur-sm mb-6">
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle className="text-gray-800 flex items-center gap-2">
+                <CheckSquare className="h-4 w-4 text-blue-500" />
+                Mis Tareas
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push('/tasks')}
+                className="text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50/50 rounded-lg"
+              >
+                Ver todas →
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {taskSummary ? (
+              <>
+                <div className="grid grid-cols-4 gap-3 mb-4">
+                  <div className="p-3 bg-blue-50/70 rounded-lg border border-blue-100">
+                    <p className="text-xs text-gray-500">Pendientes</p>
+                    <p className="text-2xl font-bold text-blue-600">{taskSummary.by_status.pending}</p>
+                  </div>
+                  <div className="p-3 bg-amber-50/70 rounded-lg border border-amber-100">
+                    <p className="text-xs text-gray-500">En progreso</p>
+                    <p className="text-2xl font-bold text-amber-600">{taskSummary.by_status.in_progress}</p>
+                  </div>
+                  <div className="p-3 bg-emerald-50/70 rounded-lg border border-emerald-100">
+                    <p className="text-xs text-gray-500">Completadas</p>
+                    <p className="text-2xl font-bold text-emerald-600">{taskSummary.by_status.completed}</p>
+                  </div>
+                  <div className="p-3 bg-rose-50/70 rounded-lg border border-rose-100">
+                    <p className="text-xs text-gray-500">Vencidas</p>
+                    <p className="text-2xl font-bold text-rose-600">{taskSummary.overdue}</p>
+                  </div>
+                </div>
 
+                {overdueTasks.length > 0 && (
+                  <div>
+                    <p className="text-xs text-gray-500 font-medium mb-2 flex items-center gap-1">
+                      <AlertTriangle className="h-3.5 w-3.5 text-rose-500" />
+                      Vencidas que requieren atención
+                    </p>
+                    <div className="space-y-1.5">
+                      {overdueTasks.map((task) => (
+                        <div
+                          key={task.id}
+                          onClick={() => router.push(`/contacts/${task.contact.id}`)}
+                          className="flex items-center justify-between p-2 bg-rose-50/50 rounded-lg border border-rose-100/60 hover:bg-rose-50 cursor-pointer transition-colors"
+                        >
+                          <div className="flex items-center gap-2 min-w-0 flex-1">
+                            <Clock className="h-3.5 w-3.5 text-rose-500 shrink-0" />
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-medium text-gray-800 truncate">{task.title}</p>
+                              <p className="text-xs text-gray-500 truncate">{task.contact.full_name}</p>
+                            </div>
+                          </div>
+                          <span className="text-[10px] text-rose-600 font-semibold shrink-0 ml-2">
+                            {new Date(task.due_date).toLocaleDateString('es-CL', { day: '2-digit', month: 'short' })}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : (
+              <p className="text-sm text-gray-400">Cargando tareas...</p>
+            )}
+          </CardContent>
+        </Card>
         {/* Recent Contacts */}
         <Card className="border border-gray-200/30 shadow-sm rounded-2xl overflow-hidden bg-white/60 backdrop-blur-sm">
           <CardHeader className="pb-3">
