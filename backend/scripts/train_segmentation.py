@@ -1,3 +1,4 @@
+## backend\scripts\train_segmentation.py
 import os
 import sys
 import django

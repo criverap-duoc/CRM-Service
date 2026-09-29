@@ -1,0 +1,1145 @@
+﻿
+
+========== apps/analytics/ml/lead_scoring_v2.py ==========
+
+import pandas as pd
+import numpy as np
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.metrics import accuracy_score, classification_report, roc_auc_score, confusion_matrix
+import joblib
+import os
+import warnings
+warnings.filterwarnings('ignore')
+
+class LeadScoringModelV2:
+    def __init__(self, model_dir='apps/analytics/ml/models'):
+        self.model_dir = model_dir
+        os.makedirs(model_dir, exist_ok=True)
+        self.model = None
+        self.scaler = None
+        self.encoders = {}
+        self.feature_columns = None
+        
+    def load_data(self, filepath='data/processed/leads_training.csv'):
+        if not os.path.exists(filepath):
+            raise FileNotFoundError(f"No se encontrÃ³ el archivo: {filepath}")
+        df = pd.read_csv(filepath)
+        return df
+    
+    def engineer_features(self, df):
+        """Crea nuevas features para mejorar el modelo"""
+        df_engineered = df.copy()
+        
+        # Feature: Tasa de conversiÃ³n por fuente (media histÃ³rica)
+        source_conversion = df.groupby('source')['converted'].mean().to_dict()
+        df_engineered['source_conversion_rate'] = df['source'].map(source_conversion)
+        
+        # Feature: Interacciones por dÃ­a (si existe)
+        if 'time_to_first_interaction' in df.columns:
+            df_engineered['interaction_intensity'] = df['interactions_7d'] / (df['time_to_first_interaction'] + 0.1)
+        
+        # Feature: CombinaciÃ³n de sentimiento y tiempo
+        df_engineered['sentiment_time'] = df['sentiment_avg'] * (1 / (df['time_to_first_interaction'] + 0.1))
+        
+        # Feature: TamaÃ±o de empresa normalizado
+        df_engineered['company_size_norm'] = df['company_size'] / df['company_size'].max()
+        
+        return df_engineered
+    
+    def preprocess(self, df):
+        """Prepara los datos para entrenamiento"""
+        # Engineer features
+        df_engineered = self.engineer_features(df)
+        
+        # Features a usar
+        feature_cols = [
+            'source', 'time_to_first_interaction', 
+            'interactions_7d', 'response_rate', 
+            'sentiment_avg', 'industry', 'company_size',
+            'source_conversion_rate', 'interaction_intensity',
+            'sentiment_time', 'company_size_norm'
+        ]
+        
+        # Verificar que todas las columnas existen
+        available_cols = [col for col in feature_cols if col in df_engineered.columns]
+        
+        # Codificar variables categÃ³ricas
+        df_encoded = df_engineered.copy()
+        categorical_cols = ['source', 'industry']
+        
+        for col in categorical_cols:
+            if col in df_encoded.columns:
+                le = LabelEncoder()
+                df_encoded[col] = le.fit_transform(df_encoded[col].astype(str))
+                self.encoders[col] = le
+        
+        self.feature_columns = available_cols
+        X = df_encoded[available_cols]
+        y = df_encoded['converted']
+        
+        return X, y
+    
+    def train(self, optimize=False):
+        """Entrena el modelo con GridSearch opcional"""
+        df = self.load_data()
+        X, y = self.preprocess(df)
+        
+        # Escalar features
+        self.scaler = StandardScaler()
+        X_scaled = self.scaler.fit_transform(X)
+        
+        # Dividir datos
+        X_train, X_test, y_train, y_test = train_test_split(
+            X_scaled, y, test_size=0.2, random_state=42, stratify=y
+        )
+        
+        if optimize:
+            print("ðŸ” Optimizando hiperparÃ¡metros...")
+            param_grid = {
+                'n_estimators': [100, 200],
+                'max_depth': [3, 5, 7],
+                'min_samples_split': [5, 10],
+                'min_samples_leaf': [2, 4]
+            }
+            
+            grid_search = GridSearchCV(
+                RandomForestClassifier(random_state=42, class_weight='balanced'),
+                param_grid,
+                cv=3,
+                scoring='roc_auc',
+                n_jobs=-1
+            )
+            grid_search.fit(X_train, y_train)
+            best_params = grid_search.best_params_
+            print(f"   Mejores parÃ¡metros: {best_params}")
+        else:
+            best_params = {
+                'n_estimators': 200,
+                'max_depth': 5,
+                'min_samples_split': 10,
+                'min_samples_leaf': 4
+            }
+        
+        # Entrenar modelo
+        self.model = RandomForestClassifier(
+            **best_params,
+            random_state=42,
+            class_weight='balanced'
+        )
+        self.model.fit(X_train, y_train)
+        
+        # ValidaciÃ³n cruzada
+        cv_scores = cross_val_score(self.model, X_train, y_train, cv=5, scoring='roc_auc')
+        print(f"   ROC-AUC promedio (CV): {cv_scores.mean():.2%}")
+        
+        # EvaluaciÃ³n en test
+        y_pred = self.model.predict(X_test)
+        y_proba = self.model.predict_proba(X_test)[:, 1]
+        
+        accuracy = accuracy_score(y_test, y_pred)
+        auc = roc_auc_score(y_test, y_proba)
+        
+        print(f"\nâœ… Modelo entrenado")
+        print(f"   - PrecisiÃ³n: {accuracy:.2%}")
+        print(f"   - AUC-ROC: {auc:.2%}")
+        print(f"   - Features: {len(self.feature_columns)}")
+        
+        # Matriz de confusiÃ³n
+        cm = confusion_matrix(y_test, y_pred)
+        print(f"   - Matriz de confusiÃ³n:")
+        print(f"     * Verdaderos Negativos: {cm[0][0]}")
+        print(f"     * Falsos Positivos: {cm[0][1]}")
+        print(f"     * Falsos Negativos: {cm[1][0]}")
+        print(f"     * Verdaderos Positivos: {cm[1][1]}")
+        
+        # Feature importance
+        print(f"\n   - Importancia de features:")
+        importance = dict(zip(self.feature_columns, self.model.feature_importances_))
+        for feature, imp in sorted(importance.items(), key=lambda x: x[1], reverse=True):
+            print(f"     * {feature}: {imp:.2%}")
+        
+        # Guardar modelo
+        joblib.dump(self.model, f'{self.model_dir}/lead_scoring_v2.pkl')
+        joblib.dump(self.scaler, f'{self.model_dir}/scaler_v2.pkl')
+        joblib.dump(self.encoders, f'{self.model_dir}/encoders_v2.pkl')
+        joblib.dump(self.feature_columns, f'{self.model_dir}/feature_columns_v2.pkl')
+        
+        return self.model
+    
+    def predict(self, features):
+        """Predice lead score para un nuevo lead"""
+        if self.model is None:
+            self.model = joblib.load(f'{self.model_dir}/lead_scoring_v2.pkl')
+            self.scaler = joblib.load(f'{self.model_dir}/scaler_v2.pkl')
+            self.encoders = joblib.load(f'{self.model_dir}/encoders_v2.pkl')
+            self.feature_columns = joblib.load(f'{self.model_dir}/feature_columns_v2.pkl')
+        
+        if isinstance(features, dict):
+            # Aplicar encoders a variables categÃ³ricas
+            for col, encoder in self.encoders.items():
+                if col in features and isinstance(features[col], str):
+                    try:
+                        features[col] = encoder.transform([features[col]])[0]
+                    except ValueError:
+                        # Si el valor no estÃ¡ en el encoder, usar 0
+                        features[col] = 0
+            
+            # Convertir a lista en el orden correcto
+            features = [features.get(col, 0) for col in self.feature_columns]
+        
+        features_scaled = self.scaler.transform([features])
+        score = self.model.predict_proba(features_scaled)[0][1]
+        
+        return round(score * 100, 2)
+
+# Instancia global
+model_v2 = LeadScoringModelV2()
+
+def get_lead_score_v2(source, time_to_first, interactions_7d, response_rate, sentiment_avg, industry, company_size):
+    """
+    FunciÃ³n de conveniencia para obtener score usando reglas de negocio.
+    Usa el modelo ML solo si estÃ¡ disponible y funciona correctamente.
+    """
+    try:
+        # Intentar usar el modelo ML
+        if model_v2.model is None:
+            model_v2.model = joblib.load(f'{model_v2.model_dir}/lead_scoring_v2.pkl')
+            model_v2.scaler = joblib.load(f'{model_v2.model_dir}/scaler_v2.pkl')
+            model_v2.encoders = joblib.load(f'{model_v2.model_dir}/encoders_v2.pkl')
+            model_v2.feature_columns = joblib.load(f'{model_v2.model_dir}/feature_columns_v2.pkl')
+        
+        # Mapeo manual de variables categÃ³ricas a nÃºmeros
+        source_map = {'manual': 0, 'meta_ads': 1, 'organic': 2, 'referral': 3, 'other': 4}
+        industry_map = {'tech': 0, 'healthcare': 1, 'finance': 2, 'retail': 3, 'education': 4, 'other': 5}
+        
+        encoded_source = source_map.get(source, 0)
+        encoded_industry = industry_map.get(industry, 0)
+        
+        # Construir features
+        features_dict = {
+            'source': encoded_source,
+            'time_to_first_interaction': time_to_first,
+            'interactions_7d': interactions_7d,
+            'response_rate': response_rate,
+            'sentiment_avg': sentiment_avg,
+            'industry': encoded_industry,
+            'company_size': company_size,
+            'source_conversion_rate': 0.2,
+            'interaction_intensity': interactions_7d / (time_to_first + 0.1),
+            'sentiment_time': sentiment_avg * (1 / (time_to_first + 0.1)),
+            'company_size_norm': company_size / 10
+        }
+        
+        features = [features_dict.get(col, 0) for col in model_v2.feature_columns]
+        features_scaled = model_v2.scaler.transform([features])
+        score = model_v2.model.predict_proba(features_scaled)[0][1]
+        
+        return round(score * 100, 2)
+    except Exception as e:
+        # Fallback: reglas de negocio
+        return _rule_based_score(time_to_first, interactions_7d, response_rate, sentiment_avg, source)
+
+
+def _rule_based_score(time_to_first, interactions_7d, response_rate, sentiment_avg, source):
+    """Calcula score basado en reglas de negocio"""
+    score = 50
+    
+    if time_to_first < 1: score += 15
+    elif time_to_first < 3: score += 10
+    elif time_to_first < 7: score += 5
+    elif time_to_first > 15: score -= 10
+    
+    if interactions_7d >= 5: score += 15
+    elif interactions_7d >= 3: score += 10
+    elif interactions_7d >= 1: score += 5
+    else: score -= 5
+    
+    score += int(response_rate * 15)
+    
+    if sentiment_avg >= 4: score += 15
+    elif sentiment_avg >= 3.5: score += 8
+    elif sentiment_avg >= 3: score += 3
+    elif sentiment_avg < 2.5: score -= 10
+    
+    if source == 'referral': score += 10
+    elif source == 'organic': score += 5
+    elif source == 'meta_ads': score += 3
+    
+    return max(0, min(100, score))
+
+
+========== apps/analytics/ml/churn_prediction.py ==========
+
+import pandas as pd
+import numpy as np
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+from sklearn.metrics import accuracy_score, roc_auc_score
+import joblib
+import os
+from pathlib import Path
+
+class ChurnPredictionModel:
+    def __init__(self, model_dir='apps/analytics/ml/models'):
+        self.model_dir = Path(model_dir)
+        self.model_dir.mkdir(parents=True, exist_ok=True)
+        self.model = None
+        self.scaler = None
+        self.encoders = {}
+        self.feature_columns = None
+    
+    def load_data(self, filepath='data/processed/real_leads.csv'):
+        if not os.path.exists(filepath):
+            raise FileNotFoundError(f"No se encontrÃ³: {filepath}")
+        return pd.read_csv(filepath)
+    
+    def preprocess(self, df):
+        """Prepara datos para predicciÃ³n de churn"""
+        df_encoded = df.copy()
+        
+        # Crear target de churn (1 si churned, 0 si no)
+        # Asumimos que 'converted' es 0 para churned
+        # Para el modelo, usamos los datos disponibles
+        if 'converted' in df_encoded.columns:
+            # Churn = 1 si no convirtiÃ³ y tiene pocas interacciones
+            df_encoded['churned'] = ((df_encoded['converted'] == 0) & 
+                                     (df_encoded['interactions_7d'] == 0)).astype(int)
+        
+        # Codificar categÃ³ricas
+        for col in ['source', 'industry']:
+            if col in df_encoded.columns:
+                le = LabelEncoder()
+                df_encoded[col] = le.fit_transform(df_encoded[col].astype(str))
+                self.encoders[col] = le
+        
+        feature_cols = [
+            'source', 'time_to_first_interaction', 
+            'interactions_7d', 'response_rate', 'sentiment_avg',
+            'industry', 'company_size'
+        ]
+        
+        available = [c for c in feature_cols if c in df_encoded.columns]
+        self.feature_columns = available
+        
+        X = df_encoded[available]
+        y = df_encoded['churned'] if 'churned' in df_encoded.columns else None
+        
+        return X, y
+    
+    def train(self):
+        df = self.load_data()
+        X, y = self.preprocess(df)
+        
+        if y is None or y.nunique() < 2:
+            print("âš ï¸ No hay suficientes clases para entrenar churn")
+            return None
+        
+        self.scaler = StandardScaler()
+        X_scaled = self.scaler.fit_transform(X)
+        
+        X_train, X_test, y_train, y_test = train_test_split(
+            X_scaled, y, test_size=0.2, random_state=42, stratify=y
+        )
+        
+        self.model = RandomForestClassifier(
+            n_estimators=100, max_depth=5, random_state=42, class_weight='balanced'
+        )
+        self.model.fit(X_train, y_train)
+        
+        y_pred = self.model.predict(X_test)
+        y_proba = self.model.predict_proba(X_test)[:, 1]
+        
+        print(f"âœ… Churn - PrecisiÃ³n: {accuracy_score(y_test, y_pred):.2%}")
+        print(f"âœ… Churn - AUC-ROC: {roc_auc_score(y_test, y_proba):.2%}")
+        
+        joblib.dump(self.model, self.model_dir / 'churn_model.pkl')
+        joblib.dump(self.scaler, self.model_dir / 'churn_scaler.pkl')
+        joblib.dump(self.encoders, self.model_dir / 'churn_encoders.pkl')
+        joblib.dump(self.feature_columns, self.model_dir / 'churn_features.pkl')
+        
+        return self.model
+    
+    def predict(self, features):
+        if self.model is None:
+            try:
+                self.model = joblib.load(self.model_dir / 'churn_model.pkl')
+                self.scaler = joblib.load(self.model_dir / 'churn_scaler.pkl')
+                self.encoders = joblib.load(self.model_dir / 'churn_encoders.pkl')
+                self.feature_columns = joblib.load(self.model_dir / 'churn_features.pkl')
+            except FileNotFoundError:
+                return None
+        
+        if isinstance(features, dict):
+            # Codificar categÃ³ricas
+            for col, encoder in self.encoders.items():
+                if col in features and isinstance(features[col], str):
+                    try:
+                        features[col] = encoder.transform([features[col]])[0]
+                    except ValueError:
+                        features[col] = 0
+            
+            features = [features.get(col, 0) for col in self.feature_columns]
+        
+        features_scaled = self.scaler.transform([features])
+        prob = self.model.predict_proba(features_scaled)[0][1]
+        return round(prob * 100, 2)
+
+model_churn = ChurnPredictionModel()
+
+
+========== apps/analytics/ml/segmentation.py ==========
+
+import pandas as pd
+import numpy as np
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler, LabelEncoder
+import joblib
+import os
+from pathlib import Path
+
+class LeadSegmentationModel:
+    def __init__(self, model_dir='apps/analytics/ml/models'):
+        self.model_dir = Path(model_dir)
+        self.model_dir.mkdir(parents=True, exist_ok=True)
+        self.model = None
+        self.scaler = None
+        self.encoders = {}
+        self.feature_columns = None
+        self.n_clusters = 3
+    
+    def load_data(self, filepath='data/processed/real_leads.csv'):
+        if not os.path.exists(filepath):
+            raise FileNotFoundError(f"No se encontrÃ³: {filepath}")
+        return pd.read_csv(filepath)
+    
+    def preprocess(self, df):
+        df_encoded = df.copy()
+        
+        for col in ['source', 'industry']:
+            if col in df_encoded.columns:
+                le = LabelEncoder()
+                df_encoded[col] = le.fit_transform(df_encoded[col].astype(str))
+                self.encoders[col] = le
+        
+        feature_cols = [
+            'source', 'time_to_first_interaction', 
+            'interactions_7d', 'response_rate', 'sentiment_avg'
+        ]
+        
+        available = [c for c in feature_cols if c in df_encoded.columns]
+        self.feature_columns = available
+        
+        return df_encoded[available]
+    
+    def train(self):
+        df = self.load_data()
+        X = self.preprocess(df)
+        
+        self.scaler = StandardScaler()
+        X_scaled = self.scaler.fit_transform(X)
+        
+        self.model = KMeans(n_clusters=self.n_clusters, random_state=42, n_init=10)
+        self.model.fit(X_scaled)
+        
+        # Analizar clusters
+        df['cluster'] = self.model.labels_
+        print(f"âœ… Modelo de segmentaciÃ³n entrenado")
+        print(f"   - Clusters: {self.n_clusters}")
+        
+        for i in range(self.n_clusters):
+            cluster_data = df[df['cluster'] == i]
+            print(f"   - Cluster {i}: {len(cluster_data)} leads")
+        
+        joblib.dump(self.model, self.model_dir / 'segmentation_model.pkl')
+        joblib.dump(self.scaler, self.model_dir / 'segmentation_scaler.pkl')
+        joblib.dump(self.encoders, self.model_dir / 'segmentation_encoders.pkl')
+        joblib.dump(self.feature_columns, self.model_dir / 'segmentation_features.pkl')
+        
+        return self.model
+    
+    def predict(self, features):
+        if self.model is None:
+            try:
+                self.model = joblib.load(self.model_dir / 'segmentation_model.pkl')
+                self.scaler = joblib.load(self.model_dir / 'segmentation_scaler.pkl')
+                self.encoders = joblib.load(self.model_dir / 'segmentation_encoders.pkl')
+                self.feature_columns = joblib.load(self.model_dir / 'segmentation_features.pkl')
+            except FileNotFoundError:
+                return None
+        
+        if isinstance(features, dict):
+            for col, encoder in self.encoders.items():
+                if col in features and isinstance(features[col], str):
+                    try:
+                        features[col] = encoder.transform([features[col]])[0]
+                    except ValueError:
+                        features[col] = 0
+            
+            features = [features.get(col, 0) for col in self.feature_columns]
+        
+        features_scaled = self.scaler.transform([features])
+        cluster = self.model.predict(features_scaled)[0]
+        
+        # Describir cluster basado en los datos
+        descriptions = {}
+        for i in range(self.n_clusters):
+            cluster_data = df[df['cluster'] == i]
+            avg_interactions = cluster_data['interactions_7d'].mean()
+            avg_sentiment = cluster_data['sentiment_avg'].mean()
+            
+            if avg_interactions >= 2 and avg_sentiment >= 3.5:
+                descriptions[i] = "ðŸ”¥ Alto potencial - Contactar ahora"
+            elif avg_interactions >= 1 and avg_sentiment >= 3:
+                descriptions[i] = "âš¡ Potencial medio - Seguimiento regular"
+            else:
+                descriptions[i] = "ðŸ“‰ Bajo potencial - Nutrir con contenido"
+        
+        return {
+            'cluster': int(cluster),
+            'label': descriptions.get(cluster, 'Sin clasificar')
+        }
+
+model_segmentation = LeadSegmentationModel()
+
+
+========== apps/analytics/views.py ==========
+
+import csv
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework import status
+from drf_spectacular.utils import extend_schema
+from django.db.models import Avg, Count, Q
+from django.utils import timezone
+from datetime import timedelta
+from django.apps import apps
+from django.http import HttpResponse
+
+
+class LeadScoreView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    @extend_schema(
+        summary="Obtener lead score",
+        description="Calcula probabilidad de conversiÃ³n para un contacto (0-100)",
+        tags=["Analytics"],
+    )
+    def get(self, request, contact_id):
+        Contact = apps.get_model('contacts', 'Contact')
+        Interaction = apps.get_model('interactions', 'Interaction')
+        SentimentAnalysis = apps.get_model('analytics', 'SentimentAnalysis')
+        
+        try:
+            contact = Contact.objects.get(pk=contact_id)
+        except Contact.DoesNotExist:
+            return Response(
+                {"error": "Contacto no encontrado"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Obtener todas las interacciones del contacto
+        all_interactions = Interaction.objects.filter(contact=contact).order_by('occurred_at')
+        total_interactions = all_interactions.count()
+        
+        # 1. Tiempo hasta primera interacciÃ³n
+        first_interaction = all_interactions.first()
+        if first_interaction:
+            time_to_first = (first_interaction.occurred_at - contact.created_at).total_seconds() / 86400
+            time_to_first = max(0, min(time_to_first, 30))
+        else:
+            time_to_first = 30
+        
+        # 2. Interacciones en Ãºltimos 7 dÃ­as
+        week_ago = timezone.now() - timedelta(days=7)
+        interactions_7d = all_interactions.filter(occurred_at__gte=week_ago).count()
+        
+        # 3. Tasa de respuesta
+        outbound = all_interactions.filter(direction='outbound').count()
+        inbound = all_interactions.filter(direction='inbound').count()
+        if outbound > 0:
+            response_rate = min(1.0, inbound / outbound)
+        else:
+            response_rate = 0.5 if inbound > 0 else 0.1
+        
+        # 4. Sentimiento promedio REAL
+        sentiment_qs = SentimentAnalysis.objects.filter(interaction__contact=contact)
+        if sentiment_qs.exists():
+            sentiment_values = []
+            for s in sentiment_qs:
+                if s.label == 'positive':
+                    sentiment_values.append(5.0)
+                elif s.label == 'negative':
+                    sentiment_values.append(1.0)
+                else:
+                    sentiment_values.append(3.0)
+            sentiment_avg = sum(sentiment_values) / len(sentiment_values)
+        else:
+            sentiment_avg = 3.0
+        
+        # 5. Industria y tamaÃ±o
+        industry = 'tech'
+        company_size = 5
+        
+        # Calcular score con reglas de negocio
+        score = self._calculate_rule_based_score(
+            contact, time_to_first, interactions_7d, response_rate, sentiment_avg
+        )
+        
+        return Response({
+            "contact_id": contact.id,
+            "contact_name": contact.full_name,
+            "lead_score": score,
+            "label": self._get_label(score),
+            "metrics": {
+                "time_to_first_interaction_days": round(time_to_first, 1),
+                "interactions_7d": interactions_7d,
+                "total_interactions": total_interactions,
+                "response_rate": round(response_rate, 2),
+                "sentiment_avg": round(sentiment_avg, 2),
+                "source": contact.source,
+                "status": contact.status,
+                "industry": industry,
+                "company_size": company_size,
+            }
+        })
+    
+    def _calculate_rule_based_score(self, contact, time_to_first, interactions_7d, response_rate, sentiment_avg):
+        """Calcula score basado en reglas de negocio"""
+        score = 50  # Base
+        
+        # Tiempo de respuesta (menos es mejor)
+        if time_to_first < 1:
+            score += 15
+        elif time_to_first < 3:
+            score += 10
+        elif time_to_first < 7:
+            score += 5
+        elif time_to_first > 15:
+            score -= 10
+        
+        # Interacciones recientes
+        if interactions_7d >= 5:
+            score += 15
+        elif interactions_7d >= 3:
+            score += 10
+        elif interactions_7d >= 1:
+            score += 5
+        else:
+            score -= 5
+        
+        # Tasa de respuesta
+        score += int(response_rate * 15)
+        
+        # Sentimiento
+        if sentiment_avg >= 4:
+            score += 15
+        elif sentiment_avg >= 3.5:
+            score += 8
+        elif sentiment_avg >= 3:
+            score += 3
+        elif sentiment_avg < 2.5:
+            score -= 10
+        
+        # Fuente
+        if contact.source == 'referral':
+            score += 10
+        elif contact.source == 'organic':
+            score += 5
+        elif contact.source == 'meta_ads':
+            score += 3
+        
+        # Estado
+        if contact.status == 'customer':
+            score += 20
+        elif contact.status == 'prospect':
+            score += 10
+        elif contact.status == 'churned':
+            score -= 20
+        
+        # Limitar entre 0 y 100
+        return max(0, min(100, score))
+    
+    def _get_label(self, score):
+        if score >= 80:
+            return "ðŸ”¥ Alta prioridad - Contactar ahora"
+        elif score >= 60:
+            return "âš¡ Media prioridad - Seguimiento pronto"
+        elif score >= 40:
+            return "ðŸ“Š Prioridad normal - Monitorear"
+        else:
+            return "ðŸ“‰ Baja prioridad - Nutrir"
+
+
+class SentimentAnalysisView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    @extend_schema(
+        summary="Analizar sentimiento de una interacciÃ³n",
+        description="Analiza el sentimiento de una interacciÃ³n usando OpenAI",
+        tags=["Analytics"],
+    )
+    def post(self, request, interaction_id):
+        Interaction = apps.get_model('interactions', 'Interaction')
+        SentimentAnalysis = apps.get_model('analytics', 'SentimentAnalysis')
+        
+        try:
+            interaction = Interaction.objects.get(pk=interaction_id)
+        except Interaction.DoesNotExist:
+            return Response(
+                {"error": "InteracciÃ³n no encontrada"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Verificar si ya tiene anÃ¡lisis
+        if hasattr(interaction, 'sentiment_analysis'):
+            analysis = interaction.sentiment_analysis
+            return Response({
+                "interaction_id": interaction.id,
+                "label": analysis.label,
+                "score": analysis.score,
+                "analyzed_at": analysis.created_at,
+                "cached": True
+            })
+        
+        # Analizar sentimiento
+        from apps.integrations.clients import OpenAIClient
+        client = OpenAIClient()
+        text = f"{interaction.subject or ''} {interaction.body or ''}".strip()
+        
+        if not text:
+            return Response(
+                {"error": "La interacciÃ³n no tiene texto para analizar"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        try:
+            result = client.analyze_sentiment(text)
+        except Exception as e:
+            return Response(
+                {"error": f"Error al analizar sentimiento: {str(e)}"},
+                status=status.HTTP_502_BAD_GATEWAY
+            )
+        
+        # Guardar anÃ¡lisis
+        analysis = SentimentAnalysis.objects.create(
+            interaction=interaction,
+            label=result['label'],
+            score=result['score']
+        )
+        
+        return Response({
+            "interaction_id": interaction.id,
+            "label": analysis.label,
+            "score": analysis.score,
+            "analyzed_at": analysis.created_at,
+            "cached": False
+        })
+
+
+class SentimentStatsView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    @extend_schema(
+        summary="EstadÃ­sticas de sentimiento",
+        description="Obtiene estadÃ­sticas agregadas de sentimiento por contacto",
+        tags=["Analytics"],
+    )
+    def get(self, request):
+        SentimentAnalysis = apps.get_model('analytics', 'SentimentAnalysis')
+        
+        contact_id = request.query_params.get('contact_id')
+        
+        queryset = SentimentAnalysis.objects.all()
+        
+        if contact_id:
+            queryset = queryset.filter(interaction__contact_id=contact_id)
+        
+        stats = queryset.aggregate(
+            avg_score=Avg('score'),
+            positive_count=Count('id', filter=Q(label='positive')),
+            neutral_count=Count('id', filter=Q(label='neutral')),
+            negative_count=Count('id', filter=Q(label='negative')),
+        )
+        
+        total = stats['positive_count'] + stats['neutral_count'] + stats['negative_count']
+        
+        return Response({
+            "avg_score": round(stats['avg_score'] or 0.5, 2),
+            "distribution": {
+                "positive": stats['positive_count'],
+                "neutral": stats['neutral_count'],
+                "negative": stats['negative_count'],
+                "total": total
+            },
+            "contact_id": contact_id if contact_id else "all"
+        })
+
+class ExportContactsCSVView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    @extend_schema(
+        summary="Exportar contactos a CSV",
+        description="Exporta todos los contactos a un archivo CSV",
+        tags=["Analytics"],
+    )
+    def get(self, request):
+        Contact = apps.get_model('contacts', 'Contact')
+        Interaction = apps.get_model('interactions', 'Interaction')
+        SentimentAnalysis = apps.get_model('analytics', 'SentimentAnalysis')
+        
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="contactos.csv"'
+        
+        writer = csv.writer(response)
+        writer.writerow([
+            'ID', 'Nombre', 'Email', 'TelÃ©fono', 'Empresa', 
+            'Estado', 'Fuente', 'Asignado a', 'Interacciones', 
+            'Sentimiento Promedio', 'Creado', 'Actualizado'
+        ])
+        
+        contacts = Contact.objects.select_related('assigned_to').all()
+        
+        for contact in contacts:
+            # Calcular sentimiento promedio
+            sentiments = SentimentAnalysis.objects.filter(interaction__contact=contact)
+            if sentiments.exists():
+                values = []
+                for s in sentiments:
+                    if s.label == 'positive':
+                        values.append(5.0)
+                    elif s.label == 'negative':
+                        values.append(1.0)
+                    else:
+                        values.append(3.0)
+                sentiment_avg = round(sum(values) / len(values), 2)
+            else:
+                sentiment_avg = '-'
+            
+            writer.writerow([
+                contact.id,
+                contact.full_name,
+                contact.email,
+                contact.phone or '-',
+                contact.company or '-',
+                contact.status,
+                contact.source,
+                contact.assigned_to.username if contact.assigned_to else '-',
+                Interaction.objects.filter(contact=contact).count(),
+                sentiment_avg,
+                contact.created_at.strftime('%Y-%m-%d'),
+                contact.updated_at.strftime('%Y-%m-%d'),
+            ])
+        
+        return response
+
+
+class ExportInteractionsCSVView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    @extend_schema(
+        summary="Exportar interacciones a CSV",
+        description="Exporta todas las interacciones a un archivo CSV",
+        tags=["Analytics"],
+    )
+    def get(self, request):
+        Interaction = apps.get_model('interactions', 'Interaction')
+        
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="interacciones.csv"'
+        
+        writer = csv.writer(response)
+        writer.writerow([
+            'ID', 'Contacto', 'Email Contacto', 'Agente', 
+            'Canal', 'DirecciÃ³n', 'Asunto', 'OcurriÃ³', 'Creado'
+        ])
+        
+        interactions = Interaction.objects.select_related('contact', 'agent').all()
+        
+        for interaction in interactions:
+            writer.writerow([
+                interaction.id,
+                interaction.contact.full_name,
+                interaction.contact.email,
+                interaction.agent.username if interaction.agent else 'Bot',
+                interaction.channel,
+                interaction.direction,
+                interaction.subject or '-',
+                interaction.occurred_at.strftime('%Y-%m-%d %H:%M'),
+                interaction.created_at.strftime('%Y-%m-%d %H:%M'),
+            ])
+        
+        return response
+
+class ChurnPredictionView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    @extend_schema(
+        summary="Predecir churn de un contacto",
+        description="Calcula la probabilidad de que un contacto se vaya (churn)",
+        tags=["Analytics"],
+    )
+    def get(self, request, contact_id):
+        Contact = apps.get_model('contacts', 'Contact')
+        Interaction = apps.get_model('interactions', 'Interaction')
+        SentimentAnalysis = apps.get_model('analytics', 'SentimentAnalysis')
+        
+        try:
+            contact = Contact.objects.get(pk=contact_id)
+        except Contact.DoesNotExist:
+            return Response({"error": "Contacto no encontrado"}, status=404)
+        
+        # Calcular features
+        interactions = Interaction.objects.filter(contact=contact).order_by('occurred_at')
+        
+        first = interactions.first()
+        time_to_first = (first.occurred_at - contact.created_at).total_seconds() / 86400 if first else 30
+        time_to_first = max(0, min(time_to_first, 30))
+        
+        week_ago = timezone.now() - timedelta(days=7)
+        interactions_7d = interactions.filter(occurred_at__gte=week_ago).count()
+        
+        outbound = interactions.filter(direction='outbound').count()
+        inbound = interactions.filter(direction='inbound').count()
+        response_rate = min(1.0, inbound / outbound) if outbound > 0 else 0.5
+        
+        sentiments = SentimentAnalysis.objects.filter(interaction__contact=contact)
+        if sentiments.exists():
+            values = [5.0 if s.label == 'positive' else 1.0 if s.label == 'negative' else 3.0 for s in sentiments]
+            sentiment_avg = sum(values) / len(values)
+        else:
+            sentiment_avg = 3.0
+        
+        from .ml.churn_prediction import model_churn
+        churn_prob = model_churn.predict({
+            'source': contact.source,
+            'time_to_first_interaction': time_to_first,
+            'interactions_7d': interactions_7d,
+            'response_rate': response_rate,
+            'sentiment_avg': sentiment_avg,
+            'industry': 'tech',
+            'company_size': 5,
+        })
+        
+        # Si no hay modelo, calcular con reglas
+        if churn_prob is None:
+            churn_prob = 50  # Base
+            
+            # Clientes activos tienen bajo churn
+            if contact.status == 'customer':
+                churn_prob = 20 if interactions_7d > 0 else 40
+            # Prospects tienen churn medio
+            elif contact.status == 'prospect':
+                churn_prob = 40 if interactions_7d > 0 else 60
+            # Leads tienen churn alto
+            elif contact.status == 'lead':
+                churn_prob = 60 if interactions_7d > 0 else 80
+            # Churned ya se fue
+            elif contact.status == 'churned':
+                churn_prob = 95
+            
+            # Ajustar por sentimiento
+            if sentiment_avg >= 4:
+                churn_prob -= 10
+            elif sentiment_avg < 2.5:
+                churn_prob += 10
+            
+            # Ajustar por interacciones
+            if total_interactions > 5:
+                churn_prob -= 10
+            elif total_interactions == 0:
+                churn_prob += 15
+            
+            churn_prob = max(0, min(100, churn_prob))
+
+
+class LeadSegmentationView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    @extend_schema(
+        summary="Segmentar un contacto",
+        description="Asigna un segmento al contacto basado en clustering",
+        tags=["Analytics"],
+    )
+    def get(self, request, contact_id):
+        Contact = apps.get_model('contacts', 'Contact')
+        Interaction = apps.get_model('interactions', 'Interaction')
+        
+        try:
+            contact = Contact.objects.get(pk=contact_id)
+        except Contact.DoesNotExist:
+            return Response({"error": "Contacto no encontrado"}, status=404)
+        
+        interactions = Interaction.objects.filter(contact=contact)
+        total = interactions.count()
+        
+        first = interactions.order_by('occurred_at').first()
+        time_to_first = (first.occurred_at - contact.created_at).total_seconds() / 86400 if first else 30
+        time_to_first = max(0, min(time_to_first, 30))
+        
+        week_ago = timezone.now() - timedelta(days=7)
+        interactions_7d = interactions.filter(occurred_at__gte=week_ago).count()
+        
+        outbound = interactions.filter(direction='outbound').count()
+        inbound = interactions.filter(direction='inbound').count()
+        response_rate = min(1.0, inbound / outbound) if outbound > 0 else 0.5
+        
+        from .ml.segmentation import model_segmentation
+        segment = model_segmentation.predict({
+            'source': contact.source,
+            'time_to_first_interaction': time_to_first,
+            'interactions_7d': interactions_7d,
+            'response_rate': response_rate,
+            'sentiment_avg': 3.5,
+        })
+        
+        if segment is None:
+            # Fallback: segmentaciÃ³n por reglas
+            if contact.status == 'customer':
+                segment = {'cluster': 0, 'label': 'Cliente activo'}
+            elif contact.status == 'prospect' and interactions_7d > 0:
+                segment = {'cluster': 1, 'label': 'Prospect con actividad'}
+            else:
+                segment = {'cluster': 2, 'label': 'Lead por nutrir'}
+        
+        return Response({
+            'contact_id': contact.id,
+            'contact_name': contact.full_name,
+            'segment': segment,
+        })
+
+class AgentDashboardView(APIView):
+    permission_classes = [IsAuthenticated]
+    
+    @extend_schema(
+        summary="Dashboard de agentes",
+        description="MÃ©tricas por agente: leads asignados, conversiones, etc.",
+        tags=["Analytics"],
+    )
+    def get(self, request):
+        Contact = apps.get_model('contacts', 'Contact')
+        Interaction = apps.get_model('interactions', 'Interaction')
+        User = apps.get_model('auth', 'User')
+        
+        agents = User.objects.filter(contacts__isnull=False).distinct()
+        
+        data = []
+        for agent in agents:
+            agent_contacts = Contact.objects.filter(assigned_to=agent)
+            total = agent_contacts.count()
+            customers = agent_contacts.filter(status='customer').count()
+            leads = agent_contacts.filter(status='lead').count()
+            prospects = agent_contacts.filter(status='prospect').count()
+            churned = agent_contacts.filter(status='churned').count()
+            
+            conversion_rate = (customers / total * 100) if total > 0 else 0
+            
+            # Interacciones del agente
+            interactions_count = Interaction.objects.filter(agent=agent).count()
+            
+            data.append({
+                'agent_id': agent.id,
+                'agent_username': agent.username,
+                'agent_email': agent.email,
+                'total_contacts': total,
+                'leads': leads,
+                'prospects': prospects,
+                'customers': customers,
+                'churned': churned,
+                'conversion_rate': round(conversion_rate, 1),
+                'total_interactions': interactions_count,
+            })
+        
+        # Ordenar por tasa de conversiÃ³n
+        data.sort(key=lambda x: x['conversion_rate'], reverse=True)
+        
+        return Response({
+            'agents': data,
+            'total_agents': len(data),
+        })
+
+
+========== data/generate_leads.py ==========
+
+import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
+import random
+import os
+
+def generate_leads(n=2000):
+    """Genera datos sintÃ©ticos de leads para entrenamiento"""
+    np.random.seed(42)
+    random.seed(42)
+    
+    sources = ['meta_ads', 'organic', 'referral', 'manual']
+    statuses = ['lead', 'prospect', 'customer', 'churned']
+    channels = ['email', 'phone', 'whatsapp', 'chat']
+    industries = ['tech', 'healthcare', 'finance', 'retail', 'education', 'other']
+    
+    data = []
+    start_date = datetime.now() - timedelta(days=365)
+    
+    for i in range(n):
+        source = random.choice(sources)
+        status = random.choices(
+            statuses,
+            weights=[0.4, 0.3, 0.2, 0.1]
+        )[0]
+        
+        # Tiempo hasta primera interacciÃ³n (dÃ­as)
+        time_to_first = np.random.exponential(scale=2)
+        time_to_first = min(time_to_first, 30)  # Cap en 30 dÃ­as
+        
+        # NÃºmero de interacciones en primeros 7 dÃ­as
+        interactions_7d = np.random.poisson(lam=1.5)
+        
+        # Tiempo hasta conversiÃ³n (dÃ­as) - solo si es customer
+        time_to_conversion = np.random.exponential(scale=10) if status == 'customer' else None
+        time_to_conversion = min(time_to_conversion, 180) if time_to_conversion else None
+        
+        # Tasa de respuesta (0-1)
+        response_rate = np.random.beta(a=2, b=5)
+        
+        # Sentimiento promedio (1-5)
+        sentiment_avg = np.random.normal(loc=3.5, scale=1.0)
+        sentiment_avg = max(1, min(5, sentiment_avg))
+        
+        # Industria
+        industry = random.choice(industries)
+        
+        # TamaÃ±o de empresa (1-10, donde 10 es grande)
+        company_size = np.random.exponential(scale=3) + 1
+        company_size = min(int(company_size), 10)
+        
+        lead = {
+            'lead_id': i + 1,
+            'source': source,
+            'status': status,
+            'time_to_first_interaction': time_to_first,
+            'interactions_7d': interactions_7d,
+            'time_to_conversion': time_to_conversion,
+            'response_rate': response_rate,
+            'sentiment_avg': round(sentiment_avg, 2),
+            'industry': industry,
+            'company_size': company_size,
+            'converted': 1 if status == 'customer' else 0,
+        }
+        data.append(lead)
+    
+    df = pd.DataFrame(data)
+    os.makedirs('data/processed', exist_ok=True)
+    df.to_csv('data/processed/leads_training.csv', index=False)
+    print(f"âœ… Generados {n} leads sintÃ©ticos en data/processed/leads_training.csv")
+    
+    # Mostrar estadÃ­sticas bÃ¡sicas
+    print(f"ðŸ“Š DistribuciÃ³n de conversiÃ³n: {df['converted'].mean():.2%}")
+    print(f"ðŸ“Š DistribuciÃ³n de fuentes: {df['source'].value_counts().to_dict()}")
+    
+    return df
+
+if __name__ == "__main__":
+    generate_leads(2000)

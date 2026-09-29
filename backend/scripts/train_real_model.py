@@ -1,4 +1,5 @@
-﻿"""
+﻿## backend\scripts\train_real_model.py
+"""
 Entrena el modelo con datos reales de la base de datos.
 """
 import os
