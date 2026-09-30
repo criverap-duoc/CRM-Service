@@ -361,18 +361,28 @@ export default function AnalyticsPage() {
                   <span className="text-3xl font-bold text-blue-600">{leadScore.lead_score}</span>
                   <Badge className="bg-blue-100 text-blue-700 border-blue-200">{leadScore.label}</Badge>
                 </div>
-                <div className="grid grid-cols-3 gap-4 mt-4 text-sm">
+                <div className="grid grid-cols-4 gap-4 mt-4 text-sm">
                   <div>
-                    <p className="text-gray-400">Tiempo 1ra interacción</p>
-                    <p className="font-medium">{leadScore.metrics.time_to_first_interaction_days} días</p>
+                    <p className="text-gray-400">Frecuencia interacción</p>
+                    <p className="font-medium">
+                      {(leadScore.features?.interaction_frequency ?? 0).toFixed(2)}
+                    </p>
                   </div>
                   <div>
                     <p className="text-gray-400">Interacciones (7d)</p>
-                    <p className="font-medium">{leadScore.metrics.interactions_7d}</p>
+                    <p className="font-medium">{leadScore.features?.interactions_7d ?? 0}</p>
                   </div>
                   <div>
                     <p className="text-gray-400">Tasa de respuesta</p>
-                    <p className="font-medium">{(leadScore.metrics.response_rate * 100).toFixed(0)}%</p>
+                    <p className="font-medium">
+                      {((leadScore.features?.response_rate ?? 0) * 100).toFixed(0)}%
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-gray-400">Sentimiento</p>
+                    <p className="font-medium">
+                      {(leadScore.features?.sentiment_avg ?? 0).toFixed(1)}
+                    </p>
                   </div>
                 </div>
               </div>
