@@ -9,151 +9,64 @@ from django.utils import timezone
 from datetime import timedelta
 from django.apps import apps
 from django.http import HttpResponse
-
+from apps.analytics.ml.features import build_features_for_contact
+from apps.analytics.ml.lead_scoring_v3 import model_lead_v3
+from apps.analytics.ml.churn_prediction_v3 import model_churn_v3
+from apps.analytics.ml.segmentation_v3 import model_segmentation_v3
 
 class LeadScoreView(APIView):
     permission_classes = [IsAuthenticated]
-    
+
     @extend_schema(
         summary="Obtener lead score",
-        description="Calcula probabilidad de conversión para un contacto (0-100)",
+        description="Calcula probabilidad de conversión para un contacto (0-100) con el modelo V3.",
         tags=["Analytics"],
     )
     def get(self, request, contact_id):
-        Contact = apps.get_model('contacts', 'Contact')
-        Interaction = apps.get_model('interactions', 'Interaction')
-        SentimentAnalysis = apps.get_model('analytics', 'SentimentAnalysis')
-        
+        Contact = apps.get_model("contacts", "Contact")
+
         try:
-            contact = Contact.objects.get(pk=contact_id)
+            contact = (
+                Contact.objects
+                .select_related("company")
+                .prefetch_related("tags", "tasks", "interactions")
+                .get(pk=contact_id)
+            )
         except Contact.DoesNotExist:
             return Response(
-                {"error": "Contacto no encontrado"},
-                status=status.HTTP_404_NOT_FOUND
+                {"error": {"code": "not_found", "message": "Contacto no encontrado"}},
+                status=status.HTTP_404_NOT_FOUND,
             )
-        
-        # Obtener todas las interacciones del contacto
-        all_interactions = Interaction.objects.filter(contact=contact).order_by('occurred_at')
-        total_interactions = all_interactions.count()
-        
-        # 1. Tiempo hasta primera interacción
-        first_interaction = all_interactions.first()
-        if first_interaction:
-            time_to_first = (first_interaction.occurred_at - contact.created_at).total_seconds() / 86400
-            time_to_first = max(0, min(time_to_first, 30))
-        else:
-            time_to_first = 30
-        
-        # 2. Interacciones en últimos 7 días
-        week_ago = timezone.now() - timedelta(days=7)
-        interactions_7d = all_interactions.filter(occurred_at__gte=week_ago).count()
-        
-        # 3. Tasa de respuesta
-        outbound = all_interactions.filter(direction='outbound').count()
-        inbound = all_interactions.filter(direction='inbound').count()
-        if outbound > 0:
-            response_rate = min(1.0, inbound / outbound)
-        else:
-            response_rate = 0.5 if inbound > 0 else 0.1
-        
-        # 4. Sentimiento promedio REAL
-        sentiment_qs = SentimentAnalysis.objects.filter(interaction__contact=contact)
-        if sentiment_qs.exists():
-            sentiment_values = []
-            for s in sentiment_qs:
-                if s.label == 'positive':
-                    sentiment_values.append(5.0)
-                elif s.label == 'negative':
-                    sentiment_values.append(1.0)
-                else:
-                    sentiment_values.append(3.0)
-            sentiment_avg = sum(sentiment_values) / len(sentiment_values)
-        else:
-            sentiment_avg = 3.0
-        
-        # 5. Industria y tamaño
-        industry = 'tech'
-        company_size = 5
-        
-        # Calcular score con reglas de negocio
-        score = self._calculate_rule_based_score(
-            contact, time_to_first, interactions_7d, response_rate, sentiment_avg
-        )
-        
+
+        # Construir features (vía módulo unificado)
+        features = build_features_for_contact(contact)
+
+        # Intentar modelo ML; fallback a reglas si no existe
+        used_model = "ml_v3"
+        try:
+            score = model_lead_v3.predict(features)
+        except Exception as e:
+            score = self._rule_based_score(contact, features)
+            used_model = f"rule_based (fallback: {type(e).__name__})"
+
         return Response({
             "contact_id": contact.id,
             "contact_name": contact.full_name,
             "lead_score": score,
             "label": self._get_label(score),
-            "metrics": {
-                "time_to_first_interaction_days": round(time_to_first, 1),
-                "interactions_7d": interactions_7d,
-                "total_interactions": total_interactions,
-                "response_rate": round(response_rate, 2),
-                "sentiment_avg": round(sentiment_avg, 2),
-                "source": contact.source,
-                "status": contact.status,
-                "industry": industry,
-                "company_size": company_size,
-            }
+            "model_used": used_model,
+            "features": {
+                k: v for k, v in features.items()
+                if k in (
+                    "total_interactions", "interactions_7d",
+                    "interaction_frequency", "days_since_last_interaction",
+                    "response_rate", "sentiment_avg",
+                    "company_industry", "company_size",
+                    "tag_count", "total_tasks", "overdue_tasks",
+                )
+            },
         })
-    
-    def _calculate_rule_based_score(self, contact, time_to_first, interactions_7d, response_rate, sentiment_avg):
-        """Calcula score basado en reglas de negocio"""
-        score = 50  # Base
-        
-        # Tiempo de respuesta (menos es mejor)
-        if time_to_first < 1:
-            score += 15
-        elif time_to_first < 3:
-            score += 10
-        elif time_to_first < 7:
-            score += 5
-        elif time_to_first > 15:
-            score -= 10
-        
-        # Interacciones recientes
-        if interactions_7d >= 5:
-            score += 15
-        elif interactions_7d >= 3:
-            score += 10
-        elif interactions_7d >= 1:
-            score += 5
-        else:
-            score -= 5
-        
-        # Tasa de respuesta
-        score += int(response_rate * 15)
-        
-        # Sentimiento
-        if sentiment_avg >= 4:
-            score += 15
-        elif sentiment_avg >= 3.5:
-            score += 8
-        elif sentiment_avg >= 3:
-            score += 3
-        elif sentiment_avg < 2.5:
-            score -= 10
-        
-        # Fuente
-        if contact.source == 'referral':
-            score += 10
-        elif contact.source == 'organic':
-            score += 5
-        elif contact.source == 'meta_ads':
-            score += 3
-        
-        # Estado
-        if contact.status == 'customer':
-            score += 20
-        elif contact.status == 'prospect':
-            score += 10
-        elif contact.status == 'churned':
-            score -= 20
-        
-        # Limitar entre 0 y 100
-        return max(0, min(100, score))
-    
+
     def _get_label(self, score):
         if score >= 80:
             return "🔥 Alta prioridad - Contactar ahora"
@@ -163,6 +76,59 @@ class LeadScoreView(APIView):
             return "📊 Prioridad normal - Monitorear"
         else:
             return "📉 Baja prioridad - Nutrir"
+
+    def _rule_based_score(self, contact, features):
+        """Fallback si el modelo no está disponible."""
+        score = 50
+        ttf = features.get("time_to_first_interaction", 30)
+        int7d = features.get("interactions_7d", 0)
+        rate = features.get("response_rate", 0)
+        sent = features.get("sentiment_avg", 3)
+
+        if ttf < 1:
+            score += 15
+        elif ttf < 3:
+            score += 10
+        elif ttf < 7:
+            score += 5
+        elif ttf > 15:
+            score -= 10
+
+        if int7d >= 5:
+            score += 15
+        elif int7d >= 3:
+            score += 10
+        elif int7d >= 1:
+            score += 5
+        else:
+            score -= 5
+
+        score += int(rate * 15)
+
+        if sent >= 4:
+            score += 15
+        elif sent >= 3.5:
+            score += 8
+        elif sent >= 3:
+            score += 3
+        elif sent < 2.5:
+            score -= 10
+
+        if contact.source == "referral":
+            score += 10
+        elif contact.source == "organic":
+            score += 5
+        elif contact.source == "meta_ads":
+            score += 3
+
+        if contact.status == "customer":
+            score += 20
+        elif contact.status == "prospect":
+            score += 10
+        elif contact.status == "churned":
+            score -= 20
+
+        return max(0, min(100, score))
 
 
 class SentimentAnalysisView(APIView):
@@ -367,140 +333,136 @@ class ExportInteractionsCSVView(APIView):
 
 class ChurnPredictionView(APIView):
     permission_classes = [IsAuthenticated]
-    
+
     @extend_schema(
         summary="Predecir churn de un contacto",
-        description="Calcula la probabilidad de que un contacto se vaya (churn)",
+        description="Calcula la probabilidad de que un contacto se vaya (0-100) con el modelo V3.",
         tags=["Analytics"],
     )
     def get(self, request, contact_id):
-        Contact = apps.get_model('contacts', 'Contact')
-        Interaction = apps.get_model('interactions', 'Interaction')
-        SentimentAnalysis = apps.get_model('analytics', 'SentimentAnalysis')
-        
+        Contact = apps.get_model("contacts", "Contact")
+
         try:
-            contact = Contact.objects.get(pk=contact_id)
+            contact = (
+                Contact.objects
+                .select_related("company")
+                .prefetch_related("tags", "tasks", "interactions")
+                .get(pk=contact_id)
+            )
         except Contact.DoesNotExist:
-            return Response({"error": "Contacto no encontrado"}, status=404)
-        
-        # Calcular features
-        interactions = Interaction.objects.filter(contact=contact).order_by('occurred_at')
-        
-        first = interactions.first()
-        time_to_first = (first.occurred_at - contact.created_at).total_seconds() / 86400 if first else 30
-        time_to_first = max(0, min(time_to_first, 30))
-        
-        week_ago = timezone.now() - timedelta(days=7)
-        interactions_7d = interactions.filter(occurred_at__gte=week_ago).count()
-        
-        outbound = interactions.filter(direction='outbound').count()
-        inbound = interactions.filter(direction='inbound').count()
-        response_rate = min(1.0, inbound / outbound) if outbound > 0 else 0.5
-        
-        sentiments = SentimentAnalysis.objects.filter(interaction__contact=contact)
-        if sentiments.exists():
-            values = [5.0 if s.label == 'positive' else 1.0 if s.label == 'negative' else 3.0 for s in sentiments]
-            sentiment_avg = sum(values) / len(values)
-        else:
-            sentiment_avg = 3.0
-        
-        from .ml.churn_prediction import model_churn
-        churn_prob = model_churn.predict({
-            'source': contact.source,
-            'time_to_first_interaction': time_to_first,
-            'interactions_7d': interactions_7d,
-            'response_rate': response_rate,
-            'sentiment_avg': sentiment_avg,
-            'industry': 'tech',
-            'company_size': 5,
+            return Response(
+                {"error": {"code": "not_found", "message": "Contacto no encontrado"}},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        features = build_features_for_contact(contact)
+
+        used_model = "ml_v3"
+        try:
+            churn_prob = model_churn_v3.predict(features)
+            if churn_prob is None:
+                raise ValueError("Modelo no disponible")
+        except Exception as e:
+            churn_prob = self._rule_based_churn(contact, features)
+            used_model = f"rule_based (fallback: {type(e).__name__})"
+
+        return Response({
+            "contact_id": contact.id,
+            "contact_name": contact.full_name,
+            "churn_probability": churn_prob,
+            "risk_level": self._risk_level(churn_prob),
+            "model_used": used_model,
+            "key_factors": {
+                "days_since_last_interaction": features["days_since_last_interaction"],
+                "interaction_frequency": features["interaction_frequency"],
+                "sentiment_avg": features["sentiment_avg"],
+                "overdue_tasks": features["overdue_tasks"],
+                "has_risk_tag": features["has_risk_tag"],
+            },
         })
-        
-        # Si no hay modelo, calcular con reglas
-        if churn_prob is None:
-            churn_prob = 50  # Base
-            
-            # Clientes activos tienen bajo churn
-            if contact.status == 'customer':
-                churn_prob = 20 if interactions_7d > 0 else 40
-            # Prospects tienen churn medio
-            elif contact.status == 'prospect':
-                churn_prob = 40 if interactions_7d > 0 else 60
-            # Leads tienen churn alto
-            elif contact.status == 'lead':
-                churn_prob = 60 if interactions_7d > 0 else 80
-            # Churned ya se fue
-            elif contact.status == 'churned':
-                churn_prob = 95
-            
-            # Ajustar por sentimiento
-            if sentiment_avg >= 4:
-                churn_prob -= 10
-            elif sentiment_avg < 2.5:
-                churn_prob += 10
-            
-            # Ajustar por interacciones
-            if total_interactions > 5:
-                churn_prob -= 10
-            elif total_interactions == 0:
-                churn_prob += 15
-            
-            churn_prob = max(0, min(100, churn_prob))
+
+    def _risk_level(self, prob):
+        if prob >= 70:
+            return "🚨 Alto riesgo"
+        elif prob >= 40:
+            return "⚠️ Riesgo medio"
+        else:
+            return "✅ Bajo riesgo"
+
+    def _rule_based_churn(self, contact, features):
+        prob = 50
+        if contact.status == "customer":
+            prob = 20 if features["interactions_7d"] > 0 else 40
+        elif contact.status == "prospect":
+            prob = 40 if features["interactions_7d"] > 0 else 60
+        elif contact.status == "lead":
+            prob = 60 if features["interactions_7d"] > 0 else 80
+        elif contact.status == "churned":
+            prob = 95
+
+        if features["sentiment_avg"] >= 4:
+            prob -= 10
+        elif features["sentiment_avg"] < 2.5:
+            prob += 10
+
+        if features["total_interactions"] > 5:
+            prob -= 10
+        elif features["total_interactions"] == 0:
+            prob += 15
+
+        return max(0, min(100, prob))
 
 
 class LeadSegmentationView(APIView):
     permission_classes = [IsAuthenticated]
-    
+
     @extend_schema(
         summary="Segmentar un contacto",
-        description="Asigna un segmento al contacto basado en clustering",
+        description="Asigna un segmento al contacto basado en K-Means V3.",
         tags=["Analytics"],
     )
     def get(self, request, contact_id):
-        Contact = apps.get_model('contacts', 'Contact')
-        Interaction = apps.get_model('interactions', 'Interaction')
-        
+        Contact = apps.get_model("contacts", "Contact")
+
         try:
-            contact = Contact.objects.get(pk=contact_id)
+            contact = (
+                Contact.objects
+                .select_related("company")
+                .prefetch_related("tags", "tasks", "interactions")
+                .get(pk=contact_id)
+            )
         except Contact.DoesNotExist:
-            return Response({"error": "Contacto no encontrado"}, status=404)
-        
-        interactions = Interaction.objects.filter(contact=contact)
-        total = interactions.count()
-        
-        first = interactions.order_by('occurred_at').first()
-        time_to_first = (first.occurred_at - contact.created_at).total_seconds() / 86400 if first else 30
-        time_to_first = max(0, min(time_to_first, 30))
-        
-        week_ago = timezone.now() - timedelta(days=7)
-        interactions_7d = interactions.filter(occurred_at__gte=week_ago).count()
-        
-        outbound = interactions.filter(direction='outbound').count()
-        inbound = interactions.filter(direction='inbound').count()
-        response_rate = min(1.0, inbound / outbound) if outbound > 0 else 0.5
-        
-        from .ml.segmentation import model_segmentation
-        segment = model_segmentation.predict({
-            'source': contact.source,
-            'time_to_first_interaction': time_to_first,
-            'interactions_7d': interactions_7d,
-            'response_rate': response_rate,
-            'sentiment_avg': 3.5,
-        })
-        
-        if segment is None:
-            # Fallback: segmentación por reglas
-            if contact.status == 'customer':
-                segment = {'cluster': 0, 'label': 'Cliente activo'}
-            elif contact.status == 'prospect' and interactions_7d > 0:
-                segment = {'cluster': 1, 'label': 'Prospect con actividad'}
-            else:
-                segment = {'cluster': 2, 'label': 'Lead por nutrir'}
-        
+            return Response(
+                {"error": {"code": "not_found", "message": "Contacto no encontrado"}},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        features = build_features_for_contact(contact)
+
+        used_model = "ml_v3"
+        segment = None
+        try:
+            segment = model_segmentation_v3.predict(features)
+            if segment is None:
+                raise ValueError("Modelo no disponible")
+        except Exception as e:
+            segment = self._rule_based_segment(contact, features)
+            used_model = f"rule_based (fallback: {type(e).__name__})"
+
         return Response({
-            'contact_id': contact.id,
-            'contact_name': contact.full_name,
-            'segment': segment,
+            "contact_id": contact.id,
+            "contact_name": contact.full_name,
+            "segment": segment,
+            "model_used": used_model,
         })
+
+    def _rule_based_segment(self, contact, features):
+        if contact.status == "customer":
+            return {"cluster": 1, "label": "🏆 Cliente consolidado", "stats": None}
+        elif contact.status == "prospect" and features["interactions_7d"] > 0:
+            return {"cluster": 2, "label": "⚡ Prospect activo", "stats": None}
+        else:
+            return {"cluster": 0, "label": "📉 Lead frío o en riesgo", "stats": None}
 
 class AgentDashboardView(APIView):
     permission_classes = [IsAuthenticated]
