@@ -45,6 +45,7 @@ export default function AnalyticsPage() {
   const [selectedContact, setSelectedContact] = useState<number | null>(null);
   const [leadScore, setLeadScore] = useState<any>(null);
   const [leadScoreLoading, setLeadScoreLoading] = useState(false);
+  const [segmentStats, setSegmentStats] = useState<any>(null);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -62,9 +63,18 @@ export default function AnalyticsPage() {
     try {
       const contactsRes = await contacts.list();
       setContactList(contactsRes.data.results || contactsRes.data);
-      
+
       const statsRes = await analytics.getSentimentStats();
       setSentimentStats(statsRes.data);
+
+      // Nuevo: distribución de segmentos
+      try {
+        const segmentRes = await analytics.getSegmentStats();
+        setSegmentStats(segmentRes.data);
+      } catch (e) {
+        // Endpoint no disponible todavía
+        console.warn('Segment stats no disponible:', e);
+      }
     } catch (error) {
       console.error('Error fetching analytics data:', error);
     } finally {
@@ -297,6 +307,44 @@ export default function AnalyticsPage() {
             </CardContent>
           </Card>
         </div>
+
+        {segmentStats && (
+          <Card className="border border-gray-200/30 shadow-sm rounded-2xl overflow-hidden bg-white/60 backdrop-blur-sm mb-8">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base font-semibold text-gray-700 tracking-tight">
+                Distribución de Segmentos (K-Means V3)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {segmentStats.clusters.map((cluster: any) => (
+                  <div
+                    key={cluster.cluster}
+                    className="p-4 bg-gradient-to-br from-violet-50 to-purple-50/40 rounded-xl border border-violet-200/50"
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <Badge className="bg-violet-100 text-violet-700 border-0 font-medium text-xs">
+                        Cluster {cluster.cluster}
+                      </Badge>
+                      <span className="text-lg font-bold text-violet-600">{cluster.count}</span>
+                    </div>
+                    <p className="text-sm font-medium text-gray-700 mb-2">{cluster.label}</p>
+                    <div className="grid grid-cols-2 gap-2 text-[11px]">
+                      <div>
+                        <p className="text-gray-400">Conversión</p>
+                        <p className="font-medium text-gray-700">{(cluster.conversion_rate * 100).toFixed(1)}%</p>
+                      </div>
+                      <div>
+                        <p className="text-gray-400">Churn</p>
+                        <p className="font-medium text-gray-700">{(cluster.churn_rate * 100).toFixed(1)}%</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Lead Score por Contacto */}
         <Card className="border border-gray-200/30 shadow-sm rounded-2xl overflow-hidden bg-white/60 backdrop-blur-sm">

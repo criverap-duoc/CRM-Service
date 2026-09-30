@@ -464,6 +464,61 @@ class LeadSegmentationView(APIView):
         else:
             return {"cluster": 0, "label": "📉 Lead frío o en riesgo", "stats": None}
 
+class SegmentStatsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary="Estadísticas de segmentos",
+        description="Distribución de contactos por cluster (K-Means V3).",
+        tags=["Analytics"],
+    )
+    def get(self, request):
+        Contact = apps.get_model("contacts", "Contact")
+
+        contacts = (
+            Contact.objects
+            .select_related("company")
+            .prefetch_related("tags", "tasks", "interactions")
+        )
+
+        counts = {0: 0, 1: 0, 2: 0}
+        analyzed = 0
+
+        for contact in contacts:
+            features = build_features_for_contact(contact)
+            try:
+                segment = model_segmentation_v3.predict(features)
+                if segment is None:
+                    continue
+                cluster = segment["cluster"]
+                if cluster in counts:
+                    counts[cluster] += 1
+                    analyzed += 1
+            except Exception:
+                continue
+
+        # Stats del modelo entrenado
+        stats = model_segmentation_v3.cluster_stats or {}
+        descriptions = model_segmentation_v3.cluster_descriptions or {}
+
+        clusters = []
+        for cluster_id in sorted(counts.keys()):
+            s = stats.get(cluster_id, {})
+            clusters.append({
+                "cluster": cluster_id,
+                "label": descriptions.get(cluster_id, f"Segmento {cluster_id}"),
+                "count": counts[cluster_id],
+                "conversion_rate": s.get("conversion_rate", 0),
+                "churn_rate": s.get("churn_rate", 0),
+                "avg_sentiment": s.get("avg_sentiment", 0),
+                "avg_interactions_7d": s.get("avg_interactions_7d", 0),
+            })
+
+        return Response({
+            "clusters": clusters,
+            "total_analyzed": analyzed,
+        })
+
 class AgentDashboardView(APIView):
     permission_classes = [IsAuthenticated]
     

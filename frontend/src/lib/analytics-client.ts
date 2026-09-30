@@ -38,12 +38,21 @@ v3Client.interceptors.response.use(
 );
 
 export const analytics = {
-  getLeadScore: (contactId: number) => 
+  getLeadScore: (contactId: number) =>
     v3Client.get(`/lead-score/${contactId}/`),
-  
-  analyzeSentiment: (interactionId: number) => 
+
+  getChurn: (contactId: number) =>
+    v3Client.get(`/churn/${contactId}/`),
+
+  getSegment: (contactId: number) =>
+    v3Client.get(`/segment/${contactId}/`),
+
+  getSegmentStats: () =>
+    v3Client.get('/segment/stats/'),
+
+  analyzeSentiment: (interactionId: number) =>
     v3Client.post(`/sentiment/${interactionId}/`),
-  
+
   getSentimentStats: (contactId?: number) => {
     const params = contactId ? { contact_id: contactId } : {};
     return v3Client.get('/sentiment/stats/', { params });
