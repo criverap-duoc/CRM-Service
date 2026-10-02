@@ -69,6 +69,8 @@ export const contacts = {
   mine: (params?: any) => apiClient.get('/contacts/mine/', { params }),
   assignTags: (id: number, tagIds: number[]) =>
     apiClient.patch(`/contacts/${id}/`, { tag_ids: tagIds }),
+  assignInterests: (id: number, interestIds: number[]) =>
+    apiClient.patch(`/contacts/${id}/`, { interest_ids: interestIds }),
 };
 
 export const interactions = {
@@ -107,4 +109,12 @@ export const tasks = {
   delete: (id: number) => apiClient.delete(`/tasks/${id}/`),
   overdue: (params?: any) => apiClient.get('/tasks/overdue/', { params }),
   mySummary: () => apiClient.get('/tasks/my-summary/'),
+};
+
+export const products = {
+  list: (params?: any) => apiClient.get('/products/', { params }),
+  get: (id: number) => apiClient.get(`/products/${id}/`),
+  create: (data: any) => apiClient.post('/products/', data),
+  update: (id: number, data: any) => apiClient.patch(`/products/${id}/`, data),
+  delete: (id: number) => apiClient.delete(`/products/${id}/`),
 };

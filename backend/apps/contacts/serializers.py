@@ -4,6 +4,8 @@ from apps.companies.models import Company
 from .models import Contact
 from apps.tags.serializers import TagSerializer
 from apps.tags.models import Tag
+from apps.products.models import Product
+from apps.products.serializers import ProductSerializer
 
 
 class AssignedUserSerializer(serializers.ModelSerializer):
@@ -47,12 +49,22 @@ class ContactSerializer(serializers.ModelSerializer):
         required=False,
         many=True,
     )
+    interests = ProductSerializer(many=True, read_only=True)
+    interest_ids = serializers.PrimaryKeyRelatedField(
+        queryset=Product.objects.all(),
+        source="interests",
+        write_only=True,
+        required=False,
+        many=True,
+    )
 
     class Meta:
         model = Contact
         fields = [
             "id", "first_name", "last_name", "full_name", "email", "phone",
-            "company", "company_id", "tags", "tag_ids", "status", "source",
+            "company", "company_id", "tags", "tag_ids",
+            "interests", "interest_ids",
+            "status", "source",
             "assigned_to", "assigned_to_id", "notes", "interaction_count",
             "created_at", "updated_at",
         ]
@@ -72,7 +84,14 @@ class ContactListSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(read_only=True)
     company = serializers.CharField(source="company.name", read_only=True, default="")
     tags = TagSerializer(many=True, read_only=True)
+    interest_count = serializers.SerializerMethodField()
+
+    def get_interest_count(self, obj):
+        return obj.interests.count()
 
     class Meta:
         model = Contact
-        fields = ["id", "full_name", "email", "company", "tags", "status", "source", "created_at"]
+        fields = [
+            "id", "full_name", "email", "company", "tags",
+            "interest_count", "status", "source", "created_at",
+        ]

@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { contacts, interactions, integrations, tags as tagsApi, tasks as tasksApi } from '@/lib/api-client';
+import { contacts, interactions, integrations, tags as tagsApi, tasks as tasksApi, products as productsApi } from '@/lib/api-client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -21,6 +21,17 @@ interface Tag {
   color: string;
 }
 
+interface Product {
+  id: number;
+  name: string;
+  sku: string;
+  category: string;
+  unit_price: number;
+  description: string;
+  active: boolean;
+  interested_count: number;
+}
+
 interface Contact {
   id: number;
   first_name: string;
@@ -30,6 +41,7 @@ interface Contact {
   phone: string;
   company: string;
   tags: Tag[];
+  interests: Product[];
   status: string;
   source: string;
   notes: string;
@@ -82,6 +94,9 @@ export default function ContactDetailPage() {
   const [allTags, setAllTags] = useState<Tag[]>([]);
   const [tagSelectorOpen, setTagSelectorOpen] = useState(false);
   const [savingTags, setSavingTags] = useState(false);
+  const [allProducts, setAllProducts] = useState<Product[]>([]);
+  const [interestSelectorOpen, setInterestSelectorOpen] = useState(false);
+  const [savingInterests, setSavingInterests] = useState(false);
   const [taskList, setTaskList] = useState<Task[]>([]);
   const [taskDialogOpen, setTaskDialogOpen] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState('');
@@ -107,6 +122,18 @@ export default function ContactDetailPage() {
       fetchTasks();
       fetchChurn();
       fetchSegment();
+
+      // Productos para el selector de intereses.
+      // IIFE async para evitar setState síncrono dentro del effect.
+      (async () => {
+        try {
+          const response = await productsApi.list({ page_size: 100, active: true });
+          const data = response.data.results || response.data;
+          setAllProducts(data);
+        } catch (error) {
+          console.error('Error fetching products:', error);
+        }
+      })();
     }
   }, [isAuthenticated, id]);
 
@@ -278,6 +305,13 @@ const fetchSegment = async () => {
     urgent: 'Urgente',
   };
 
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat('es-CL', {
+      style: 'currency',
+      currency: 'CLP',
+      maximumFractionDigits: 0,
+    }).format(price);
+
   if (isLoading || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -314,6 +348,30 @@ const fetchSegment = async () => {
       setError('No se pudieron guardar los tags');
     } finally {
       setSavingTags(false);
+    }
+  };
+
+  const toggleInterest = async (product: Product) => {
+    if (!contact) return;
+
+    const interests = contact.interests || [];
+    const hasInterest = interests.some((p) => p.id === product.id);
+    const newInterests = hasInterest
+      ? interests.filter((p) => p.id !== product.id)
+      : [...interests, product];
+
+    // Actualización optimista
+    setContact({ ...contact, interests: newInterests });
+    setSavingInterests(true);
+
+    try {
+      await contacts.assignInterests(contact.id, newInterests.map((p) => p.id));
+    } catch {
+      // Revertir si falla
+      setContact({ ...contact });
+      setError('No se pudieron guardar los intereses');
+    } finally {
+      setSavingInterests(false);
     }
   };
 
@@ -857,6 +915,76 @@ const fetchSegment = async () => {
                         ))}
                       {allTags.filter((t) => !contact.tags.some((ct) => ct.id === t.id)).length === 0 && (
                         <p className="text-xs text-gray-400 italic">Todos los tags ya están asignados</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="border border-gray-200/80 shadow-sm">
+              <CardHeader>
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-gray-800">Intereses</CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setInterestSelectorOpen(!interestSelectorOpen)}
+                    className="h-7 px-2 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50/50 rounded-lg"
+                  >
+                    {interestSelectorOpen ? 'Cerrar' : 'Editar'}
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {/* Intereses actuales */}
+                <div className="flex flex-wrap gap-1.5 mb-3">
+                  {contact.interests && contact.interests.length > 0 ? (
+                    contact.interests.map((product) => (
+                      <span
+                        key={product.id}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700"
+                      >
+                        {product.name}
+                        <span className="text-gray-400 font-normal">· {formatPrice(product.unit_price)}</span>
+                        {interestSelectorOpen && (
+                          <button
+                            type="button"
+                            onClick={() => toggleInterest(product)}
+                            disabled={savingInterests}
+                            className="opacity-60 hover:opacity-100 transition-opacity disabled:opacity-30"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        )}
+                      </span>
+                    ))
+                  ) : (
+                    <p className="text-xs text-gray-400">Sin intereses asignados</p>
+                  )}
+                </div>
+
+                {/* Selector de productos disponibles */}
+                {interestSelectorOpen && (
+                  <div className="border-t border-gray-200/50 pt-3">
+                    <p className="text-xs text-gray-500 mb-2 font-medium">Agregar interés:</p>
+                    <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto pr-1">
+                      {allProducts
+                        .filter((p) => !(contact.interests || []).some((ci) => ci.id === p.id))
+                        .map((product) => (
+                          <button
+                            key={product.id}
+                            type="button"
+                            onClick={() => toggleInterest(product)}
+                            disabled={savingInterests}
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border border-blue-300 text-blue-600 transition-all hover:scale-105 hover:bg-blue-50 disabled:opacity-50"
+                          >
+                            <PlusIcon className="h-3 w-3" />
+                            {product.name}
+                          </button>
+                        ))}
+                      {allProducts.filter((p) => !(contact.interests || []).some((ci) => ci.id === p.id)).length === 0 && (
+                        <p className="text-xs text-gray-400 italic">Todos los productos ya están asignados</p>
                       )}
                     </div>
                   </div>

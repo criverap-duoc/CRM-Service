@@ -22,6 +22,7 @@ from apps.analytics.models import SentimentAnalysis
 from apps.companies.models import Company
 from apps.tags.models import Tag
 from apps.tasks.models import Task
+from apps.products.models import Product
 
 # Datos para generar
 NOMBRES = [
@@ -113,6 +114,21 @@ TAREAS_DESCRIPCIONES = [
     "Coordinar sesión de onboarding para el equipo del cliente.",
 ]
 
+PRODUCTOS_DATA = [
+    ("CRM Starter", "CRM-STR-001", "software", 990_000, "Plan básico para equipos pequeños"),
+    ("CRM Pro", "CRM-PRO-002", "software", 2_490_000, "Plan profesional con integraciones"),
+    ("CRM Enterprise", "CRM-ENT-003", "software", 5_990_000, "Plan corporativo con SLA"),
+    ("Módulo de Analítica", "ADD-ANA-001", "software", 890_000, "Add-on de dashboards avanzados"),
+    ("Módulo de ML", "ADD-ML-001", "software", 1_490_000, "Add-on de predicciones y scoring"),
+    ("Integración Meta Ads", "ADD-META-01", "service", 490_000, "Setup de webhook y campañas"),
+    ("Capacitación Básica", "TRA-BAS-01", "training", 350_000, "Taller de 4 horas para equipos"),
+    ("Capacitación Avanzada", "TRA-AVA-01", "training", 750_000, "Workshop de 2 días para power users"),
+    ("Soporte Premium", "SVC-PRE-01", "service", 1_200_000, "Soporte 24/7 con SLA de 2 horas"),
+    ("Consultoría de Procesos", "SVC-CON-01", "service", 2_800_000, "Análisis y rediseño de flujos comerciales"),
+    ("Hardware Terminal", "HWK-TER-01", "hardware", 450_000, "Terminal para punto de venta"),
+    ("Hardware Lector", "HWK-LEC-01", "hardware", 180_000, "Lector de códigos de barra"),
+]
+
 INDUSTRIAS = ['tech', 'healthcare', 'finance', 'retail', 'education', 'other']
 
 CARGOS = [
@@ -190,6 +206,24 @@ def ensure_tags(users):
         tags.append(tag)
     return tags
 
+def ensure_products(users):
+    """Crea los productos si no existen. Devuelve la lista de Product."""
+    products = []
+    for name, sku, category, price, description in PRODUCTOS_DATA:
+        product, _ = Product.objects.get_or_create(
+            sku=sku,
+            defaults={
+                "name": name,
+                "category": category,
+                "unit_price": price,
+                "description": description,
+                "active": True,
+                "created_by": random.choice(users) if users else None,
+            },
+        )
+        products.append(product)
+    return products
+
 def generate_contacts(n=50):
     """Genera n contactos aleatorios, con empresa y tags asignados."""
     users = list(User.objects.all())
@@ -199,6 +233,7 @@ def generate_contacts(n=50):
 
     companies = ensure_companies(users)
     tags = ensure_tags(users)
+    products = ensure_products(users)
     contacts_created = []
     used_emails = set()
 
@@ -228,11 +263,18 @@ def generate_contacts(n=50):
         selected_tags = random.sample(tags, num_tags)
         contact.tags.set(selected_tags)
 
+        # Asignar entre 0 y 3 productos de interés
+        num_products = random.randint(0, 3)
+        if num_products > 0:
+            selected_products = random.sample(products, num_products)
+            contact.interests.set(selected_products)
+
         contacts_created.append(contact)
 
     print(f"✅ {len(contacts_created)} contactos creados")
     print(f"✅ {len(companies)} empresas aseguradas")
     print(f"✅ {len(tags)} tags asegurados")
+    print(f"✅ {len(products)} productos asegurados")
     return contacts_created
 
 def generate_interactions(contacts, interactions_per_contact=(1, 8)):
@@ -344,12 +386,11 @@ def generate_tasks(contacts, users, tasks_per_contact=(0, 3)):
 # Número fijo de contactos para datos de prueba consistentes
 DEFAULT_CONTACTS = 60
 
-def main():
+def main(n=DEFAULT_CONTACTS):
     print("🚀 Generando datos de prueba para CRM Service V3...")
     print("-" * 50)
     
-    n = DEFAULT_CONTACTS
-    print(f"📝 Creando {n} contactos (número fijo)...")
+    print(f"📝 Creando {n} contactos...")
     
     # Generar contactos
     contacts = generate_contacts(n)
@@ -373,4 +414,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    count = int(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_CONTACTS
+    main(count)
