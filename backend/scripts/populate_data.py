@@ -23,6 +23,7 @@ from apps.companies.models import Company
 from apps.tags.models import Tag
 from apps.tasks.models import Task
 from apps.products.models import Product
+from apps.opportunities.models import Opportunity
 
 # Datos para generar
 NOMBRES = [
@@ -129,6 +130,21 @@ PRODUCTOS_DATA = [
     ("Hardware Lector", "HWK-LEC-01", "hardware", 180_000, "Lector de códigos de barra"),
 ]
 
+OPPORTUNITIES_DATA = [
+    ("Renovación anual CRM Pro", 2490000),
+    ("Migración a Enterprise", 5990000),
+    ("Add-on de Analítica Avanzada", 890000),
+    ("Add-on de Módulo ML", 1490000),
+    ("Setup de Integración Meta Ads", 490000),
+    ("Capacitación de equipos comerciales", 750000),
+    ("Soporte Premium 12 meses", 1200000),
+    ("Consultoría de optimización de procesos", 2800000),
+    ("Upgrade a CRM Pro desde Starter", 1500000),
+    ("Implementación de workflows personalizados", 1900000),
+    ("Análisis de datos históricos", 650000),
+    ("Renovación con descuento por volumen", 3200000),
+]
+
 INDUSTRIAS = ['tech', 'healthcare', 'finance', 'retail', 'education', 'other']
 
 CARGOS = [
@@ -224,6 +240,37 @@ def ensure_products(users):
         products.append(product)
     return products
 
+def ensure_opportunities(users, contacts):
+    """Crea oportunidades de prueba distribuidas entre contactos."""
+    if not contacts:
+        return []
+    opportunities = []
+    now = timezone.now()
+
+    for name, amount in OPPORTUNITIES_DATA:
+        contact = random.choice(contacts)
+        stage = random.choices(
+            ["discovery", "proposal", "negotiation", "won", "lost"],
+            weights=[0.25, 0.25, 0.20, 0.15, 0.15],
+        )[0]
+        expected_close = now.date() + timedelta(days=random.randint(15, 120))
+        if stage in ("won", "lost"):
+            expected_close = now.date() - timedelta(days=random.randint(1, 30))
+
+        op = Opportunity.objects.create(
+            name=name,
+            contact=contact,
+            amount=amount,
+            stage=stage,
+            expected_close_date=expected_close,
+            lost_reason="Cliente eligió a la competencia" if stage == "lost" else "",
+            assigned_to=random.choice(users) if users else None,
+            created_by=random.choice(users) if users else None,
+        )
+        opportunities.append(op)
+
+    return opportunities
+
 def generate_contacts(n=50):
     """Genera n contactos aleatorios, con empresa y tags asignados."""
     users = list(User.objects.all())
@@ -270,6 +317,11 @@ def generate_contacts(n=50):
             contact.interests.set(selected_products)
 
         contacts_created.append(contact)
+
+    # Crear oportunidades después de todos los contactos
+    if contacts_created:
+        opps = ensure_opportunities(users, contacts_created)
+        print(f"✅ {len(opps)} oportunidades creadas")
 
     print(f"✅ {len(contacts_created)} contactos creados")
     print(f"✅ {len(companies)} empresas aseguradas")
@@ -407,6 +459,7 @@ def main(n=DEFAULT_CONTACTS):
     print("-" * 50)
     print(f"📊 Resumen:")
     print(f"   - Contactos totales: {Contact.objects.count()}")
+    print(f"   - Oportunidades totales: {Opportunity.objects.count()}")
     print(f"   - Interacciones totales: {Interaction.objects.count()}")
     print(f"   - Análisis de sentimiento: {SentimentAnalysis.objects.count()}")
     print(f"   - Tareas totales: {Task.objects.count()}")

@@ -35,3 +35,22 @@ reportado por VS Code:
 2. Corre tsc --noEmit (lee del disco, no del editor)
 3. Si tsc pasa pero VS Code reporta errores, son stale → ignóralos
 4. Cita la línea y el contenido actual en tu reporte para evidenciar
+
+## Edits sucesivos al mismo archivo
+
+El editor de Cline (search/replace) tiene un problema conocido: cuando
+se hacen múltiples edits al mismo archivo en una sesión, cada edit
+puede re-indentar el código incorrectamente, especialmente si el
+`old_text` no incluye la indentación completa.
+
+Regla: cuando un archivo requiera 3 o más edits, preferir UNA sola
+edición grande que cubra todos los cambios. Si eso no es posible:
+
+1. Hacer los edits de ABAJO hacia ARRIBA (empezar por las líneas
+   más cercanas al final del archivo) para que los números de línea
+   no se desplacen.
+2. Después de cada edit, verificar la indentación con:
+   python -c "import ast; ast.parse(open('<archivo>').read())"
+3. Si hay un error de sintaxis, revertir el edit y rehacerlo con
+   `old_text` que incluya la indentación completa (los espacios
+   iniciales de cada línea).

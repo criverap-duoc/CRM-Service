@@ -85,13 +85,18 @@ class ContactListSerializer(serializers.ModelSerializer):
     company = serializers.CharField(source="company.name", read_only=True, default="")
     tags = TagSerializer(many=True, read_only=True)
     interest_count = serializers.SerializerMethodField()
+    opportunity_count = serializers.SerializerMethodField()
 
     def get_interest_count(self, obj):
         return obj.interests.count()
+
+    def get_opportunity_count(self, obj):
+        return obj.opportunities.count()
 
     class Meta:
         model = Contact
         fields = [
             "id", "full_name", "email", "company", "tags",
-            "interest_count", "status", "source", "created_at",
+            "interest_count", "opportunity_count",
+            "status", "source", "created_at",
         ]

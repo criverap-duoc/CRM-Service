@@ -49,3 +49,14 @@ Cuando el usuario diga "cerrar feature", ejecuta y reporta:
    git commit -m "<type>(<scope>): <descripción>"
    git push origin master
 7. Reporta: hash del commit + output del push
+
+
+## "verificar indentación"
+
+Ejecuta para cada archivo .py modificado:
+
+1. python -c "import ast; ast.parse(open('<archivo>').read())"
+2. Mostrar las líneas sospechosas con espacios visibles:
+   - PowerShell: Get-Content <archivo> | Select-Object -First 50 | ForEach-Object { $_.Replace(' ', '·') }
+3. Reportar cualquier línea con más de 8 espacios consecutivos seguidos
+   de código (probable indentación rota).

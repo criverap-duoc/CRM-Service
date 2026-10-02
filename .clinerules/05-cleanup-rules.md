@@ -38,3 +38,19 @@ Cuando el cambio afecte a más de un archivo, ANTES de reportar "listo", verific
 5. Reportar el estado del working tree:
    - git status --short
    - Listar los archivos nuevos (??) y modificados (M)
+
+
+## Código basura generado por agentes
+
+Frases típicas que indican código inalcanzable o basura que hay que
+eliminar antes de commitear:
+
+- `if False else None` — placeholder que nunca se ejecuta
+- `# TODO` o `# FIXME` sin autor
+- Líneas después de `return` en la misma función
+- Variables declaradas y nunca usadas
+- Comentarios que dicen "esto se elimina después"
+
+Detectar con:
+grep -n "if False\|# TODO\|# FIXME\|pass$" <archivo>
+grep -n "return" <archivo>  # y verificar que no haya código después
