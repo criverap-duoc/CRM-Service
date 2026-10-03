@@ -2,6 +2,8 @@
 import { Outfit, Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
+import { NotificationsProvider } from "@/context/NotificationsContext";
+import { Toaster } from "sonner";
 
 // Outfit para títulos (más elegante y con carácter)
 const outfit = Outfit({
@@ -33,7 +35,10 @@ export default function RootLayout({
     <html lang="es">
       <body className={`${outfit.variable} ${inter.variable} antialiased font-sans`}>
         <AuthProvider>
-          {children}
+          <NotificationsProvider>
+            {children}
+            <Toaster richColors position="top-right" />
+          </NotificationsProvider>
         </AuthProvider>
       </body>
     </html>
