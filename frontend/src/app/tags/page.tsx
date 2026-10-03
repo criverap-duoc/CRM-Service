@@ -17,6 +17,8 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Plus, Pencil, Trash2, Tag as TagIcon, LogOut } from 'lucide-react';
+import { NotificationBell } from '@/components/NotificationBell';
+
 
 interface Tag {
   id: number;
@@ -163,6 +165,8 @@ export default function TagsPage() {
             <Button variant="outline" onClick={() => router.push('/opportunities')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Oportunidades
             </Button>
+
+            <NotificationBell />
 
             <Button
               variant="ghost"

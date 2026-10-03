@@ -14,6 +14,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Plus, Search, Eye, Download, Filter, LogOut } from 'lucide-react';
+import { NotificationBell } from '@/components/NotificationBell';
+
 
 interface Contact {
   id: number;
@@ -183,6 +185,8 @@ export default function ContactsPage() {
             <Button variant="outline" onClick={() => router.push('/opportunities')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Oportunidades
             </Button>
+
+            <NotificationBell />
 
             <Button 
               variant="ghost" 

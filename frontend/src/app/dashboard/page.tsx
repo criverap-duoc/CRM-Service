@@ -8,6 +8,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Users, UserPlus, TrendingUp, Clock, Sparkles, LogOut, CheckSquare, AlertTriangle, Target } from 'lucide-react';
+import { NotificationBell } from '@/components/NotificationBell';
+
 
 interface Contact {
   id: number;
@@ -175,6 +177,8 @@ export default function DashboardPage() {
             <Button variant="outline" onClick={() => router.push('/opportunities')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Oportunidades
             </Button>
+
+            <NotificationBell />
 
             <Button 
               variant="ghost" 

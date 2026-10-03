@@ -11,6 +11,8 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Building2, Search, Filter, Eye, LogOut, Plus } from 'lucide-react';
+import { NotificationBell } from '@/components/NotificationBell';
+
 
 interface Company {
   id: number;
@@ -130,6 +132,8 @@ export default function CompaniesPage() {
             <Button variant="outline" onClick={() => router.push('/opportunities')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Oportunidades
             </Button>
+
+            <NotificationBell />
 
             <Button
               variant="ghost"

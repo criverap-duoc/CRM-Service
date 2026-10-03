@@ -32,6 +32,8 @@ import {
   CheckSquare, Filter, Plus, LogOut, AlertTriangle, Clock, CheckCircle2, XCircle, Calendar, Check, ChevronsUpDown
 } from 'lucide-react';
 import { cn } from "@/lib/utils"
+import { NotificationBell } from '@/components/NotificationBell';
+
 
 
 interface Task {
@@ -242,6 +244,8 @@ export default function TasksPage() {
             <Button variant="outline" onClick={() => router.push('/opportunities')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Oportunidades
             </Button>
+
+            <NotificationBell />
 
             <Button variant="ghost" size="sm" onClick={logout} className="text-rose-500 hover:text-rose-600 hover:bg-rose-50/50 rounded-xl">
               <LogOut className="h-4 w-4 mr-1.5" />
