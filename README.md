@@ -1,15 +1,16 @@
 # CRM Service
 
 [![Python](https://img.shields.io/badge/Python-3.12-blue)](https://python.org)
-[![Django](https://img.shields.io/badge/Django-5.x-green)](https://djangoproject.com)
+[![Django](https://img.shields.io/badge/Django-6.x-green)](https://djangoproject.com)
 [![DRF](https://img.shields.io/badge/DRF-3.15-red)](https://www.django-rest-framework.org)
 [![Next.js](https://img.shields.io/badge/Next.js-16.x-black)](https://nextjs.org)
 [![Tailwind](https://img.shields.io/badge/Tailwind-4.x-38bdf8)](https://tailwindcss.com)
 [![shadcn/ui](https://img.shields.io/badge/shadcn/ui-latest-000000)](https://ui.shadcn.com)
 [![scikit-learn](https://img.shields.io/badge/scikit--learn-1.5-orange)](https://scikit-learn.org)
-[![pytest](https://img.shields.io/badge/tests-53_passed-blueviolet)](https://pytest.org)
+[![Django Channels](https://img.shields.io/badge/Channels-4.x-092E20)](https://channels.readthedocs.io)
+[![pytest](https://img.shields.io/badge/tests-101_passed-blueviolet)](https://pytest.org)
 
-> Sistema CRM completo con Django REST Framework, Next.js 16 y capacidades de ciencia de datos. Incluye autenticación JWT, gestión de contactos, empresas, tags, tareas, productos y oportunidades, integración con Meta Lead Ads y OpenAI, lead scoring con Machine Learning, predicción de churn, segmentación de clientes y análisis de sentimiento.
+> Sistema CRM completo con Django REST Framework, Next.js 16, WebSockets en tiempo real y capacidades de ciencia de datos. Incluye autenticación JWT, gestión de contactos, empresas, tags, tareas, productos y oportunidades, integración con Meta Lead Ads y OpenAI, lead scoring con Machine Learning, predicción de churn, segmentación de clientes, análisis de sentimiento y notificaciones en vivo.
 
 ---
 
@@ -24,30 +25,34 @@ CRM Service es un sistema CRM inteligente diseñado para:
 - Segmentar clientes automáticamente con K-Means
 - Analizar sentimiento de interacciones con clientes
 - Gestionar un pipeline comercial con forecast ponderado por probabilidad
+- Emitir notificaciones en tiempo real vía WebSockets
 - Proveer dashboards comercial y analítico para visualizar métricas clave
 
-El problema que resuelve: Equipos comerciales pierden oportunidades porque los leads generados en campañas digitales quedan sin seguimiento por horas. Este sistema reduce ese tiempo de 48 horas a menos de 2 horas mediante automatización inteligente y priorización por ML.
+El problema que resuelve: Equipos comerciales pierden oportunidades porque los leads generados en campañas digitales quedan sin seguimiento por horas. Este sistema reduce ese tiempo de 48 horas a menos de 2 horas mediante automatización inteligente, priorización por ML y notificaciones en tiempo real.
 
 ---
 
 ## Stack Tecnológico
 
 Backend:
-- Framework: Django 5.x + Django REST Framework
-- Autenticación: JWT (SimpleJWT) + Roles (Manager/Agent vía grupos de Django)
+- Framework: Django 6.x + Django REST Framework
+- WebSockets: Django Channels 4.x + Daphne + channels-redis
+- Autenticación: JWT (SimpleJWT) + Roles (Manager/Agent vía grupos)
 - Base de Datos: SQLite (dev) / PostgreSQL (prod planificado)
 - Integraciones: Meta Lead Ads, OpenAI
 - Machine Learning: scikit-learn (Random Forest, K-Means, GridSearchCV)
 - Procesamiento de Datos: pandas, numpy, joblib
 - Documentación: drf-spectacular (OpenAPI/Swagger)
 - Filtros: django-filter
-- Tests: pytest + pytest-django (53 tests)
+- Tests: pytest + pytest-django (101 tests)
 
 Frontend:
 - Framework: Next.js 16 (App Router, Turbopack)
 - Lenguaje: TypeScript
 - Estilos: Tailwind CSS 4.x + shadcn/ui
-- Estado: React Context API (AuthContext)
+- Estado: React Context API + Custom Hooks
+- WebSockets: cliente nativo con reconexión automática
+- Notificaciones: sonner (toasts)
 - HTTP: Axios con interceptores
 - Gráficos: Recharts
 - Iconos: Lucide React
@@ -64,7 +69,7 @@ Ciencia de Datos:
 
 ## V4 - Ecosistema de entidades
 
-La V4 expande el modelo de dominio del CRM con cinco entidades nuevas que enriquecen la analítica y el Machine Learning.
+La V4 expande el modelo de dominio del CRM con cinco entidades nuevas y notificaciones en tiempo real.
 
 | Entidad | Propósito | Impacto en ML |
 |---------|-----------|---------------|
@@ -73,8 +78,9 @@ La V4 expande el modelo de dominio del CRM con cinco entidades nuevas que enriqu
 | **Task** | Tareas operativas asociadas a contactos y agentes | Features de productividad |
 | **Product** | Catálogo de productos con categoría y precio, M2M con contactos | Señal de interés (avg_interest_price, categorías) |
 | **Opportunity** | Oportunidades comerciales con stage, amount y probabilidad | Pipeline total y ponderado, has_won_deal, has_lost_deal |
+| **Notification** | Notificaciones en vivo por WebSocket con persistencia | Sistema, no feature |
 
-**Endpoints nuevos de V4:**
+**Endpoints de V4:**
 
 | Método | Endpoint | Descripción |
 |--------|----------|-------------|
@@ -89,6 +95,11 @@ La V4 expande el modelo de dominio del CRM con cinco entidades nuevas que enriqu
 | GET | /api/v1/opportunities/pipeline/ | Resumen por stage con totales |
 | GET | /api/v1/opportunities/forecast/ | Forecast por mes de cierre esperado |
 | GET | /api/v1/opportunities/my-summary/ | Resumen del usuario |
+| GET | /api/v1/notifications/ | Listar notificaciones del usuario |
+| GET | /api/v1/notifications/unread-count/ | Contador de no leídas |
+| PATCH | /api/v1/notifications/{id}/read/ | Marcar como leída |
+| POST | /api/v1/notifications/mark-all-read/ | Marcar todas como leídas |
+| WS | /ws/notifications/?token=... | WebSocket de notificaciones en vivo |
 
 ---
 
@@ -104,14 +115,14 @@ La V4 expande el modelo de dominio del CRM con cinco entidades nuevas que enriqu
 | GET/POST | /api/v1/contacts/ | Listar y crear contactos |
 | GET/PATCH/DELETE | /api/v1/contacts/{id}/ | Detalle, actualizar, eliminar |
 | PATCH | /api/v1/contacts/{id}/status/ | Cambiar estado |
-| PATCH | /api/v1/contacts/{id}/assign/ | Reasignar (solo managers) |
+| PATCH | /api/v1/contacts/{id}/assign/ | Reasignar (emite notificación) |
 
 ### V2 - Interacciones e Integraciones
 
 | Método | Endpoint | Descripción |
 |--------|----------|-------------|
 | GET/POST | /api/v1/interactions/ | Listar y crear interacciones |
-| POST | /api/v1/integrations/meta/webhook/ | Webhook Meta Lead Ads |
+| POST | /api/v1/integrations/meta/webhook/ | Webhook Meta Lead Ads (notifica a managers) |
 | POST | /api/v1/integrations/ai/summarize/ | Resumir con OpenAI |
 
 ### V3 - Data-Enhanced (Machine Learning)
@@ -127,6 +138,28 @@ La V4 expande el modelo de dominio del CRM con cinco entidades nuevas que enriqu
 | GET | /api/v3/export/contacts/ | Exportar contactos a CSV |
 | GET | /api/v3/export/interactions/ | Exportar interacciones a CSV |
 | GET | /api/v3/agents/dashboard/ | Métricas por agente |
+
+---
+
+## Notificaciones en tiempo real
+
+El sistema emite notificaciones vía WebSocket cuando ocurren eventos críticos:
+
+| Evento | Tipo | Destinatario |
+|--------|------|--------------|
+| Lead reasignado | lead_assigned | Nuevo agente |
+| Webhook de Meta procesado | webhook_received | Todos los managers |
+| Tarea vencida | task_overdue | Agente asignado |
+
+**Arquitectura:**
+- Autenticación por JWT en el query string del WebSocket
+- Cada usuario se conecta a un grupo `user_{id}`
+- Notificaciones persistidas en DB (historial completo)
+- Frontend: hook `useWebSocket` con reconexión automática y backoff exponencial
+- Toasts en vivo vía sonner, campana en navbar con badge, página `/notifications` completa
+
+**Management command:**
+- `python manage.py check_overdue_tasks [--dry-run]` — detecta tareas vencidas y emite notificaciones al agente asignado. Idempotente.
 
 ---
 
@@ -204,6 +237,8 @@ python manage.py migrate
 python manage.py createsuperuser
 python manage.py runserver
 
+Nota: con `daphne` instalado, `runserver` arranca automáticamente el servidor ASGI (necesario para WebSockets).
+
 Frontend:
 
 cd frontend
@@ -215,6 +250,7 @@ La aplicación estará disponible en:
 - Frontend: http://localhost:3000
 - Backend API: http://localhost:8000/api/v1
 - API V3: http://localhost:8000/api/v3
+- WebSocket: ws://localhost:8000/ws/notifications/
 - Swagger UI: http://localhost:8000/api/docs/
 - Admin Django: http://localhost:8000/admin/
 
@@ -244,11 +280,16 @@ cd backend
 python -m pytest -v
 python -m pytest --cov=apps --cov-report=term-missing
 
-Cobertura actual:
+Cobertura actual: 101 tests pasando.
 
-- 53 tests pasando (34 de contactos/interacciones + 19 de analytics).
-- Tests de lead score, churn, segmento, sentiment stats, segment stats.
-- Pendiente: tests de empresas, tags, tareas, productos y oportunidades.
+| Suite | Tests | Cubre |
+|-------|-------|-------|
+| test_contacts.py | 19 | Autenticación, CRUD, permisos, filtros, actions, emails |
+| test_interactions.py | 15 | CRUD, filtros, validaciones |
+| test_products.py | 16 | CRUD, permisos, filtros, M2M con Contact |
+| test_opportunities.py | 18 | Reglas de negocio, pipeline, forecast, permisos |
+| test_notifications.py | 14 | Modelo, endpoints, helper, integración con change_assigned |
+| apps/analytics/tests.py | 19 | Lead score, churn, segmento, sentiment, segment stats |
 
 ---
 
@@ -271,6 +312,11 @@ Cobertura actual:
 | Sintéticos sin leakage | Correlaciones controladas con std grandes | ROC-AUC realista |
 | Fallback a reglas | try/except en endpoints de analytics | Sistema funciona sin .pkl |
 | Emails ASCII | normalize_email_part() en populate | Cumple RFC 5321 |
+| WebSocket JWT | Query string en lugar de header | WebSockets no envían headers |
+| InMemoryChannelLayer en dev | Solo Redis en prod | Cero setup para desarrollo |
+| Notificaciones persistidas | Modelo Notification en DB | Historial completo del usuario |
+| `div role="button"` | En lugar de `<button>` anidado | HTML válido + accesibilidad |
+| Backoff exponencial | 1s → 2s → 4s → ... → 30s | Reconexión sin saturar |
 | Versionado de API | /api/v1/ y /api/v3/ separados | Coexistencia sin breaking changes |
 
 ---
@@ -287,16 +333,21 @@ Cobertura actual:
 | backend/apps/contacts/ | Gestión de contactos |
 | backend/apps/interactions/ | Gestión de interacciones |
 | backend/apps/integrations/ | Integraciones con Meta y OpenAI |
+| backend/apps/notifications/ | Notificaciones en tiempo real + WebSocket |
 | backend/apps/opportunities/ | Pipeline comercial con forecast |
 | backend/apps/products/ | Catálogo de productos |
 | backend/apps/tags/ | Etiquetas con color |
 | backend/apps/tasks/ | Tareas con vencimiento |
-| backend/crm_service/settings/ | Configuración por entorno |
+| backend/crm_service/ | Configuración Django (settings, urls, asgi) |
 | backend/data/processed/ | Datasets procesados |
 | backend/scripts/ | Scripts de entrenamiento y población |
-| frontend/src/app/ | Páginas (companies, contacts, tags, tasks, products, opportunities, analytics) |
-| frontend/src/components/ui/ | Componentes shadcn/ui |
-| frontend/src/lib/ | Clientes HTTP |
+| backend/tests/ | Tests integrados con pytest |
+| .clinerules/ | Reglas para agentes de IA (indentación, workflows) |
+| frontend/src/app/ | Páginas (10 rutas) |
+| frontend/src/components/ | Componentes (ui + NotificationBell) |
+| frontend/src/context/ | Contextos globales (Auth, Notifications) |
+| frontend/src/hooks/ | Hooks custom (useWebSocket) |
+| frontend/src/lib/ | Clientes HTTP (api-client, analytics-client) |
 
 ---
 
@@ -310,7 +361,8 @@ Backend (.env en backend/):
 - META_ACCESS_TOKEN — Token de Meta Lead Ads
 - META_APP_SECRET — Secreto para HMAC del webhook
 - OPENAI_API_KEY — Clave de OpenAI (opcional)
-- DATABASE_URL — URL de base de datos
+- DATABASE_URL — URL de base de datos (prod)
+- REDIS_URL — URL de Redis para channel layer (prod)
 
 Frontend (.env.local en frontend/):
 
@@ -323,15 +375,13 @@ Frontend (.env.local en frontend/):
 - [x] v1.0.0 - Backend REST + Autenticación JWT + Meta/OpenAI
 - [x] v2.0.0 - Frontend Next.js + Dashboard + Lista de Contactos
 - [x] v3.0.0 - Data-Enhanced (Lead Scoring inicial)
-- [x] v3.1.0 - Dashboard Analítico con gráficos
-- [x] v3.2.0 - Integración de Lead Score y Sentimiento en Frontend
-- [x] v3.3.0 - Lead Scoring dinámico y correcciones
-- [x] v3.4.0 - Analytics avanzados (Churn, Segmentación, Exportación, Filtros)
-- [x] v4.0.0-alpha.1 - Entidad Company con health score
+- [x] v3.4.0 - Analytics avanzados (Churn, Segmentación, Exportación)
+- [x] v4.0.0-alpha.1 - Company con health score
 - [x] v4.0.0-alpha.2 - Company + Tag + Task + ML V3
-- [x] v4.0.0-alpha.3 - Product + Opportunity + reentrenamiento ML (32 features)
-- [ ] v4.0.0 - WebSockets y notificaciones en tiempo real
-- [ ] v4.1.0 - Despliegue en AWS (ECS + RDS + S3)
+- [x] v4.0.0-alpha.3 - Product + Opportunity + ML 32 features
+- [x] v4.0.0 - WebSockets + Notificaciones en tiempo real + 101 tests
+- [ ] v4.1.0 - Despliegue en AWS (ECS + RDS + S3) + Docker Compose
+- [ ] v4.2.0 - CI/CD con GitHub Actions
 - [ ] v5.0.0 - Reentrenamiento con datos reales de producción
 
 ---
@@ -340,8 +390,8 @@ Frontend (.env.local en frontend/):
 
 | Rol | Permisos |
 |-----|----------|
-| Manager | CRUD completo en todas las entidades, eliminar contactos, reasignar agentes, gestionar empresas y tags, ver dashboard de agentes |
-| Agent | Ver y editar solo sus contactos asignados y sus oportunidades, crear interacciones y tareas, ver todas las empresas y tags (lectura) |
+| Manager | CRUD completo en todas las entidades, eliminar contactos, reasignar agentes, gestionar empresas y tags, ver dashboard de agentes, recibir notificaciones de webhooks |
+| Agent | Ver y editar solo sus contactos asignados y sus oportunidades, crear interacciones y tareas, ver todas las empresas y tags (lectura), recibir notificaciones de leads asignados y tareas vencidas |
 
 ---
 
@@ -352,4 +402,4 @@ MIT
 ---
 
 Repositorio: https://github.com/criverap-duoc/CRM-Service
-Versiones: v1.0.0, v2.0.0, v3.0.0, v3.1.0, v3.2.0, v3.3.0, v3.4.0, v4.0.0-alpha.1, v4.0.0-alpha.2, v4.0.0-alpha.3
+Versiones: v1.0.0, v2.0.0, v3.0.0, v3.1.0, v3.2.0, v3.3.0, v3.4.0, v4.0.0-alpha.1, v4.0.0-alpha.2, v4.0.0-alpha.3, v4.0.0
