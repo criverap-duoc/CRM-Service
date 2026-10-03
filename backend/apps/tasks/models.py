@@ -52,6 +52,11 @@ class Task(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    overdue_notified = models.BooleanField(
+        default=False,
+        help_text="Si ya se emitió la notificación de vencimiento"
+    )
+
     class Meta:
         ordering = ["-created_at"]
         indexes = [
@@ -60,6 +65,7 @@ class Task(models.Model):
             models.Index(fields=["due_date"]),
             models.Index(fields=["assigned_to"]),
             models.Index(fields=["contact", "status"]),
+            models.Index(fields=["due_date", "overdue_notified"]),
         ]
 
     def __str__(self):

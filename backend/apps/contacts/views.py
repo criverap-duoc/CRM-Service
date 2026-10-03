@@ -1,4 +1,6 @@
 ## crm_service\apps\contacts\views.py
+import logging
+
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -9,6 +11,8 @@ from .models import Contact
 from .serializers import ContactSerializer, ContactListSerializer
 from .filters import ContactFilter
 from .permissions import IsManager, IsAgentOrManager
+
+logger = logging.getLogger(__name__)
 
 
 @extend_schema_view(
@@ -121,7 +125,22 @@ class ContactViewSet(viewsets.ModelViewSet):
         
         contact.assigned_to = agent
         contact.save(update_fields=["assigned_to", "updated_at"])
-        
+
+        # Notificar al nuevo agente por WebSocket (si no es el mismo)
+        if previous_agent != agent:
+            from apps.notifications.services import send_notification
+            send_notification(
+                user=agent,
+                notification_type="lead_assigned",
+                title=f"Nuevo lead asignado: {contact.full_name}",
+                message=f"Se te ha asignado el contacto {contact.full_name} ({contact.email}).",
+                payload={
+                    "contact_id": contact.id,
+                    "contact_name": contact.full_name,
+                    "previous_agent": previous_agent.username if previous_agent else None,
+                },
+            )
+
         # Enviar email de notificación al nuevo agente
         if agent.email:
             try:
@@ -147,9 +166,9 @@ class ContactViewSet(viewsets.ModelViewSet):
                     recipient_list=[agent.email],
                     fail_silently=True,
                 )
-                print(f"✅ Email enviado a {agent.email}")
+                logger.info("Email enviado a %s", agent.email)
             except Exception as e:
-                print(f"❌ Error al enviar email: {e}")
+                logger.error("Error al enviar email: %s", e)
         
         serializer = ContactSerializer(contact, context={"request": request})
         return Response(serializer.data)

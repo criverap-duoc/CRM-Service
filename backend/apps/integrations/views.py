@@ -104,6 +104,23 @@ class MetaWebhookView(APIView):
             occurred_at=timezone.now(),
         )
 
+        # Notificar a todos los managers sobre el nuevo lead
+        from django.contrib.auth.models import User
+        from apps.notifications.services import send_notification
+
+        managers = User.objects.filter(groups__name="managers", is_active=True)
+        for manager in managers:
+            send_notification(
+                user=manager,
+                notification_type="webhook_received",
+                title=f"Nuevo lead desde Meta: {contact.full_name}",
+                message=f"Llegó un lead nuevo por Meta Ads: {contact.full_name} ({contact.email}).",
+                payload={
+                    "contact_id": contact.id,
+                    "source": "meta_ads",
+                },
+            )
+
         logger.info("Meta webhook: contact %s (%s)", contact.pk, "created" if created else "exists")
         return Response({"received": True}, status=status.HTTP_200_OK)
 
