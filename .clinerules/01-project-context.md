@@ -1,7 +1,7 @@
 ﻿# Project Context: CRM-Service V4
 
 ## Stack
-- Backend: Django 5.x + DRF, SQLite (dev), JWT auth
+- Backend: Django 6.x + DRF, SQLite (dev), JWT auth
 - Frontend: Next.js 16 App Router, TypeScript, Tailwind 4, shadcn/ui, pnpm
 - ML: scikit-learn, pandas, joblib. Models live in apps/analytics/ml/
 - Testing: pytest + pytest-django

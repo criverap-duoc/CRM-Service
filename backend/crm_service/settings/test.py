@@ -20,3 +20,8 @@ SIMPLE_JWT = {
     **SIMPLE_JWT,
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=5),
 }
+
+# Los tests no deben intentar SMTP (el action `assign` de contacts envía email):
+# con locmem el mensaje queda en `mail.outbox` sin abrir conexiones de red.
+EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
+
