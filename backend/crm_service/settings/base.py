@@ -9,6 +9,7 @@ SECRET_KEY = config("SECRET_KEY", default="dev-secret-key-change-in-production")
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="*").split(",")
 
 DJANGO_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -18,6 +19,7 @@ DJANGO_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
+    "channels",
     "rest_framework",
     "rest_framework_simplejwt",
     "django_filters",
@@ -35,6 +37,7 @@ LOCAL_APPS = [
     "apps.tasks",
     "apps.products",
     "apps.opportunities",
+    "apps.notifications",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -69,6 +72,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "crm_service.wsgi.application"
+ASGI_APPLICATION = "crm_service.asgi.application"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
@@ -139,3 +143,12 @@ CORS_ALLOW_CREDENTIALS = True
 
 # Para desarrollo, permitir todos los orígenes (solo para pruebas)
 CORS_ALLOW_ALL_ORIGINS = True
+
+# WebSocket channel layers
+# En dev se usa InMemory (no requiere Redis).
+# En prod, sobreescribir con RedisChannelLayer en settings/prod.py.
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}
