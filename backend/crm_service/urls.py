@@ -17,6 +17,7 @@ urlpatterns = [
         path("tasks/", include("apps.tasks.urls")),
         path("products/", include("apps.products.urls")),
         path("opportunities/", include("apps.opportunities.urls")),
+        path("notifications/", include("apps.notifications.urls")),
         path("interactions/", include("apps.interactions.urls")),
         path("integrations/", include("apps.integrations.urls")),
     ])),
