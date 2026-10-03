@@ -14,6 +14,9 @@ from apps.tags.models import Tag
 from apps.tasks.models import Task
 from apps.interactions.models import Interaction
 from apps.analytics.models import SentimentAnalysis
+from apps.products.models import Product
+from apps.opportunities.models import Opportunity
+from apps.analytics.ml.features import build_features_for_contact
 
 
 # ============================================================
@@ -323,3 +326,107 @@ class TestSegmentStatsEndpoint:
         data = response.json()
         total_from_clusters = sum(c["count"] for c in data["clusters"])
         assert total_from_clusters == data["total_analyzed"]
+
+
+# ============================================================
+# Tests: Features derivadas de Product y Opportunity
+# ============================================================
+
+@pytest.mark.django_db
+class TestProductOpportunityFeatures:
+
+    def test_features_include_product_and_opportunity(self, db, user, company):
+        """build_features_for_contact incluye las 12 features nuevas de Product/Opportunity."""
+        contact = Contact.objects.create(
+            first_name="Interesado",
+            last_name="Productos",
+            email="interesado@example.com",
+            company=company,
+            status="prospect",
+            source="referral",
+            assigned_to=user,
+        )
+
+        # 2 productos de interés
+        product_a = Product.objects.create(
+            name="Plan Pro",
+            sku="SKU-PRO",
+            category="software",
+            unit_price=3_000_000,
+        )
+        product_b = Product.objects.create(
+            name="Servidor",
+            sku="SKU-SRV",
+            category="hardware",
+            unit_price=1_000_000,
+        )
+        contact.interests.add(product_a, product_b)
+
+        # 1 oportunidad abierta
+        Opportunity.objects.create(
+            name="Deal abierto",
+            contact=contact,
+            amount=5_000_000,
+            stage="negotiation",
+            probability=80,
+        )
+
+        features = build_features_for_contact(contact)
+
+        new_features = [
+            "interest_count",
+            "avg_interest_price",
+            "interest_category_diversity",
+            "has_high_value_interest",
+            "opportunity_count_total",
+            "opportunity_count_open",
+            "pipeline_value_total",
+            "pipeline_value_weighted",
+            "avg_deal_probability",
+            "has_won_deal",
+            "has_lost_deal",
+            "days_since_last_won",
+        ]
+        for feat in new_features:
+            assert feat in features
+
+        assert features["interest_count"] == 2
+        assert features["opportunity_count_open"] == 1
+        assert features["pipeline_value_total"] > 0
+
+    def test_lead_score_higher_with_open_opportunity(self, auth_client, user, company):
+        """Un contacto con oportunidad abierta grande tiene score >= que uno sin ella."""
+        contact_without = Contact.objects.create(
+            first_name="Sin",
+            last_name="Deal",
+            email="sin_deal@example.com",
+            company=company,
+            status="prospect",
+            source="referral",
+            assigned_to=user,
+        )
+        contact_with = Contact.objects.create(
+            first_name="Con",
+            last_name="Deal",
+            email="con_deal@example.com",
+            company=company,
+            status="prospect",
+            source="referral",
+            assigned_to=user,
+        )
+        Opportunity.objects.create(
+            name="Deal grande",
+            contact=contact_with,
+            amount=5_000_000,
+            stage="negotiation",
+            probability=80,
+        )
+
+        response_without = auth_client.get(f"/api/v3/lead-score/{contact_without.id}/")
+        response_with = auth_client.get(f"/api/v3/lead-score/{contact_with.id}/")
+        assert response_without.status_code == 200
+        assert response_with.status_code == 200
+
+        score_without = response_without.json()["lead_score"]
+        score_with = response_with.json()["lead_score"]
+        assert score_with >= score_without

@@ -68,6 +68,86 @@ def generate_synthetic_leads(n=2000, seed=42):
         overdue_tasks = int(np.random.random() < base["overdue_prob"]) * np.random.randint(0, 3)
         task_completion_rate = completed_tasks / max(1, total_tasks)
 
+        # === Product Interests (correlacionado con status) ===
+        if status == "customer":
+            interest_count = np.random.poisson(2.5)
+            avg_interest_price = float(np.random.normal(2_500_000, 800_000))
+            interest_category_diversity = min(interest_count, np.random.randint(1, 4))
+            has_high_value_interest = int(np.random.random() < 0.6)
+        elif status == "prospect":
+            interest_count = np.random.poisson(1.8)
+            avg_interest_price = float(np.random.normal(2_000_000, 700_000))
+            interest_category_diversity = min(interest_count, np.random.randint(1, 3))
+            has_high_value_interest = int(np.random.random() < 0.4)
+        elif status == "churned":
+            interest_count = np.random.poisson(0.8)
+            avg_interest_price = float(np.random.normal(1_200_000, 500_000))
+            interest_category_diversity = min(interest_count, np.random.randint(0, 2))
+            has_high_value_interest = int(np.random.random() < 0.15)
+        else:  # lead
+            interest_count = np.random.poisson(1.0)
+            avg_interest_price = float(np.random.normal(1_500_000, 600_000))
+            interest_category_diversity = min(interest_count, np.random.randint(0, 2))
+            has_high_value_interest = int(np.random.random() < 0.2)
+
+        if interest_count == 0:
+            avg_interest_price = 0.0
+            interest_category_diversity = 0
+            has_high_value_interest = 0
+
+        avg_interest_price = max(0, avg_interest_price)
+
+        # === Opportunities (correlación leve con status, SIN leakage determinista) ===
+        # has_won_deal / has_lost_deal dependen SUAVEMENTE del status vía probabilidades:
+        # ningún caso fuerza won=1 para customer (eso era el leakage original).
+        won_prob_by_status = {
+            "customer": 0.45,
+            "prospect": 0.20,
+            "churned": 0.10,
+            "lead": 0.08,
+        }
+        lost_prob_by_status = {
+            "customer": 0.15,
+            "prospect": 0.10,
+            "churned": 0.55,
+            "lead": 0.05,
+        }
+        has_won_deal = int(np.random.random() < won_prob_by_status[status])
+        has_lost_deal = int(np.random.random() < lost_prob_by_status[status])
+
+        if status == "customer":
+            opportunity_count_total = np.random.poisson(2.0)
+            opportunity_count_open = np.random.poisson(1.2)
+        elif status == "prospect":
+            opportunity_count_total = np.random.poisson(1.5)
+            opportunity_count_open = np.random.poisson(1.3)
+        elif status == "churned":
+            opportunity_count_total = np.random.poisson(1.2)
+            opportunity_count_open = np.random.poisson(0.3)
+        else:  # lead
+            opportunity_count_total = np.random.poisson(0.6)
+            opportunity_count_open = np.random.poisson(0.5)
+
+        # El pipeline abierto nunca puede superar el total de oportunidades.
+        opportunity_count_open = min(opportunity_count_open, opportunity_count_total)
+
+        if opportunity_count_open > 0:
+            base_amount = np.random.normal(2_500_000, 1_500_000)
+            pipeline_value_total = max(0, float(base_amount * opportunity_count_open))
+            avg_prob = np.random.uniform(20, 70)
+            pipeline_value_weighted = pipeline_value_total * (avg_prob / 100)
+            avg_deal_probability = avg_prob
+        else:
+            pipeline_value_total = 0.0
+            pipeline_value_weighted = 0.0
+            avg_deal_probability = 0.0
+
+        # days_since_last_won solo tiene valor si has_won_deal=1, independiente del status
+        if has_won_deal:
+            days_since_last_won = np.random.randint(1, 180)
+        else:
+            days_since_last_won = 999
+
         data.append({
             "source": source,
             "company_industry": company_industry,
@@ -89,6 +169,18 @@ def generate_synthetic_leads(n=2000, seed=42):
             "completed_tasks": completed_tasks,
             "overdue_tasks": overdue_tasks,
             "task_completion_rate": round(task_completion_rate, 3),
+            "interest_count": int(interest_count),
+            "avg_interest_price": round(avg_interest_price, 0),
+            "interest_category_diversity": int(interest_category_diversity),
+            "has_high_value_interest": int(has_high_value_interest),
+            "opportunity_count_total": int(opportunity_count_total),
+            "opportunity_count_open": int(opportunity_count_open),
+            "pipeline_value_total": round(pipeline_value_total, 0),
+            "pipeline_value_weighted": round(pipeline_value_weighted, 2),
+            "avg_deal_probability": round(avg_deal_probability, 2),
+            "has_won_deal": int(has_won_deal),
+            "has_lost_deal": int(has_lost_deal),
+            "days_since_last_won": int(days_since_last_won),
             "status": status,
             "converted": 1 if status == "customer" else 0,
             "churned": 1 if status == "churned" else 0,

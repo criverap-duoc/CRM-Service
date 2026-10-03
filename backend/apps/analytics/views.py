@@ -63,6 +63,12 @@ class LeadScoreView(APIView):
                     "response_rate", "sentiment_avg",
                     "company_industry", "company_size",
                     "tag_count", "total_tasks", "overdue_tasks",
+                    "interest_count", "avg_interest_price",
+                    "interest_category_diversity", "has_high_value_interest",
+                    "opportunity_count_total", "opportunity_count_open",
+                    "pipeline_value_total", "pipeline_value_weighted",
+                    "avg_deal_probability", "has_won_deal",
+                    "has_lost_deal", "days_since_last_won",
                 )
             },
         })
