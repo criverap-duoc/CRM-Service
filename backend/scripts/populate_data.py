@@ -25,6 +25,17 @@ from apps.tasks.models import Task
 from apps.products.models import Product
 from apps.opportunities.models import Opportunity
 
+import unicodedata
+
+
+def normalize_email_part(text):
+    """Normaliza un texto para usarlo en la parte local de un email.
+    Convierte a ASCII puro (sin tildes) en minúsculas."""
+    nfd = unicodedata.normalize('NFD', text)
+    ascii_text = ''.join(c for c in nfd if unicodedata.category(c) != 'Mn')
+    return ascii_text.lower().replace('ñ', 'n').replace('ü', 'u')
+
+
 # Datos para generar
 NOMBRES = [
     'María', 'Carlos', 'Ana', 'Pedro', 'Laura', 'Diego', 'Sofía', 'Javier',
@@ -287,10 +298,10 @@ def generate_contacts(n=50):
     for i in range(n):
         first_name = random.choice(NOMBRES)
         last_name = random.choice(APELLIDOS)
-        email = f"{first_name.lower()}.{last_name.lower()}{i}@ejemplo.com"
+        email = f"{normalize_email_part(first_name)}.{normalize_email_part(last_name)}{i}@ejemplo.com"
 
         while email in used_emails:
-            email = f"{first_name.lower()}.{last_name.lower()}{random.randint(1000,9999)}@ejemplo.com"
+            email = f"{normalize_email_part(first_name)}.{normalize_email_part(last_name)}{random.randint(1000,9999)}@ejemplo.com"
         used_emails.add(email)
 
         contact = Contact.objects.create(

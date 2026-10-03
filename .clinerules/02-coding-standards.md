@@ -1,56 +1,71 @@
 ﻿# Coding Standards
 
 ## Python / Django
-- Use rom apps.X.models import Y for cross-app imports
-- Always add 
-elated_name to FK and M2M fields
-- Use select_related / prefetch_related when accessing related objects
-- Custom exception handler envelope: {""error"": {""code"", ""message"", ""details""}}
+
+- Cross-app imports: `from apps.X.models import Y`
+  (nunca `from X.models import Y`)
+- Siempre agregar `related_name` a FKs y M2M. El nombre debe describir
+  la relación inversa, no la directa.
+  Ej: `contact = FK(Contact, related_name="opportunities")` — no `related_name="contact_fk"`
+- Usar `select_related` (FK) y `prefetch_related` (M2M y reversas)
+  cuando se acceda a objetos relacionados en un loop.
+- Excepción custom handler: envelope `{"error": {"code", "message", "details"}}`
 
 ## Frontend / TypeScript
-- Path alias @/ for imports from src/
-- Type all API payloads; avoid ny
-- Client components: 'use client' at top
-- shadcn/ui components only from @/components/ui/
-- Icons: lucide-react. Charts: 
-echarts
+
+- Path alias `@/` para imports desde `src/`
+- Tipar payloads de API; evitar `any`. Usar `unknown` y narrowing.
+- Client components: `'use client'` en la primera línea
+- Componentes UI: siempre desde `@/components/ui/` (shadcn)
+- Iconos: `lucide-react`. Gráficos: `recharts`.
 
 ## API Client Pattern
-- api-client.ts: V1 endpoints (contacts, companies, tags, tasks)
-- analytics-client.ts: V3 endpoints (lead-score, churn, segment)
-- Both use separate axios instances with JWT interceptors
+
+- `api-client.ts`: endpoints V1 (contacts, companies, tags, tasks, products, opportunities)
+- `analytics-client.ts`: endpoints V3 (lead-score, churn, segment)
+- Cada cliente tiene su propia instancia de axios con interceptores JWT
 
 ## Naming
-- Python: snake_case functions/vars, PascalCase classes
-- TypeScript: camelCase functions/vars, PascalCase components/types
-- Files: kebab-case for pages, snake_case for Python modules
+
+- Python: `snake_case` para funciones/variables, `PascalCase` para clases
+- TypeScript: `camelCase` para funciones/variables, `PascalCase` para componentes/tipos
+- Archivos: `kebab-case` para páginas, `snake_case` para módulos Python
 
 ## Diagnósticos de TypeScript en VS Code
 
-Los errores del servidor TS de VS Code a veces quedan obsoletos tras
-múltiples ediciones seguidas. Antes de intentar "arreglar" un error
-reportado por VS Code:
+El servidor TS de VS Code acumula diagnósticos obsoletos tras múltiples
+ediciones seguidas. Antes de intentar "arreglar" un error reportado por
+VS Code, verifica si es real:
 
-1. Verifica el estado real del archivo en disco: Get-Content <archivo>
-2. Corre tsc --noEmit (lee del disco, no del editor)
-3. Si tsc pasa pero VS Code reporta errores, son stale → ignóralos
-4. Cita la línea y el contenido actual en tu reporte para evidenciar
+1. Leer el archivo real en disco: `Get-Content <archivo>`
+2. Correr `npx tsc --noEmit --pretty false` (lee del disco, no del editor)
+3. Si `tsc` pasa pero VS Code reporta errores → son stale, ignóralos
+4. Citar la línea y el contenido actual del archivo en el reporte
 
-## Edits sucesivos al mismo archivo
+## Edición de bloques de código (search/replace)
 
-El editor de Cline (search/replace) tiene un problema conocido: cuando
-se hacen múltiples edits al mismo archivo en una sesión, cada edit
-puede re-indentar el código incorrectamente, especialmente si el
-`old_text` no incluye la indentación completa.
+**Problema conocido:** el editor de Cline, cuando reemplaza texto, preserva
+la indentación del contexto donde inserta. Si el `old_text` no incluye los
+espacios iniciales exactos de cada línea, el resultado queda mal indentado.
+Este bug se ha visto en `populate_data.py`, `test_contacts.py` y otros.
 
-Regla: cuando un archivo requiera 3 o más edits, preferir UNA sola
-edición grande que cubra todos los cambios. Si eso no es posible:
+**Causa raíz:** la indentación del `new_text` se combina con la del punto
+de inserción, no se copia del `old_text`.
 
-1. Hacer los edits de ABAJO hacia ARRIBA (empezar por las líneas
-   más cercanas al final del archivo) para que los números de línea
-   no se desplacen.
-2. Después de cada edit, verificar la indentación con:
-   python -c "import ast; ast.parse(open('<archivo>').read())"
-3. Si hay un error de sintaxis, revertir el edit y rehacerlo con
-   `old_text` que incluya la indentación completa (los espacios
-   iniciales de cada línea).
+### Reglas obligatorias
+
+1. **SIEMPRE incluir los espacios iniciales** en el `old_text` y en el
+   `new_text`, sin excepción. Si el bloque tiene 4 espacios, esos 4
+   espacios van en el `old_text`.
+
+2. **Para bloques anidados**, usar un bloque completo contiguo (5-10 líneas)
+   en lugar de editar una sola línea. Una línea sin indentación visible
+   es la causa #1 de este bug.
+
+3. **Máximo 2 edits por archivo por turno.** Para 3+ cambios en el mismo
+   archivo, hacer UN solo edit grande que cubra todo, o esperar al
+   siguiente turno del usuario.
+
+4. **Verificación obligatoria después de cada edit:**
+   ```bash
+   python -c "import ast; ast.parse(open('<archivo>', encoding='utf-8').read()); print('OK')"

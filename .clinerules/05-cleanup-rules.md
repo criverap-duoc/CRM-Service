@@ -1,56 +1,87 @@
 ﻿# Code Cleanup Rules
 
-Before any commit, check and flag (don't auto-fix without approval):
-1. Unused Python imports (report, don't remove)
-2. Unused TypeScript imports (report, don't remove)
-3. Orphaned code (old function/class replaced but not removed)
-4. Dead files (superseded by newer version, e.g., lead_scoring.py vs lead_scoring_v3.py)
-5. Console.log in frontend, print() in backend (debug leftovers)
+## Antes de cualquier commit — reportar, no arreglar sin aprobación
 
-## ""cleanup pass""
-When asked:
-1. git diff --name-only
-2. Scan each modified Python file for unused imports
-3. Scan each modified TS/TSX file for unused imports
-4. Check for files with ""old"", ""backup"", ""copy"" in name
-5. Report as table: File | Issue | Suggested Action
-
-## Verificación obligatoria después de cambios en múltiples archivos
-
-Cuando el cambio afecte a más de un archivo, ANTES de reportar "listo", verifica:
-
-1. Todos los archivos tienen sintaxis válida:
-   - npx tsc --noEmit --pretty false (debe salir EXIT=0)
-   - npx eslint <archivos> (debe salir EXIT=0 para archivos nuevos)
-
-2. Todos los imports referenciados existen en el código:
-   - grep -r "from '@/lib/api-client'" src/
-   - Verificar que cada nombre importado (ej: `products`) esté exportado
-     en api-client.ts
-
-3. Todas las referencias a endpoints del backend existen en urls.py:
-   - Si agregas products.list(), verifica que /api/v1/products/ esté registrado
-
-4. Ningún archivo quedó huérfano:
-   - Antes de crear page.tsx nuevos, verificar si ya existe uno del mismo nombre
-   - Si un archivo no está enlazado desde ningún router.push, es huérfano → bórralo
-
-5. Reportar el estado del working tree:
-   - git status --short
-   - Listar los archivos nuevos (??) y modificados (M)
-
+1. Imports Python no usados (reportar, no eliminar)
+2. Imports TypeScript no usados (reportar, no eliminar)
+3. Código huérfano (función/clase reemplazada pero no eliminada)
+4. Archivos muertos (ej: lead_scoring.py vs lead_scoring_v3.py)
+5. Debug leftovers: console.log en frontend, print() en backend
 
 ## Código basura generado por agentes
 
-Frases típicas que indican código inalcanzable o basura que hay que
-eliminar antes de commitear:
+Frases que indican código inalcanzable o basura a eliminar antes del commit:
 
-- `if False else None` — placeholder que nunca se ejecuta
-- `# TODO` o `# FIXME` sin autor
-- Líneas después de `return` en la misma función
+- `if False else None` — placeholder muerto
+- `# TODO` o `# FIXME` sin autor ni fecha
+- Código después de un `return` en la misma función
 - Variables declaradas y nunca usadas
-- Comentarios que dicen "esto se elimina después"
+- Comentarios tipo "esto se elimina después" o "provisional"
 
-Detectar con:
-grep -n "if False\|# TODO\|# FIXME\|pass$" <archivo>
-grep -n "return" <archivo>  # y verificar que no haya código después
+Detección con grep (Git Bash):
+
+grep -rn "if False\|# TODO\|# FIXME\|pass$" backend/ frontend/src/
+
+grep -n "return" backend/apps/<app>/<archivo>.py
+# Y verificar manualmente que no haya código después
+
+python -m pyflakes backend/apps/ 2>&1 | head -20
+
+npx tsc --noUnusedLocals --noUnusedParameters --noEmit
+
+## Verificación obligatoria antes de commitear
+
+### Archivos Python
+
+Ejecutar para cada archivo modificado:
+
+python -c "import ast; ast.parse(open('<archivo>', encoding='utf-8').read()); print('OK: <archivo>')"
+
+Debe reportar OK para cada uno. Si falla, hay error de sintaxis.
+
+### Tests
+
+python -m pytest backend/tests/ -v
+
+Todos los tests deben pasar. Si un test nuevo falla, verificar:
+- ¿Es fallo real de código? → arreglar
+- ¿Es indentación rota introducida por un edit? → revertir con git y rehacer
+- ¿Es test preexistente que ya fallaba? → confirmar con git stash, restaurar
+  el cambio y anotar en el mensaje del commit
+
+### Frontend
+
+cd frontend
+npx tsc --noEmit --pretty false
+
+Debe salir con EXIT=0.
+
+## "cleanup pass" — cuando el usuario lo pida
+
+git diff --name-only
+
+Luego, para cada archivo modificado:
+
+1. Python: python -m pyflakes <archivo> (imports no usados)
+2. TypeScript: npx tsc --noUnusedLocals --noEmit (imports no usados)
+3. Grep de código basura (sección anterior)
+4. Verificar archivos con old, backup, copy en el nombre
+
+Reportar como tabla: Archivo | Problema | Acción sugerida.
+No aplicar cambios sin aprobación explícita del usuario.
+
+## Indentación rota — anti-patrón principal de los agentes
+
+Los archivos backend/tests/test_*.py y backend/scripts/*.py son
+particularmente sensibles a errores de indentación porque usan
+decoradores y bloques anidados.
+
+Señal de alarma: python -c "import ast; ast.parse(...)" falla
+después de un edit.
+
+Acción inmediata: git checkout <archivo> para revertir, luego
+reintentar el edit con el bloque completo (ver reglas de edición en
+02-coding-standards.md).
+
+Nunca acumular edits sobre un error de sintaxis. Cada edit encima
+del error hace más difícil de revertir.

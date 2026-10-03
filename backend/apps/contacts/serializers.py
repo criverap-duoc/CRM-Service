@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from apps.companies.models import Company
 from .models import Contact
+from .validators import UnicodeEmailValidator
 from apps.tags.serializers import TagSerializer
 from apps.tags.models import Tag
 from apps.products.models import Product
@@ -23,6 +24,11 @@ class CompanyBriefSerializer(serializers.ModelSerializer):
 
 
 class ContactSerializer(serializers.ModelSerializer):
+    # Override email field to allow UTF-8 characters (acentos en emails)
+    # that Django's default EmailValidator rejects.
+    email = serializers.EmailField(
+        validators=[UnicodeEmailValidator()]
+    )
     assigned_to = AssignedUserSerializer(read_only=True)
     assigned_to_id = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(),

@@ -91,11 +91,34 @@ class TestContactsCRUD:
     def test_partial_update(self, auth_client, contact):
         res = auth_client.patch(
             f"/api/v1/contacts/{contact.pk}/",
-            {"company": "ACME Corp"},
+            {"first_name": "UpdatedName"},
             format="json",
         )
         assert res.status_code == 200
-        assert res.data["company"] == "ACME Corp"
+        assert res.data["first_name"] == "UpdatedName"
+
+    def test_partial_update_with_ascii_email(self, auth_client, user):
+        """
+        Un contacto con email ASCII (sin tildes) debe poder editarse vía PATCH.
+        Los emails se mantienen en ASCII puro, por lo que el PATCH con un email
+        sin acentos no debe fallar la validación (esperado 200).
+        """
+        contact = Contact.objects.create(
+            first_name="Valentina",
+            last_name="Cáceres",
+            email="valentina.caceres9@ejemplo.com",
+            status=Contact.Status.LEAD,
+            source=Contact.Source.MANUAL,
+            assigned_to=user,
+        )
+        res = auth_client.patch(
+            f"/api/v1/contacts/{contact.pk}/",
+            {"first_name": "Ana María", "email": "valentina.caceres10@ejemplo.com"},
+            format="json",
+        )
+        assert res.status_code == 200
+        assert res.data["first_name"] == "Ana María"
+        assert res.data["email"] == "valentina.caceres10@ejemplo.com"
 
     def test_delete_contact(self, auth_client, contact, db):
         # Los agentes no pueden eliminar — esperamos 403

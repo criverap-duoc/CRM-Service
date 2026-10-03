@@ -223,11 +223,25 @@ const fetchSegment = async () => {
     setSaving(true);
     setError('');
     try {
-      await contacts.update(parseInt(id), formData);
+      // Sólo enviar los campos editables: evita que lleguen campos
+      // read-only (full_name, tags, interests, assigned_to, etc.) o
+      // el nombre de la empresa en texto que el backend no espera.
+      const payload = {
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        email: formData.email,
+        phone: formData.phone,
+        notes: formData.notes,
+      };
+      await contacts.update(parseInt(id), payload);
       setEditing(false);
       fetchContact();
     } catch (error: any) {
-      setError(error.response?.data?.message || 'Error al guardar');
+      setError(
+        error.response?.data?.error?.message ||
+        error.response?.data?.message ||
+        'Error al guardar'
+      );
     } finally {
       setSaving(false);
     }
