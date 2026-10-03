@@ -8,6 +8,11 @@ export const apiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  // Serializa arrays como claves repetidas (?stage=a&stage=b).
+  // Requerido por los MultipleChoiceFilter de django-filter, que NO aceptan CSV.
+  paramsSerializer: {
+    indexes: null,
+  },
 });
 
 apiClient.interceptors.request.use(
@@ -117,4 +122,15 @@ export const products = {
   create: (data: any) => apiClient.post('/products/', data),
   update: (id: number, data: any) => apiClient.patch(`/products/${id}/`, data),
   delete: (id: number) => apiClient.delete(`/products/${id}/`),
+};
+
+export const opportunities = {
+  list: (params?: any) => apiClient.get('/opportunities/', { params }),
+  get: (id: number) => apiClient.get(`/opportunities/${id}/`),
+  create: (data: any) => apiClient.post('/opportunities/', data),
+  update: (id: number, data: any) => apiClient.patch(`/opportunities/${id}/`, data),
+  delete: (id: number) => apiClient.delete(`/opportunities/${id}/`),
+  pipeline: () => apiClient.get('/opportunities/pipeline/'),
+  forecast: () => apiClient.get('/opportunities/forecast/'),
+  mySummary: () => apiClient.get('/opportunities/my-summary/'),
 };

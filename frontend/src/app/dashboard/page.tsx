@@ -3,11 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { contacts, tasks as tasksApi } from '@/lib/api-client';
+import { contacts, tasks as tasksApi, opportunities as opportunitiesApi } from '@/lib/api-client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Users, UserPlus, TrendingUp, Clock, Sparkles, LogOut, CheckSquare, AlertTriangle } from 'lucide-react';
+import { Users, UserPlus, TrendingUp, Clock, Sparkles, LogOut, CheckSquare, AlertTriangle, Target } from 'lucide-react';
 
 interface Contact {
   id: number;
@@ -19,6 +19,27 @@ interface Contact {
   created_at: string;
 }
 
+interface OppSummary {
+  total: number;
+  by_stage: {
+    discovery: number;
+    proposal: number;
+    negotiation: number;
+    won: number;
+    lost: number;
+  };
+  pipeline_total: number;
+  pipeline_weighted: number;
+  overdue: number;
+}
+
+const formatCLP = (value: number | string | null | undefined) =>
+  new Intl.NumberFormat('es-CL', {
+    style: 'currency',
+    currency: 'CLP',
+    maximumFractionDigits: 0,
+  }).format(Number(value || 0));
+
 export default function DashboardPage() {
   const { isAuthenticated, isLoading, logout } = useAuth();
   const router = useRouter();
@@ -26,6 +47,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [taskSummary, setTaskSummary] = useState<any>(null);
   const [overdueTasks, setOverdueTasks] = useState<any[]>([]);
+  const [oppSummary, setOppSummary] = useState<OppSummary | null>(null);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -37,6 +59,7 @@ export default function DashboardPage() {
     if (isAuthenticated) {
       fetchRecentContacts();
       fetchTaskData();
+      fetchOppData();
     }
   }, [isAuthenticated]);
 
@@ -62,6 +85,15 @@ export default function DashboardPage() {
       setOverdueTasks(data);
     } catch (error) {
       console.error('Error fetching tasks:', error);
+    }
+  };
+
+  const fetchOppData = async () => {
+    try {
+      const response = await opportunitiesApi.mySummary();
+      setOppSummary(response.data);
+    } catch (error) {
+      console.error('Error fetching opportunities:', error);
     }
   };
 
@@ -140,6 +172,10 @@ export default function DashboardPage() {
             <Button variant="outline" onClick={() => router.push('/products')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Productos
             </Button>
+            <Button variant="outline" onClick={() => router.push('/opportunities')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+              Oportunidades
+            </Button>
+
             <Button 
               variant="ghost" 
               size="sm" 
@@ -259,6 +295,69 @@ export default function DashboardPage() {
             )}
           </CardContent>
         </Card>
+        {/* Oportunidades */}
+        <Card className="border border-gray-200/30 shadow-sm rounded-2xl bg-white/60 backdrop-blur-sm mb-6">
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle className="text-gray-800 flex items-center gap-2">
+                <Target className="h-4 w-4 text-indigo-500" />
+                Mi Pipeline
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push('/opportunities')}
+                className="text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50/50 rounded-lg"
+              >
+                Ver todas →
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {oppSummary ? (
+              <>
+                <div className="grid grid-cols-4 gap-3 mb-4">
+                  <div className="p-3 bg-slate-50/70 rounded-lg border border-slate-200">
+                    <p className="text-xs text-gray-500">Descubrimiento</p>
+                    <p className="text-2xl font-bold text-slate-600">{oppSummary.by_stage.discovery}</p>
+                  </div>
+                  <div className="p-3 bg-blue-50/70 rounded-lg border border-blue-100">
+                    <p className="text-xs text-gray-500">Propuesta</p>
+                    <p className="text-2xl font-bold text-blue-600">{oppSummary.by_stage.proposal}</p>
+                  </div>
+                  <div className="p-3 bg-violet-50/70 rounded-lg border border-violet-100">
+                    <p className="text-xs text-gray-500">Negociación</p>
+                    <p className="text-2xl font-bold text-violet-600">{oppSummary.by_stage.negotiation}</p>
+                  </div>
+                  <div className="p-3 bg-emerald-50/70 rounded-lg border border-emerald-100">
+                    <p className="text-xs text-gray-500">Ganadas</p>
+                    <p className="text-2xl font-bold text-emerald-600">{oppSummary.by_stage.won}</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="p-3 bg-indigo-50/70 rounded-lg border border-indigo-100">
+                    <p className="text-xs text-gray-500">Pipeline abierto</p>
+                    <p className="text-lg font-bold text-indigo-600">{formatCLP(oppSummary.pipeline_total)}</p>
+                  </div>
+                  <div className="p-3 bg-cyan-50/70 rounded-lg border border-cyan-100">
+                    <p className="text-xs text-gray-500">Ponderado</p>
+                    <p className="text-lg font-bold text-cyan-700">{formatCLP(oppSummary.pipeline_weighted)}</p>
+                  </div>
+                  <div className="p-3 bg-rose-50/70 rounded-lg border border-rose-100">
+                    <p className="text-xs text-gray-500">Vencidas</p>
+                    <p className="text-lg font-bold text-rose-600 flex items-center gap-1.5">
+                      {oppSummary.overdue > 0 && <AlertTriangle className="h-3.5 w-3.5" />}
+                      {oppSummary.overdue}
+                    </p>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <p className="text-sm text-gray-400">Cargando oportunidades...</p>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Recent Contacts */}
         <Card className="border border-gray-200/30 shadow-sm rounded-2xl overflow-hidden bg-white/60 backdrop-blur-sm">
           <CardHeader className="pb-3">

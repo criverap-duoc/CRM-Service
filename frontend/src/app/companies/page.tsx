@@ -127,6 +127,10 @@ export default function CompaniesPage() {
             <Button variant="outline" onClick={() => router.push('/products')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Productos
             </Button>
+            <Button variant="outline" onClick={() => router.push('/opportunities')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+              Oportunidades
+            </Button>
+
             <Button
               variant="ghost"
               size="sm"
