@@ -132,9 +132,9 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/40">
+    <div className="min-h-screen bg-[var(--color-bg)]">
       {/* Navbar */}
-      <nav className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-gray-200/30 shadow-sm">
+      <nav className="sticky top-0 z-50 bg-[var(--color-surface)] border-b border-[var(--color-line)] shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 shadow-md">
@@ -145,36 +145,36 @@ export default function DashboardPage() {
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="outline" onClick={() => router.push('/dashboard')} className="border-blue-400/50 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl bg-blue-50">
+            <Button variant="ghost" onClick={() => router.push('/dashboard')} className="text-[var(--color-brand)] font-medium bg-[var(--color-brand)]/8 hover:bg-[var(--color-brand)]/12">
               Dashboard
             </Button>
             <Button 
               variant="outline" 
               onClick={() => router.push('/contacts')}
-              className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl"
+              className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl"
             >
               Contactos
             </Button>
             <Button 
               variant="outline" 
               onClick={() => router.push('/analytics')}
-              className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl"
+              className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl"
             >
               Analítica
             </Button>
-            <Button variant="outline" onClick={() => router.push('/companies')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/companies')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Empresas
             </Button>
-            <Button variant="outline" onClick={() => router.push('/tags')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/tags')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Tags
             </Button>
-            <Button variant="outline" onClick={() => router.push('/tasks')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/tasks')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Tareas
             </Button>
-            <Button variant="outline" onClick={() => router.push('/products')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/products')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Productos
             </Button>
-            <Button variant="outline" onClick={() => router.push('/opportunities')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/opportunities')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Oportunidades
             </Button>
 
@@ -210,15 +210,15 @@ export default function DashboardPage() {
           {stats.map((stat) => {
             const Icon = stat.icon;
             return (
-              <Card key={stat.title} className="group border border-gray-200/30 shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 rounded-2xl overflow-hidden bg-white/60 backdrop-blur-sm">
+              <Card key={stat.title} className="group border border-[var(--color-line)] shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 rounded-2xl overflow-hidden bg-[var(--color-surface)]">
                 <CardContent className="p-5">
                   <div className="flex items-center gap-4">
                     <div className={`p-3.5 rounded-2xl bg-gradient-to-br ${stat.gradient} text-white shadow-lg ${stat.shadow} group-hover:scale-110 transition-transform duration-300`}>
                       <Icon className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">{stat.title}</p>
-                      <p className="text-2xl font-bold text-gray-800 tracking-tight">{stat.value}</p>
+                      <p className="text-xs font-medium text-[var(--color-subtle)] uppercase tracking-wider">{stat.title}</p>
+                      <p className="text-2xl font-bold text-[var(--color-ink)] tracking-tight">{stat.value}</p>
                     </div>
                   </div>
                 </CardContent>
@@ -226,10 +226,10 @@ export default function DashboardPage() {
             );
           })}
         </div>
-        <Card className="border border-gray-200/30 shadow-sm rounded-2xl bg-white/60 backdrop-blur-sm mb-6">
+        <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl bg-[var(--color-surface)] mb-6">
           <CardHeader>
             <div className="flex justify-between items-center">
-              <CardTitle className="text-gray-800 flex items-center gap-2">
+              <CardTitle className="text-[var(--color-ink)] flex items-center gap-2">
                 <CheckSquare className="h-4 w-4 text-blue-500" />
                 Mis Tareas
               </CardTitle>
@@ -248,26 +248,26 @@ export default function DashboardPage() {
               <>
                 <div className="grid grid-cols-4 gap-3 mb-4">
                   <div className="p-3 bg-blue-50/70 rounded-lg border border-blue-100">
-                    <p className="text-xs text-gray-500">Pendientes</p>
+                    <p className="text-xs text-[var(--color-subtle)]">Pendientes</p>
                     <p className="text-2xl font-bold text-blue-600">{taskSummary.by_status.pending}</p>
                   </div>
                   <div className="p-3 bg-amber-50/70 rounded-lg border border-amber-100">
-                    <p className="text-xs text-gray-500">En progreso</p>
+                    <p className="text-xs text-[var(--color-subtle)]">En progreso</p>
                     <p className="text-2xl font-bold text-amber-600">{taskSummary.by_status.in_progress}</p>
                   </div>
                   <div className="p-3 bg-emerald-50/70 rounded-lg border border-emerald-100">
-                    <p className="text-xs text-gray-500">Completadas</p>
+                    <p className="text-xs text-[var(--color-subtle)]">Completadas</p>
                     <p className="text-2xl font-bold text-emerald-600">{taskSummary.by_status.completed}</p>
                   </div>
                   <div className="p-3 bg-rose-50/70 rounded-lg border border-rose-100">
-                    <p className="text-xs text-gray-500">Vencidas</p>
+                    <p className="text-xs text-[var(--color-subtle)]">Vencidas</p>
                     <p className="text-2xl font-bold text-rose-600">{taskSummary.overdue}</p>
                   </div>
                 </div>
 
                 {overdueTasks.length > 0 && (
                   <div>
-                    <p className="text-xs text-gray-500 font-medium mb-2 flex items-center gap-1">
+                    <p className="text-xs text-[var(--color-subtle)] font-medium mb-2 flex items-center gap-1">
                       <AlertTriangle className="h-3.5 w-3.5 text-rose-500" />
                       Vencidas que requieren atención
                     </p>
@@ -281,8 +281,8 @@ export default function DashboardPage() {
                           <div className="flex items-center gap-2 min-w-0 flex-1">
                             <Clock className="h-3.5 w-3.5 text-rose-500 shrink-0" />
                             <div className="min-w-0 flex-1">
-                              <p className="text-sm font-medium text-gray-800 truncate">{task.title}</p>
-                              <p className="text-xs text-gray-500 truncate">{task.contact.full_name}</p>
+                              <p className="text-sm font-medium text-[var(--color-ink)] truncate">{task.title}</p>
+                              <p className="text-xs text-[var(--color-subtle)] truncate">{task.contact.full_name}</p>
                             </div>
                           </div>
                           <span className="text-[10px] text-rose-600 font-semibold shrink-0 ml-2">
@@ -295,15 +295,15 @@ export default function DashboardPage() {
                 )}
               </>
             ) : (
-              <p className="text-sm text-gray-400">Cargando tareas...</p>
+              <p className="text-sm text-[var(--color-subtle)]">Cargando tareas...</p>
             )}
           </CardContent>
         </Card>
         {/* Oportunidades */}
-        <Card className="border border-gray-200/30 shadow-sm rounded-2xl bg-white/60 backdrop-blur-sm mb-6">
+        <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl bg-[var(--color-surface)] mb-6">
           <CardHeader>
             <div className="flex justify-between items-center">
-              <CardTitle className="text-gray-800 flex items-center gap-2">
+              <CardTitle className="text-[var(--color-ink)] flex items-center gap-2">
                 <Target className="h-4 w-4 text-indigo-500" />
                 Mi Pipeline
               </CardTitle>
@@ -322,33 +322,33 @@ export default function DashboardPage() {
               <>
                 <div className="grid grid-cols-4 gap-3 mb-4">
                   <div className="p-3 bg-slate-50/70 rounded-lg border border-slate-200">
-                    <p className="text-xs text-gray-500">Descubrimiento</p>
+                    <p className="text-xs text-[var(--color-subtle)]">Descubrimiento</p>
                     <p className="text-2xl font-bold text-slate-600">{oppSummary.by_stage.discovery}</p>
                   </div>
                   <div className="p-3 bg-blue-50/70 rounded-lg border border-blue-100">
-                    <p className="text-xs text-gray-500">Propuesta</p>
+                    <p className="text-xs text-[var(--color-subtle)]">Propuesta</p>
                     <p className="text-2xl font-bold text-blue-600">{oppSummary.by_stage.proposal}</p>
                   </div>
                   <div className="p-3 bg-violet-50/70 rounded-lg border border-violet-100">
-                    <p className="text-xs text-gray-500">Negociación</p>
+                    <p className="text-xs text-[var(--color-subtle)]">Negociación</p>
                     <p className="text-2xl font-bold text-violet-600">{oppSummary.by_stage.negotiation}</p>
                   </div>
                   <div className="p-3 bg-emerald-50/70 rounded-lg border border-emerald-100">
-                    <p className="text-xs text-gray-500">Ganadas</p>
+                    <p className="text-xs text-[var(--color-subtle)]">Ganadas</p>
                     <p className="text-2xl font-bold text-emerald-600">{oppSummary.by_stage.won}</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   <div className="p-3 bg-indigo-50/70 rounded-lg border border-indigo-100">
-                    <p className="text-xs text-gray-500">Pipeline abierto</p>
+                    <p className="text-xs text-[var(--color-subtle)]">Pipeline abierto</p>
                     <p className="text-lg font-bold text-indigo-600">{formatCLP(oppSummary.pipeline_total)}</p>
                   </div>
                   <div className="p-3 bg-cyan-50/70 rounded-lg border border-cyan-100">
-                    <p className="text-xs text-gray-500">Ponderado</p>
+                    <p className="text-xs text-[var(--color-subtle)]">Ponderado</p>
                     <p className="text-lg font-bold text-cyan-700">{formatCLP(oppSummary.pipeline_weighted)}</p>
                   </div>
                   <div className="p-3 bg-rose-50/70 rounded-lg border border-rose-100">
-                    <p className="text-xs text-gray-500">Vencidas</p>
+                    <p className="text-xs text-[var(--color-subtle)]">Vencidas</p>
                     <p className="text-lg font-bold text-rose-600 flex items-center gap-1.5">
                       {oppSummary.overdue > 0 && <AlertTriangle className="h-3.5 w-3.5" />}
                       {oppSummary.overdue}
@@ -357,13 +357,13 @@ export default function DashboardPage() {
                 </div>
               </>
             ) : (
-              <p className="text-sm text-gray-400">Cargando oportunidades...</p>
+              <p className="text-sm text-[var(--color-subtle)]">Cargando oportunidades...</p>
             )}
           </CardContent>
         </Card>
 
         {/* Recent Contacts */}
-        <Card className="border border-gray-200/30 shadow-sm rounded-2xl overflow-hidden bg-white/60 backdrop-blur-sm">
+        <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl overflow-hidden bg-[var(--color-surface)]">
           <CardHeader className="pb-3">
             <CardTitle className="text-base font-semibold text-gray-700 tracking-tight">
               Contactos Recientes
@@ -386,7 +386,7 @@ export default function DashboardPage() {
                 ))}
               </div>
             ) : recentContacts.length === 0 ? (
-              <p className="text-center text-gray-400 py-8 text-sm">No hay contactos registrados</p>
+              <p className="text-center text-[var(--color-subtle)] py-8 text-sm">No hay contactos registrados</p>
             ) : (
               <div className="space-y-2">
                 {recentContacts.map((contact) => (
@@ -396,14 +396,14 @@ export default function DashboardPage() {
                     onClick={() => router.push(`/contacts/${contact.id}`)}
                   >
                     <div>
-                      <p className="font-medium text-gray-800">{contact.full_name}</p>
-                      <p className="text-sm text-gray-400">{contact.email}</p>
+                      <p className="font-medium text-[var(--color-ink)]">{contact.full_name}</p>
+                      <p className="text-sm text-[var(--color-subtle)]">{contact.email}</p>
                     </div>
                     <div className="flex items-center gap-3">
                       <Badge className={`${getStatusColor(contact.status)} border font-medium rounded-full px-2.5 py-0.5 text-xs`}>
                         {contact.status}
                       </Badge>
-                      <span className="text-xs text-gray-400 font-medium">{contact.source}</span>
+                      <span className="text-xs text-[var(--color-subtle)] font-medium">{contact.source}</span>
                     </div>
                   </div>
                 ))}

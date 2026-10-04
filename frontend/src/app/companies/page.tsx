@@ -96,8 +96,8 @@ export default function CompaniesPage() {
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/40">
-      <nav className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-gray-200/30 shadow-sm">
+    <div className="min-h-screen bg-[var(--color-bg)]">
+      <nav className="sticky top-0 z-50 bg-[var(--color-surface)] border-b border-[var(--color-line)] shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 shadow-md">
@@ -108,28 +108,28 @@ export default function CompaniesPage() {
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="outline" onClick={() => router.push('/dashboard')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/dashboard')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Dashboard
             </Button>
-            <Button variant="outline" onClick={() => router.push('/contacts')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/contacts')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Contactos
             </Button>
-            <Button variant="outline" onClick={() => router.push('/analytics')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/analytics')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Analítica
             </Button>
-            <Button variant="outline" onClick={() => router.push('/companies')} className="border-blue-400/50 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl bg-blue-50">
+            <Button variant="ghost" onClick={() => router.push('/companies')} className="text-[var(--color-brand)] font-medium bg-[var(--color-brand)]/8 hover:bg-[var(--color-brand)]/12">
               Empresas
             </Button>
-            <Button variant="outline" onClick={() => router.push('/tags')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/tags')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Tags
             </Button>
-            <Button variant="outline" onClick={() => router.push('/tasks')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/tasks')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Tareas
             </Button>
-            <Button variant="outline" onClick={() => router.push('/products')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/products')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Productos
             </Button>
-            <Button variant="outline" onClick={() => router.push('/opportunities')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/opportunities')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Oportunidades
             </Button>
 
@@ -154,17 +154,17 @@ export default function CompaniesPage() {
             <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
               Empresas
             </h2>
-            <p className="text-sm text-gray-400 font-medium">
+            <p className="text-sm text-[var(--color-subtle)] font-medium">
               {companyList.length} empresas encontradas
             </p>
           </div>
-          <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 rounded-xl font-semibold">
+          <Button className="bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 rounded-xl font-semibold">
             <Plus className="h-4 w-4 mr-2" />
             Nueva Empresa
           </Button>
         </div>
 
-        <Card className="border border-gray-200/30 shadow-sm rounded-2xl overflow-hidden bg-white/60 backdrop-blur-sm mb-6">
+        <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl overflow-hidden bg-[var(--color-surface)] mb-6">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
               <div className="p-1.5 rounded-lg bg-blue-100">
@@ -182,10 +182,10 @@ export default function CompaniesPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && fetchCompanies()}
-                className="w-[300px] border-gray-200/60 focus:border-blue-400/50 focus:ring-4 focus:ring-blue-400/10 transition-all rounded-xl bg-white/50 backdrop-blur-sm h-11"
+                className="w-[300px] border-[var(--color-line)] focus:border-blue-400/50 focus:ring-4 focus:ring-blue-400/10 transition-all rounded-xl bg-white/50 backdrop-blur-sm h-11"
               />
               <Select value={industryFilter} onValueChange={setIndustryFilter}>
-                <SelectTrigger className="w-[180px] border-gray-200/60 rounded-xl h-11">
+                <SelectTrigger className="w-[180px] border-[var(--color-line)] rounded-xl h-11">
                   <SelectValue placeholder="Industria" />
                 </SelectTrigger>
                 <SelectContent>
@@ -201,7 +201,7 @@ export default function CompaniesPage() {
                 </SelectContent>
               </Select>
               <Select value={sizeFilter} onValueChange={setSizeFilter}>
-                <SelectTrigger className="w-[160px] border-gray-200/60 rounded-xl h-11">
+                <SelectTrigger className="w-[160px] border-[var(--color-line)] rounded-xl h-11">
                   <SelectValue placeholder="Tamaño" />
                 </SelectTrigger>
                 <SelectContent>
@@ -214,13 +214,13 @@ export default function CompaniesPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex items-center justify-between border-t border-gray-200/30 pt-4 mt-4">
-              <p className="text-xs text-gray-400 font-medium">
+            <div className="flex items-center justify-between border-t border-[var(--color-line)] pt-4 mt-4">
+              <p className="text-xs text-[var(--color-subtle)] font-medium">
                 {companyList.length} empresas encontradas
               </p>
               <Button
                 onClick={fetchCompanies}
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all rounded-xl shadow-md hover:shadow-lg"
+                className="bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] transition-all rounded-xl shadow-md hover:shadow-lg"
               >
                 <Search className="h-4 w-4 mr-2" />
                 Buscar
@@ -229,7 +229,7 @@ export default function CompaniesPage() {
           </CardContent>
         </Card>
 
-        <Card className="border border-gray-200/30 shadow-sm rounded-2xl overflow-hidden bg-white/60 backdrop-blur-sm">
+        <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl overflow-hidden bg-[var(--color-surface)]">
           <CardContent className="pt-6">
             {loading ? (
               <div className="space-y-3 animate-pulse">
@@ -244,12 +244,12 @@ export default function CompaniesPage() {
                 ))}
               </div>
             ) : companyList.length === 0 ? (
-              <p className="text-center text-gray-400 py-12 text-sm">No hay empresas registradas</p>
+              <p className="text-center text-[var(--color-subtle)] py-12 text-sm">No hay empresas registradas</p>
             ) : (
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader className="bg-gray-50/50">
-                    <TableRow className="hover:bg-transparent border-gray-200/30">
+                    <TableRow className="hover:bg-transparent border-[var(--color-line)]">
                       <TableHead className="font-semibold text-gray-600 text-xs uppercase tracking-wider">Nombre</TableHead>
                       <TableHead className="font-semibold text-gray-600 text-xs uppercase tracking-wider">Industria</TableHead>
                       <TableHead className="font-semibold text-gray-600 text-xs uppercase tracking-wider">Tamaño</TableHead>
@@ -264,18 +264,18 @@ export default function CompaniesPage() {
                         key={company.id}
                         className="hover:bg-blue-50/40 transition-colors duration-150 cursor-pointer border-gray-200/20"
                       >
-                        <TableCell className="font-medium text-gray-800">{company.name}</TableCell>
+                        <TableCell className="font-medium text-[var(--color-ink)]">{company.name}</TableCell>
                         <TableCell>
                           <Badge className="bg-blue-100 text-blue-700 border-0 font-medium text-xs">
                             {INDUSTRY_LABELS[company.industry] || company.industry}
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <span className="text-xs text-gray-500 font-medium">
+                          <span className="text-xs text-[var(--color-subtle)] font-medium">
                             {SIZE_LABELS[company.size] || company.size}
                           </span>
                         </TableCell>
-                        <TableCell className="text-gray-500 hidden md:table-cell">
+                        <TableCell className="text-[var(--color-subtle)] hidden md:table-cell">
                           {company.country || '-'}
                         </TableCell>
                         <TableCell>
@@ -290,7 +290,7 @@ export default function CompaniesPage() {
                             onClick={() => router.push(`/companies/${company.id}`)}
                             className="hover:bg-blue-100/50 rounded-xl transition-all duration-200"
                           >
-                            <Eye className="h-4 w-4 text-gray-400 hover:text-blue-600 transition-colors" />
+                            <Eye className="h-4 w-4 text-[var(--color-subtle)] hover:text-blue-600 transition-colors" />
                           </Button>
                         </TableCell>
                       </TableRow>

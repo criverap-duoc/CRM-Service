@@ -129,8 +129,8 @@ export default function TagsPage() {
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/40">
-      <nav className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-gray-200/30 shadow-sm">
+    <div className="min-h-screen bg-[var(--color-bg)]">
+      <nav className="sticky top-0 z-50 bg-[var(--color-surface)] border-b border-[var(--color-line)] shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 shadow-md">
@@ -141,28 +141,28 @@ export default function TagsPage() {
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="outline" onClick={() => router.push('/dashboard')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/dashboard')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">
               Dashboard
             </Button>
-            <Button variant="outline" onClick={() => router.push('/contacts')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/contacts')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">
               Contactos
             </Button>
-            <Button variant="outline" onClick={() => router.push('/analytics')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/analytics')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">
               Analítica
             </Button>
-            <Button variant="outline" onClick={() => router.push('/companies')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/companies')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">
               Empresas
             </Button>
-            <Button variant="outline" onClick={() => router.push('/tags')} className="border-blue-400/50 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl bg-blue-50">
+            <Button variant="ghost" onClick={() => router.push('/tags')} className="text-[var(--color-brand)] font-medium bg-[var(--color-brand)]/8 hover:bg-[var(--color-brand)]/12">
               Tags
             </Button>
-            <Button variant="outline" onClick={() => router.push('/tasks')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/tasks')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Tareas
             </Button>
-            <Button variant="outline" onClick={() => router.push('/products')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/products')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Productos
             </Button>
-            <Button variant="outline" onClick={() => router.push('/opportunities')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/opportunities')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Oportunidades
             </Button>
 
@@ -187,7 +187,7 @@ export default function TagsPage() {
             <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
               Tags
             </h2>
-            <p className="text-sm text-gray-400 font-medium">
+            <p className="text-sm text-[var(--color-subtle)] font-medium">
               {tagList.length} tags registrados
             </p>
           </div>
@@ -195,7 +195,7 @@ export default function TagsPage() {
             <DialogTrigger asChild>
               <Button
                 onClick={openCreateDialog}
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 rounded-xl font-semibold"
+                className="bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 rounded-xl font-semibold"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Nuevo Tag
@@ -203,7 +203,7 @@ export default function TagsPage() {
             </DialogTrigger>
             <DialogContent className="rounded-2xl">
               <DialogHeader>
-                <DialogTitle className="text-xl font-bold text-gray-800">
+                <DialogTitle className="text-xl font-bold text-[var(--color-ink)]">
                   {editingTag ? 'Editar Tag' : 'Crear Nuevo Tag'}
                 </DialogTitle>
               </DialogHeader>
@@ -219,7 +219,7 @@ export default function TagsPage() {
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="Ej: VIP, Pyme, Frío"
-                    className="border-gray-200/60 focus:border-blue-400/50 focus:ring-4 focus:ring-blue-400/10 rounded-xl h-11"
+                    className="border-[var(--color-line)] focus:border-blue-400/50 focus:ring-4 focus:ring-blue-400/10 rounded-xl h-11"
                   />
                 </div>
                 <div>
@@ -228,7 +228,7 @@ export default function TagsPage() {
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     placeholder="Breve descripción del tag"
-                    className="border-gray-200/60 focus:border-blue-400/50 focus:ring-4 focus:ring-blue-400/10 rounded-xl h-11"
+                    className="border-[var(--color-line)] focus:border-blue-400/50 focus:ring-4 focus:ring-blue-400/10 rounded-xl h-11"
                   />
                 </div>
                 <div>
@@ -271,7 +271,7 @@ export default function TagsPage() {
                 <Button
                   onClick={handleSave}
                   disabled={saving}
-                  className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl"
+                  className="bg-[var(--color-brand)] rounded-xl"
                 >
                   {saving ? 'Guardando...' : editingTag ? 'Guardar cambios' : 'Crear tag'}
                 </Button>
@@ -280,10 +280,10 @@ export default function TagsPage() {
           </Dialog>
         </div>
 
-        <Card className="border border-gray-200/30 shadow-sm rounded-2xl overflow-hidden bg-white/60 backdrop-blur-sm">
+        <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl overflow-hidden bg-[var(--color-surface)]">
           <CardContent className="pt-6">
             {tagList.length === 0 ? (
-              <p className="text-center text-gray-400 py-12 text-sm">No hay tags registrados</p>
+              <p className="text-center text-[var(--color-subtle)] py-12 text-sm">No hay tags registrados</p>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {tagList.map((tag) => (
@@ -299,7 +299,7 @@ export default function TagsPage() {
                         {tag.name}
                       </Badge>
                       {tag.description && (
-                        <span className="text-xs text-gray-500 truncate">
+                        <span className="text-xs text-[var(--color-subtle)] truncate">
                           {tag.description}
                         </span>
                       )}
@@ -311,7 +311,7 @@ export default function TagsPage() {
                         onClick={() => openEditDialog(tag)}
                         className="h-8 w-8 p-0 hover:bg-blue-100/50 rounded-lg"
                       >
-                        <Pencil className="h-3.5 w-3.5 text-gray-400" />
+                        <Pencil className="h-3.5 w-3.5 text-[var(--color-subtle)]" />
                       </Button>
                       <Button
                         variant="ghost"

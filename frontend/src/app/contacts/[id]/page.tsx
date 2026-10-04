@@ -267,7 +267,7 @@ const fetchSegment = async () => {
       customer: 'bg-green-100 text-green-800 border-0 font-medium',
       churned: 'bg-red-100 text-red-800 border-0 font-medium',
     };
-    return colors[status] || 'bg-gray-100 text-gray-800 border-0 font-medium';
+    return colors[status] || 'bg-gray-100 text-[var(--color-ink)] border-0 font-medium';
   };
 
   const getChurnColor = (prob: number) => {
@@ -290,7 +290,7 @@ const fetchSegment = async () => {
       pending: 'bg-blue-100 text-blue-700',
       in_progress: 'bg-amber-100 text-amber-700',
       completed: 'bg-emerald-100 text-emerald-700',
-      cancelled: 'bg-gray-100 text-gray-500',
+      cancelled: 'bg-gray-100 text-[var(--color-subtle)]',
     };
     return colors[status] || 'bg-gray-100 text-gray-700';
   };
@@ -425,8 +425,8 @@ const fetchSegment = async () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50/40">
-      <nav className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-gray-200/30 shadow-sm">
+    <div className="min-h-screen bg-[var(--color-bg)]">
+      <nav className="sticky top-0 z-50 bg-[var(--color-surface)] border-b border-[var(--color-line)] shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 shadow-md">
@@ -440,7 +440,7 @@ const fetchSegment = async () => {
             <Button 
               variant="outline" 
               onClick={() => router.push('/contacts')} 
-              className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl"
+              className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl"
             >
               <ArrowLeft className="h-4 w-4 mr-1.5" />
               Volver
@@ -456,12 +456,12 @@ const fetchSegment = async () => {
           </Alert>
         )}
 
-        <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+        <div className="flex items-center gap-2 text-sm text-[var(--color-subtle)] mb-4">
           <span onClick={() => router.push('/contacts')} className="hover:text-blue-600 cursor-pointer transition-colors">
             Contactos
           </span>
           <span>/</span>
-          <span className="text-gray-800 font-medium">{contact.full_name}</span>
+          <span className="text-[var(--color-ink)] font-medium">{contact.full_name}</span>
         </div>
         {(leadScore || churnData || segmentData) && (
   <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -472,9 +472,9 @@ const fetchSegment = async () => {
             <TrendingUp className="h-4 w-4" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-gray-500 font-medium">Lead Score</p>
+            <p className="text-xs text-[var(--color-subtle)] font-medium">Lead Score</p>
             <p className="text-2xl font-bold text-blue-600">{leadScore.lead_score}</p>
-            <p className="text-[11px] text-gray-500 truncate">{leadScore.label}</p>
+            <p className="text-[11px] text-[var(--color-subtle)] truncate">{leadScore.label}</p>
           </div>
         </div>
       )}
@@ -486,11 +486,11 @@ const fetchSegment = async () => {
             <AlertTriangle className={`h-4 w-4 ${getChurnColor(churnData.churn_probability).text}`} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-gray-500 font-medium">Churn</p>
+            <p className="text-xs text-[var(--color-subtle)] font-medium">Churn</p>
             <p className={`text-2xl font-bold ${getChurnColor(churnData.churn_probability).text}`}>
               {churnData.churn_probability}%
             </p>
-            <p className="text-[11px] text-gray-500 truncate">{churnData.risk_level}</p>
+            <p className="text-[11px] text-[var(--color-subtle)] truncate">{churnData.risk_level}</p>
           </div>
         </div>
       )}
@@ -502,7 +502,7 @@ const fetchSegment = async () => {
             <Brain className="h-4 w-4" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-gray-500 font-medium">Segmento</p>
+            <p className="text-xs text-[var(--color-subtle)] font-medium">Segmento</p>
             <Badge className={`${getSegmentColor(segmentData.segment.cluster)} border-0 font-medium text-[11px] mb-0.5`}>
               Cluster {segmentData.segment.cluster}
             </Badge>
@@ -515,8 +515,8 @@ const fetchSegment = async () => {
 
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-gray-800">{contact.full_name}</h2>
-            <p className="text-gray-500">{contact.email}</p>
+            <h2 className="text-2xl font-bold text-[var(--color-ink)]">{contact.full_name}</h2>
+            <p className="text-[var(--color-subtle)]">{contact.email}</p>
           </div>
           <div className="flex gap-2">
             <Button 
@@ -530,7 +530,7 @@ const fetchSegment = async () => {
             <Button 
               variant={editing ? 'default' : 'outline'} 
               onClick={() => setEditing(!editing)}
-              className={editing ? 'bg-gradient-to-r from-blue-600 to-indigo-600' : 'border-gray-300'}
+              className={editing ? 'bg-[var(--color-brand)]' : 'border-gray-300'}
             >
               {editing ? 'Cancelar' : 'Editar'}
             </Button>
@@ -541,7 +541,7 @@ const fetchSegment = async () => {
           <Card className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 shadow-sm">
             <CardContent className="pt-4">
               <p className="text-sm text-gray-600 font-medium">Resumen generado por IA:</p>
-              <p className="text-gray-800">{summary}</p>
+              <p className="text-[var(--color-ink)]">{summary}</p>
             </CardContent>
           </Card>
         )}
@@ -549,7 +549,7 @@ const fetchSegment = async () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <Card className="lg:col-span-2 border border-gray-200/80 shadow-sm">
             <CardHeader>
-              <CardTitle className="text-gray-800">Información del Contacto</CardTitle>
+              <CardTitle className="text-[var(--color-ink)]">Información del Contacto</CardTitle>
             </CardHeader>
             <CardContent>
               {editing ? (
@@ -591,9 +591,9 @@ const fetchSegment = async () => {
                     <Input
                       value={formData.company || ''}
                       readOnly
-                      className="border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed"
+                      className="border-gray-200 bg-gray-50 text-[var(--color-subtle)] cursor-not-allowed"
                     />
-                    <p className="text-xs text-gray-400 mt-1">La empresa se gestiona desde la vista de Empresas.</p>
+                    <p className="text-xs text-[var(--color-subtle)] mt-1">La empresa se gestiona desde la vista de Empresas.</p>
                   </div>
                   <div>
                     <label className="text-sm font-medium text-gray-700">Notas</label>
@@ -604,7 +604,7 @@ const fetchSegment = async () => {
                       rows={3}
                     />
                   </div>
-                  <Button onClick={handleSave} disabled={saving} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md hover:shadow-lg">
+                  <Button onClick={handleSave} disabled={saving} className="bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] transition-all shadow-md hover:shadow-lg">
                     <Save className="h-4 w-4 mr-2" />
                     {saving ? 'Guardando...' : 'Guardar'}
                   </Button>
@@ -612,36 +612,36 @@ const fetchSegment = async () => {
               ) : (
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex items-start gap-3 p-3 bg-gray-50/80 rounded-lg border border-gray-100">
-                    <User className="h-4 w-4 text-gray-400 mt-0.5" />
+                    <User className="h-4 w-4 text-[var(--color-subtle)] mt-0.5" />
                     <div>
-                      <p className="text-xs text-gray-500">Nombre completo</p>
-                      <p className="text-sm font-medium text-gray-800">{contact.full_name}</p>
+                      <p className="text-xs text-[var(--color-subtle)]">Nombre completo</p>
+                      <p className="text-sm font-medium text-[var(--color-ink)]">{contact.full_name}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3 p-3 bg-gray-50/80 rounded-lg border border-gray-100">
-                    <Mail className="h-4 w-4 text-gray-400 mt-0.5" />
+                    <Mail className="h-4 w-4 text-[var(--color-subtle)] mt-0.5" />
                     <div>
-                      <p className="text-xs text-gray-500">Email</p>
-                      <p className="text-sm font-medium text-gray-800">{contact.email}</p>
+                      <p className="text-xs text-[var(--color-subtle)]">Email</p>
+                      <p className="text-sm font-medium text-[var(--color-ink)]">{contact.email}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3 p-3 bg-gray-50/80 rounded-lg border border-gray-100">
-                    <Phone className="h-4 w-4 text-gray-400 mt-0.5" />
+                    <Phone className="h-4 w-4 text-[var(--color-subtle)] mt-0.5" />
                     <div>
-                      <p className="text-xs text-gray-500">Teléfono</p>
-                      <p className="text-sm font-medium text-gray-800">{contact.phone || '-'}</p>
+                      <p className="text-xs text-[var(--color-subtle)]">Teléfono</p>
+                      <p className="text-sm font-medium text-[var(--color-ink)]">{contact.phone || '-'}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3 p-3 bg-gray-50/80 rounded-lg border border-gray-100">
-                    <Building className="h-4 w-4 text-gray-400 mt-0.5" />
+                    <Building className="h-4 w-4 text-[var(--color-subtle)] mt-0.5" />
                     <div>
-                      <p className="text-xs text-gray-500">Empresa</p>
-                      <p className="text-sm font-medium text-gray-800">{contact.company || '-'}</p>
+                      <p className="text-xs text-[var(--color-subtle)]">Empresa</p>
+                      <p className="text-sm font-medium text-[var(--color-ink)]">{contact.company || '-'}</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3 p-3 bg-gray-50/80 rounded-lg border border-gray-100 col-span-2">
                     <div>
-                      <p className="text-xs text-gray-500">Notas</p>
+                      <p className="text-xs text-[var(--color-subtle)]">Notas</p>
                       <p className="text-sm text-gray-700">{contact.notes || 'Sin notas'}</p>
                     </div>
                   </div>
@@ -653,20 +653,20 @@ const fetchSegment = async () => {
           <div className="space-y-6">
             <Card className="border border-gray-200/80 shadow-sm">
               <CardHeader>
-                <CardTitle className="text-gray-800">Estado</CardTitle>
+                <CardTitle className="text-[var(--color-ink)]">Estado</CardTitle>
               </CardHeader>
               <CardContent>
                 <Badge className={getStatusColor(contact.status)}>
                   {contact.status}
                 </Badge>
                 <div className="mt-4 space-y-1 text-sm">
-                  <p className="text-gray-500">
+                  <p className="text-[var(--color-subtle)]">
                     <span className="font-medium text-gray-700">Creado:</span> {new Date(contact.created_at).toLocaleDateString()}
                   </p>
-                  <p className="text-gray-500">
+                  <p className="text-[var(--color-subtle)]">
                     <span className="font-medium text-gray-700">Actualizado:</span> {new Date(contact.updated_at).toLocaleDateString()}
                   </p>
-                  <p className="text-gray-500">
+                  <p className="text-[var(--color-subtle)]">
                     <span className="font-medium text-gray-700">Interacciones:</span> {contact.interaction_count}
                   </p>
                 </div>
@@ -676,7 +676,7 @@ const fetchSegment = async () => {
             <Card className="border border-gray-200/80 shadow-sm">
               <CardHeader>
                 <div className="flex justify-between items-center">
-                  <CardTitle className="text-gray-800">Tareas</CardTitle>
+                  <CardTitle className="text-[var(--color-ink)]">Tareas</CardTitle>
                   <Dialog open={taskDialogOpen} onOpenChange={setTaskDialogOpen}>
                     <DialogTrigger asChild>
                       <Button
@@ -689,7 +689,7 @@ const fetchSegment = async () => {
                     </DialogTrigger>
                     <DialogContent className="rounded-2xl">
                       <DialogHeader>
-                        <DialogTitle className="text-xl font-bold text-gray-800">Nueva Tarea</DialogTitle>
+                        <DialogTitle className="text-xl font-bold text-[var(--color-ink)]">Nueva Tarea</DialogTitle>
                       </DialogHeader>
                       <div className="space-y-4 py-2">
                         <div>
@@ -698,14 +698,14 @@ const fetchSegment = async () => {
                             value={newTaskTitle}
                             onChange={(e) => setNewTaskTitle(e.target.value)}
                             placeholder="Ej: Llamar para seguimiento"
-                            className="border-gray-200/60 rounded-xl h-11"
+                            className="border-[var(--color-line)] rounded-xl h-11"
                           />
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                           <div className="min-w-0">
                             <label className="text-sm font-medium text-gray-700">Prioridad</label>
                             <Select value={newTaskPriority} onValueChange={setNewTaskPriority}>
-                              <SelectTrigger className="w-full border-gray-200/60 rounded-xl h-11">
+                              <SelectTrigger className="w-full border-[var(--color-line)] rounded-xl h-11">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
@@ -722,7 +722,7 @@ const fetchSegment = async () => {
                               type="date"
                               value={newTaskDueDate}
                               onChange={(e) => setNewTaskDueDate(e.target.value)}
-                              className="border-gray-200/60 rounded-xl h-11"
+                              className="border-[var(--color-line)] rounded-xl h-11"
                             />
                           </div>
                         </div>
@@ -738,7 +738,7 @@ const fetchSegment = async () => {
                         <Button
                           onClick={handleCreateTask}
                           disabled={savingTask || !newTaskTitle.trim()}
-                          className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl"
+                          className="bg-[var(--color-brand)] rounded-xl"
                         >
                           {savingTask ? 'Creando...' : 'Crear'}
                         </Button>
@@ -749,7 +749,7 @@ const fetchSegment = async () => {
               </CardHeader>
               <CardContent>
                 {taskList.length === 0 ? (
-                  <p className="text-gray-500 text-sm">Sin tareas registradas</p>
+                  <p className="text-[var(--color-subtle)] text-sm">Sin tareas registradas</p>
                 ) : (
                   <div className="space-y-2 max-h-72 overflow-y-auto pr-2">
                     {taskList.map((task) => (
@@ -764,7 +764,7 @@ const fetchSegment = async () => {
                             {task.is_overdue && (
                               <AlertTriangle className="h-3.5 w-3.5 text-rose-500 shrink-0" />
                             )}
-                            <p className="text-sm font-medium text-gray-800 truncate">{task.title}</p>
+                            <p className="text-sm font-medium text-[var(--color-ink)] truncate">{task.title}</p>
                           </div>
                           <div className="flex flex-wrap items-center gap-1.5 mt-1">
                             <Badge className={`${getTaskStatusColor(task.status)} border-0 text-[10px] px-1.5 py-0`}>
@@ -774,7 +774,7 @@ const fetchSegment = async () => {
                               {TASK_PRIORITY_LABELS[task.priority]}
                             </Badge>
                             {task.due_date && (
-                              <span className={`text-[10px] ${task.is_overdue ? 'text-rose-600 font-semibold' : 'text-gray-400'}`}>
+                              <span className={`text-[10px] ${task.is_overdue ? 'text-rose-600 font-semibold' : 'text-[var(--color-subtle)]'}`}>
                                 {new Date(task.due_date).toLocaleDateString('es-CL', { day: '2-digit', month: 'short' })}
                               </span>
                             )}
@@ -809,7 +809,7 @@ const fetchSegment = async () => {
                               className="p-1 rounded hover:bg-gray-100 transition-colors"
                               title="Cancelar"
                             >
-                              <XCircle className="h-3.5 w-3.5 text-gray-400" />
+                              <XCircle className="h-3.5 w-3.5 text-[var(--color-subtle)]" />
                             </button>
                           )}
                         </div>
@@ -822,11 +822,11 @@ const fetchSegment = async () => {
 
             <Card className="border border-gray-200/80 shadow-sm">
               <CardHeader>
-                <CardTitle className="text-gray-800">Interacciones</CardTitle>
+                <CardTitle className="text-[var(--color-ink)]">Interacciones</CardTitle>
               </CardHeader>
               <CardContent>
                 {interactionList.length === 0 ? (
-                  <p className="text-gray-500 text-sm">Sin interacciones registradas</p>
+                  <p className="text-[var(--color-subtle)] text-sm">Sin interacciones registradas</p>
                 ) : (
                   <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
                     {interactionList.map((interaction) => {
@@ -841,11 +841,11 @@ const fetchSegment = async () => {
                       return (
                         <div key={interaction.id} className={`flex gap-3 p-3 bg-gray-50/70 rounded-lg border-l-4 ${sentimentColor}`}>
                           <div className="flex-1">
-                            <p className="font-medium text-sm text-gray-800">{interaction.subject}</p>
-                            <p className="text-xs text-gray-500">
+                            <p className="font-medium text-sm text-[var(--color-ink)]">{interaction.subject}</p>
+                            <p className="text-xs text-[var(--color-subtle)]">
                               {interaction.channel} · {interaction.direction}
                             </p>
-                            <p className="text-xs text-gray-400">
+                            <p className="text-xs text-[var(--color-subtle)]">
                               {new Date(interaction.occurred_at).toLocaleDateString()}
                             </p>
                           </div>
@@ -864,7 +864,7 @@ const fetchSegment = async () => {
             <Card className="border border-gray-200/80 shadow-sm">
               <CardHeader>
                 <div className="flex justify-between items-center">
-                  <CardTitle className="text-gray-800">Tags</CardTitle>
+                  <CardTitle className="text-[var(--color-ink)]">Tags</CardTitle>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -899,14 +899,14 @@ const fetchSegment = async () => {
                       </span>
                     ))
                   ) : (
-                    <p className="text-xs text-gray-400">Sin tags asignados</p>
+                    <p className="text-xs text-[var(--color-subtle)]">Sin tags asignados</p>
                   )}
                 </div>
 
                 {/* Selector de tags disponibles */}
                 {tagSelectorOpen && (
                   <div className="border-t border-gray-200/50 pt-3">
-                    <p className="text-xs text-gray-500 mb-2 font-medium">Agregar tag:</p>
+                    <p className="text-xs text-[var(--color-subtle)] mb-2 font-medium">Agregar tag:</p>
                     <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto pr-1">
                       {allTags
                         .filter((t) => !contact.tags.some((ct) => ct.id === t.id))
@@ -928,7 +928,7 @@ const fetchSegment = async () => {
                           </button>
                         ))}
                       {allTags.filter((t) => !contact.tags.some((ct) => ct.id === t.id)).length === 0 && (
-                        <p className="text-xs text-gray-400 italic">Todos los tags ya están asignados</p>
+                        <p className="text-xs text-[var(--color-subtle)] italic">Todos los tags ya están asignados</p>
                       )}
                     </div>
                   </div>
@@ -939,7 +939,7 @@ const fetchSegment = async () => {
             <Card className="border border-gray-200/80 shadow-sm">
               <CardHeader>
                 <div className="flex justify-between items-center">
-                  <CardTitle className="text-gray-800">Intereses</CardTitle>
+                  <CardTitle className="text-[var(--color-ink)]">Intereses</CardTitle>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -960,7 +960,7 @@ const fetchSegment = async () => {
                         className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700"
                       >
                         {product.name}
-                        <span className="text-gray-400 font-normal">· {formatPrice(product.unit_price)}</span>
+                        <span className="text-[var(--color-subtle)] font-normal">· {formatPrice(product.unit_price)}</span>
                         {interestSelectorOpen && (
                           <button
                             type="button"
@@ -974,14 +974,14 @@ const fetchSegment = async () => {
                       </span>
                     ))
                   ) : (
-                    <p className="text-xs text-gray-400">Sin intereses asignados</p>
+                    <p className="text-xs text-[var(--color-subtle)]">Sin intereses asignados</p>
                   )}
                 </div>
 
                 {/* Selector de productos disponibles */}
                 {interestSelectorOpen && (
                   <div className="border-t border-gray-200/50 pt-3">
-                    <p className="text-xs text-gray-500 mb-2 font-medium">Agregar interés:</p>
+                    <p className="text-xs text-[var(--color-subtle)] mb-2 font-medium">Agregar interés:</p>
                     <div className="flex flex-wrap gap-1.5 max-h-40 overflow-y-auto pr-1">
                       {allProducts
                         .filter((p) => !(contact.interests || []).some((ci) => ci.id === p.id))
@@ -998,7 +998,7 @@ const fetchSegment = async () => {
                           </button>
                         ))}
                       {allProducts.filter((p) => !(contact.interests || []).some((ci) => ci.id === p.id)).length === 0 && (
-                        <p className="text-xs text-gray-400 italic">Todos los productos ya están asignados</p>
+                        <p className="text-xs text-[var(--color-subtle)] italic">Todos los productos ya están asignados</p>
                       )}
                     </div>
                   </div>

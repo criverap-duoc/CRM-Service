@@ -167,6 +167,7 @@ h1, h2, h3, h4, h5, h6,
 
   /* Marca */
   --color-brand: #2F4BFF;
+  --color-brand-hover: #1E3AE0;
 
   /* Estados */
   --color-success: #0E7A4F;

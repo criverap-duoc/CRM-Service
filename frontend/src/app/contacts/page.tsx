@@ -149,8 +149,8 @@ export default function ContactsPage() {
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/40">
-      <nav className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-gray-200/30 shadow-sm">
+    <div className="min-h-screen bg-[var(--color-bg)]">
+      <nav className="sticky top-0 z-50 bg-[var(--color-surface)] border-b border-[var(--color-line)] shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 shadow-md">
@@ -161,28 +161,28 @@ export default function ContactsPage() {
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="outline" onClick={() => router.push('/dashboard')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/dashboard')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Dashboard
             </Button>
-            <Button variant="outline" onClick={() => router.push('/contacts')} className="border-blue-400/50 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl bg-blue-50">
+            <Button variant="ghost" onClick={() => router.push('/contacts')} className="text-[var(--color-brand)] font-medium bg-[var(--color-brand)]/8 hover:bg-[var(--color-brand)]/12">
               Contactos
             </Button>
-            <Button variant="outline" onClick={() => router.push('/analytics')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/analytics')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Analítica
             </Button>
-            <Button variant="outline" onClick={() => router.push('/companies')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/companies')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Empresas
             </Button>
-            <Button variant="outline" onClick={() => router.push('/tags')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/tags')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Tags
             </Button>
-            <Button variant="outline" onClick={() => router.push('/tasks')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/tasks')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Tareas
             </Button>
-            <Button variant="outline" onClick={() => router.push('/products')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/products')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Productos
             </Button>
-            <Button variant="outline" onClick={() => router.push('/opportunities')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/opportunities')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Oportunidades
             </Button>
 
@@ -207,7 +207,7 @@ export default function ContactsPage() {
             <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
               Contactos
             </h2>
-            <p className="text-sm text-gray-400 font-medium">
+            <p className="text-sm text-[var(--color-subtle)] font-medium">
               {contactList.length} contactos encontrados
             </p>
           </div>
@@ -215,30 +215,30 @@ export default function ContactsPage() {
             <Button 
               variant="outline" 
               onClick={() => handleExport('contacts')}
-              className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 transition-all rounded-xl"
+              className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 transition-all rounded-xl"
             >
               <Download className="h-4 w-4 mr-2" />
               Exportar CSV
             </Button>
             <Dialog>
               <DialogTrigger asChild>
-                <Button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 rounded-xl font-semibold">
+                <Button className="bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 rounded-xl font-semibold">
                   <Plus className="h-4 w-4 mr-2" />
                   Nuevo Contacto
                 </Button>
               </DialogTrigger>
               <DialogContent className="rounded-2xl">
                 <DialogHeader>
-                  <DialogTitle className="text-xl font-bold text-gray-800">Crear Nuevo Contacto</DialogTitle>
+                  <DialogTitle className="text-xl font-bold text-[var(--color-ink)]">Crear Nuevo Contacto</DialogTitle>
                 </DialogHeader>
-                <p className="text-sm text-gray-400">Próximamente: formulario de creación</p>
+                <p className="text-sm text-[var(--color-subtle)]">Próximamente: formulario de creación</p>
               </DialogContent>
             </Dialog>
           </div>
         </div>
 
         {/* Filtros */}
-        <Card className="border border-gray-200/30 shadow-sm rounded-2xl overflow-hidden bg-white/60 backdrop-blur-sm mb-6">
+        <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl overflow-hidden bg-[var(--color-surface)] mb-6">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
               <div className="p-1.5 rounded-lg bg-blue-100">
@@ -256,10 +256,10 @@ export default function ContactsPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                className="w-[303px] border-gray-200/60 focus:border-blue-400/50 focus:ring-4 focus:ring-blue-400/10 transition-all rounded-xl bg-white/50 backdrop-blur-sm h-11"
+                className="w-[303px] border-[var(--color-line)] focus:border-blue-400/50 focus:ring-4 focus:ring-blue-400/10 transition-all rounded-xl bg-white/50 backdrop-blur-sm h-11"
               />
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[160px] border-gray-200/60 rounded-xl h-11">
+                <SelectTrigger className="w-[160px] border-[var(--color-line)] rounded-xl h-11">
                   <SelectValue placeholder="Estado" />
                 </SelectTrigger>
                 <SelectContent>
@@ -271,7 +271,7 @@ export default function ContactsPage() {
                 </SelectContent>
               </Select>
               <Select value={sourceFilter} onValueChange={setSourceFilter}>
-                <SelectTrigger className="w-[160px] border-gray-200/60 rounded-xl h-11">
+                <SelectTrigger className="w-[160px] border-[var(--color-line)] rounded-xl h-11">
                   <SelectValue placeholder="Fuente" />
                 </SelectTrigger>
                 <SelectContent>
@@ -283,7 +283,7 @@ export default function ContactsPage() {
                 </SelectContent>
               </Select>
               <Select value={ordering} onValueChange={setOrdering}>
-                <SelectTrigger className="w-[170px] border-gray-200/60 rounded-xl h-11">
+                <SelectTrigger className="w-[170px] border-[var(--color-line)] rounded-xl h-11">
                   <SelectValue placeholder="Ordenar" />
                 </SelectTrigger>
                 <SelectContent>
@@ -294,7 +294,7 @@ export default function ContactsPage() {
                 </SelectContent>
               </Select>
               <Select value={pageSize} onValueChange={setPageSize}>
-                <SelectTrigger className="w-[150px] border-gray-200/60 rounded-xl h-11">
+                <SelectTrigger className="w-[150px] border-[var(--color-line)] rounded-xl h-11">
                   <SelectValue placeholder="Por página" />
                 </SelectTrigger>
                 <SelectContent>
@@ -305,13 +305,13 @@ export default function ContactsPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="flex items-center justify-between border-t border-gray-200/30 pt-4 mt-4">
-              <p className="text-xs text-gray-400 font-medium">
+            <div className="flex items-center justify-between border-t border-[var(--color-line)] pt-4 mt-4">
+              <p className="text-xs text-[var(--color-subtle)] font-medium">
                 {contactList.length} contactos encontrados
               </p>
               <Button 
                 onClick={handleSearch} 
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 transition-all rounded-xl shadow-md hover:shadow-lg"
+                className="bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] transition-all rounded-xl shadow-md hover:shadow-lg"
               >
                 <Search className="h-4 w-4 mr-2" />
                 Buscar
@@ -321,7 +321,7 @@ export default function ContactsPage() {
         </Card>
 
         {/* Tabla */}
-        <Card className="border border-gray-200/30 shadow-sm rounded-2xl overflow-hidden bg-white/60 backdrop-blur-sm">
+        <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl overflow-hidden bg-[var(--color-surface)]">
           <CardContent className="pt-6">
             {loading ? (
               <div className="space-y-3 animate-pulse">
@@ -336,12 +336,12 @@ export default function ContactsPage() {
                 ))}
               </div>
             ) : contactList.length === 0 ? (
-              <p className="text-center text-gray-400 py-12 text-sm">No hay contactos registrados</p>
+              <p className="text-center text-[var(--color-subtle)] py-12 text-sm">No hay contactos registrados</p>
             ) : (
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader className="bg-gray-50/50">
-                    <TableRow className="hover:bg-transparent border-gray-200/30">
+                    <TableRow className="hover:bg-transparent border-[var(--color-line)]">
                       <TableHead className="font-semibold text-gray-600 text-xs uppercase tracking-wider">Nombre</TableHead>
                       <TableHead className="font-semibold text-gray-600 text-xs uppercase tracking-wider">Email</TableHead>
                       <TableHead className="font-semibold text-gray-600 text-xs uppercase tracking-wider hidden md:table-cell">Empresa</TableHead>
@@ -355,9 +355,9 @@ export default function ContactsPage() {
                   <TableBody>
                     {contactList.map((contact) => (
                       <TableRow key={contact.id} className="hover:bg-blue-50/40 transition-colors duration-150 cursor-pointer border-gray-200/20">
-                        <TableCell className="font-medium text-gray-800">{contact.full_name}</TableCell>
+                        <TableCell className="font-medium text-[var(--color-ink)]">{contact.full_name}</TableCell>
                         <TableCell className="text-gray-600">{contact.email}</TableCell>
-                        <TableCell className="text-gray-500 hidden md:table-cell">{contact.company || '-'}</TableCell>
+                        <TableCell className="text-[var(--color-subtle)] hidden md:table-cell">{contact.company || '-'}</TableCell>
                         <TableCell>
                           <Badge className={`${getStatusColor(contact.status)} border font-medium rounded-full px-2.5 py-0.5 text-xs`}>
                             {contact.status}
@@ -369,11 +369,11 @@ export default function ContactsPage() {
                               {leadScores[contact.id].lead_score}
                             </Badge>
                           ) : (
-                            <span className="text-xs text-gray-400">-</span>
+                            <span className="text-xs text-[var(--color-subtle)]">-</span>
                           )}
                         </TableCell>
                         <TableCell className="hidden lg:table-cell">
-                          <span className="text-xs text-gray-400 font-medium">{contact.source}</span>
+                          <span className="text-xs text-[var(--color-subtle)] font-medium">{contact.source}</span>
                         </TableCell>
                         <TableCell className="hidden lg:table-cell">
                           <div className="flex flex-wrap gap-1">
@@ -399,7 +399,7 @@ export default function ContactsPage() {
                             onClick={() => router.push(`/contacts/${contact.id}`)}
                             className="hover:bg-blue-100/50 rounded-xl transition-all duration-200"
                           >
-                            <Eye className="h-4 w-4 text-gray-400 hover:text-blue-600 transition-colors" />
+                            <Eye className="h-4 w-4 text-[var(--color-subtle)] hover:text-blue-600 transition-colors" />
                           </Button>
                         </TableCell>
                       </TableRow>

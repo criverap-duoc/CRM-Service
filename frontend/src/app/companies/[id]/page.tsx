@@ -155,8 +155,8 @@ export default function CompanyDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/40">
-      <nav className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-gray-200/30 shadow-sm">
+    <div className="min-h-screen bg-[var(--color-bg)]">
+      <nav className="sticky top-0 z-50 bg-[var(--color-surface)] border-b border-[var(--color-line)] shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 shadow-md">
@@ -170,7 +170,7 @@ export default function CompanyDetailPage() {
             <Button
               variant="outline"
               onClick={() => router.push('/companies')}
-              className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl"
+              className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl"
             >
               <ArrowLeft className="h-4 w-4 mr-1.5" />
               Volver
@@ -186,30 +186,30 @@ export default function CompanyDetailPage() {
           </Alert>
         )}
 
-        <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+        <div className="flex items-center gap-2 text-sm text-[var(--color-subtle)] mb-4">
           <span onClick={() => router.push('/companies')} className="hover:text-blue-600 cursor-pointer transition-colors">
             Empresas
           </span>
           <span>/</span>
-          <span className="text-gray-800 font-medium">{company.name}</span>
+          <span className="text-[var(--color-ink)] font-medium">{company.name}</span>
         </div>
 
         {/* Header con nombre y health score */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
           <div>
-            <h2 className="text-2xl font-bold text-gray-800">{company.name}</h2>
+            <h2 className="text-2xl font-bold text-[var(--color-ink)]">{company.name}</h2>
             <div className="flex items-center gap-3 mt-1">
               <Badge className="bg-blue-100 text-blue-700 border-0 font-medium">
                 {INDUSTRY_LABELS[company.industry] || company.industry}
               </Badge>
-              <span className="text-sm text-gray-500">{SIZE_LABELS[company.size] || company.size}</span>
+              <span className="text-sm text-[var(--color-subtle)]">{SIZE_LABELS[company.size] || company.size}</span>
             </div>
           </div>
         </div>
 
         {/* Health score destacado */}
         {health && (
-          <Card className="mb-6 border border-gray-200/30 shadow-sm rounded-2xl bg-white/60 backdrop-blur-sm">
+          <Card className="mb-6 border border-[var(--color-line)] shadow-sm rounded-2xl bg-[var(--color-surface)]">
             <CardContent className="pt-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
@@ -217,10 +217,10 @@ export default function CompanyDetailPage() {
                     <TrendingUp className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Health Score</p>
+                    <p className="text-xs text-[var(--color-subtle)] font-medium uppercase tracking-wider">Health Score</p>
                     <p className={`text-3xl font-bold ${getHealthColor(health.health_score).text}`}>
                       {health.health_score}
-                      <span className="text-base font-medium text-gray-400 ml-1">/ 100</span>
+                      <span className="text-base font-medium text-[var(--color-subtle)] ml-1">/ 100</span>
                     </p>
                   </div>
                 </div>
@@ -239,36 +239,36 @@ export default function CompanyDetailPage() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <div className="p-3 bg-gray-50/80 rounded-lg border border-gray-100">
                   <div className="flex items-center gap-2 mb-1">
-                    <Users className="h-3.5 w-3.5 text-gray-400" />
-                    <p className="text-xs text-gray-500">Contactos</p>
+                    <Users className="h-3.5 w-3.5 text-[var(--color-subtle)]" />
+                    <p className="text-xs text-[var(--color-subtle)]">Contactos</p>
                   </div>
-                  <p className="text-lg font-bold text-gray-800">{health.breakdown.contact_count}</p>
+                  <p className="text-lg font-bold text-[var(--color-ink)]">{health.breakdown.contact_count}</p>
                 </div>
                 <div className="p-3 bg-gray-50/80 rounded-lg border border-gray-100">
                   <div className="flex items-center gap-2 mb-1">
-                    <Activity className="h-3.5 w-3.5 text-gray-400" />
-                    <p className="text-xs text-gray-500">Interacciones</p>
+                    <Activity className="h-3.5 w-3.5 text-[var(--color-subtle)]" />
+                    <p className="text-xs text-[var(--color-subtle)]">Interacciones</p>
                   </div>
-                  <p className="text-lg font-bold text-gray-800">{health.breakdown.interaction_volume}</p>
+                  <p className="text-lg font-bold text-[var(--color-ink)]">{health.breakdown.interaction_volume}</p>
                 </div>
                 <div className="p-3 bg-gray-50/80 rounded-lg border border-gray-100">
                   <div className="flex items-center gap-2 mb-1">
-                    <TrendingUp className="h-3.5 w-3.5 text-gray-400" />
-                    <p className="text-xs text-gray-500">Balance sentimental</p>
+                    <TrendingUp className="h-3.5 w-3.5 text-[var(--color-subtle)]" />
+                    <p className="text-xs text-[var(--color-subtle)]">Balance sentimental</p>
                   </div>
-                  <p className="text-lg font-bold text-gray-800">{health.breakdown.sentiment_balance}</p>
+                  <p className="text-lg font-bold text-[var(--color-ink)]">{health.breakdown.sentiment_balance}</p>
                 </div>
                 <div className="p-3 bg-gray-50/80 rounded-lg border border-gray-100">
                   <div className="flex items-center gap-2 mb-1">
-                    <Activity className="h-3.5 w-3.5 text-gray-400" />
-                    <p className="text-xs text-gray-500">Volumen (score)</p>
+                    <Activity className="h-3.5 w-3.5 text-[var(--color-subtle)]" />
+                    <p className="text-xs text-[var(--color-subtle)]">Volumen (score)</p>
                   </div>
-                  <p className="text-lg font-bold text-gray-800">{health.breakdown.volume_score}</p>
+                  <p className="text-lg font-bold text-[var(--color-ink)]">{health.breakdown.volume_score}</p>
                 </div>
               </div>
 
               {health.note && (
-                <p className="text-xs text-gray-400 mt-3 italic">{health.note}</p>
+                <p className="text-xs text-[var(--color-subtle)] mt-3 italic">{health.note}</p>
               )}
             </CardContent>
           </Card>
@@ -276,23 +276,23 @@ export default function CompanyDetailPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Info general */}
-          <Card className="lg:col-span-2 border border-gray-200/30 shadow-sm rounded-2xl bg-white/60 backdrop-blur-sm">
+          <Card className="lg:col-span-2 border border-[var(--color-line)] shadow-sm rounded-2xl bg-[var(--color-surface)]">
             <CardHeader>
-              <CardTitle className="text-gray-800">Información de la Empresa</CardTitle>
+              <CardTitle className="text-[var(--color-ink)]">Información de la Empresa</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-start gap-3 p-3 bg-gray-50/80 rounded-lg border border-gray-100">
-                  <MapPin className="h-4 w-4 text-gray-400 mt-0.5" />
+                  <MapPin className="h-4 w-4 text-[var(--color-subtle)] mt-0.5" />
                   <div>
-                    <p className="text-xs text-gray-500">País</p>
-                    <p className="text-sm font-medium text-gray-800">{company.country || '-'}</p>
+                    <p className="text-xs text-[var(--color-subtle)]">País</p>
+                    <p className="text-sm font-medium text-[var(--color-ink)]">{company.country || '-'}</p>
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 bg-gray-50/80 rounded-lg border border-gray-100">
-                  <Globe className="h-4 w-4 text-gray-400 mt-0.5" />
+                  <Globe className="h-4 w-4 text-[var(--color-subtle)] mt-0.5" />
                   <div>
-                    <p className="text-xs text-gray-500">Sitio web</p>
+                    <p className="text-xs text-[var(--color-subtle)]">Sitio web</p>
                     {company.website ? (
                       <a
                         href={company.website}
@@ -303,15 +303,15 @@ export default function CompanyDetailPage() {
                         {company.website}
                       </a>
                     ) : (
-                      <p className="text-sm font-medium text-gray-800">-</p>
+                      <p className="text-sm font-medium text-[var(--color-ink)]">-</p>
                     )}
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 bg-gray-50/80 rounded-lg border border-gray-100">
-                  <DollarSign className="h-4 w-4 text-gray-400 mt-0.5" />
+                  <DollarSign className="h-4 w-4 text-[var(--color-subtle)] mt-0.5" />
                   <div>
-                    <p className="text-xs text-gray-500">Ingresos anuales</p>
-                    <p className="text-sm font-medium text-gray-800">
+                    <p className="text-xs text-[var(--color-subtle)]">Ingresos anuales</p>
+                    <p className="text-sm font-medium text-[var(--color-ink)]">
                       {company.annual_revenue
                         ? `$${company.annual_revenue.toLocaleString('es-CL')} CLP`
                         : '-'}
@@ -319,16 +319,16 @@ export default function CompanyDetailPage() {
                   </div>
                 </div>
                 <div className="flex items-start gap-3 p-3 bg-gray-50/80 rounded-lg border border-gray-100">
-                  <Users className="h-4 w-4 text-gray-400 mt-0.5" />
+                  <Users className="h-4 w-4 text-[var(--color-subtle)] mt-0.5" />
                   <div>
-                    <p className="text-xs text-gray-500">Contactos asociados</p>
-                    <p className="text-sm font-medium text-gray-800">{company.contact_count}</p>
+                    <p className="text-xs text-[var(--color-subtle)]">Contactos asociados</p>
+                    <p className="text-sm font-medium text-[var(--color-ink)]">{company.contact_count}</p>
                   </div>
                 </div>
                 {company.notes && (
                   <div className="col-span-2 flex items-start gap-3 p-3 bg-gray-50/80 rounded-lg border border-gray-100">
                     <div>
-                      <p className="text-xs text-gray-500">Notas</p>
+                      <p className="text-xs text-[var(--color-subtle)]">Notas</p>
                       <p className="text-sm text-gray-700">{company.notes}</p>
                     </div>
                   </div>
@@ -338,13 +338,13 @@ export default function CompanyDetailPage() {
           </Card>
 
           {/* Contactos asociados */}
-          <Card className="border border-gray-200/30 shadow-sm rounded-2xl bg-white/60 backdrop-blur-sm">
+          <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl bg-[var(--color-surface)]">
             <CardHeader>
-              <CardTitle className="text-gray-800">Contactos</CardTitle>
+              <CardTitle className="text-[var(--color-ink)]">Contactos</CardTitle>
             </CardHeader>
             <CardContent>
               {companyContacts.length === 0 ? (
-                <p className="text-gray-500 text-sm">Sin contactos asociados</p>
+                <p className="text-[var(--color-subtle)] text-sm">Sin contactos asociados</p>
               ) : (
                 <div className="space-y-2 max-h-96 overflow-y-auto pr-2">
                   {companyContacts.map((contact) => (
@@ -354,10 +354,10 @@ export default function CompanyDetailPage() {
                       className="flex items-center justify-between p-3 bg-gray-50/70 rounded-lg cursor-pointer hover:bg-blue-50/50 transition-colors"
                     >
                       <div className="flex items-center gap-2">
-                        <CircleUserRound className="h-4 w-4 text-gray-400" />
+                        <CircleUserRound className="h-4 w-4 text-[var(--color-subtle)]" />
                         <div>
-                          <p className="text-sm font-medium text-gray-800">{contact.full_name}</p>
-                          <p className="text-xs text-gray-500">{contact.email}</p>
+                          <p className="text-sm font-medium text-[var(--color-ink)]">{contact.full_name}</p>
+                          <p className="text-xs text-[var(--color-subtle)]">{contact.email}</p>
                         </div>
                       </div>
                       <Badge className={`${getStatusColor(contact.status)} border-0 text-xs`}>

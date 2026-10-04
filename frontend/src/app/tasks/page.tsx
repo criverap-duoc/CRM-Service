@@ -74,7 +74,7 @@ const STATUS_COLORS: Record<string, string> = {
   pending: 'bg-blue-100 text-blue-700',
   in_progress: 'bg-amber-100 text-amber-700',
   completed: 'bg-emerald-100 text-emerald-700',
-  cancelled: 'bg-gray-100 text-gray-500',
+  cancelled: 'bg-gray-100 text-[var(--color-subtle)]',
 };
 
 const PRIORITY_COLORS: Record<string, string> = {
@@ -222,8 +222,8 @@ export default function TasksPage() {
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/40">
-      <nav className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-gray-200/30 shadow-sm">
+    <div className="min-h-screen bg-[var(--color-bg)]">
+      <nav className="sticky top-0 z-50 bg-[var(--color-surface)] border-b border-[var(--color-line)] shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 shadow-md">
@@ -234,14 +234,14 @@ export default function TasksPage() {
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="outline" onClick={() => router.push('/dashboard')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Dashboard</Button>
-            <Button variant="outline" onClick={() => router.push('/contacts')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Contactos</Button>
-            <Button variant="outline" onClick={() => router.push('/analytics')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Analítica</Button>
-            <Button variant="outline" onClick={() => router.push('/companies')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Empresas</Button>
-            <Button variant="outline" onClick={() => router.push('/tags')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Tags</Button>
-            <Button variant="outline" onClick={() => router.push('/tasks')} className="border-blue-400/50 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl bg-blue-50">Tareas</Button>
-            <Button variant="outline" onClick={() => router.push('/products')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">Productos</Button>
-            <Button variant="outline" onClick={() => router.push('/opportunities')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/dashboard')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Dashboard</Button>
+            <Button variant="outline" onClick={() => router.push('/contacts')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Contactos</Button>
+            <Button variant="outline" onClick={() => router.push('/analytics')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Analítica</Button>
+            <Button variant="outline" onClick={() => router.push('/companies')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Empresas</Button>
+            <Button variant="outline" onClick={() => router.push('/tags')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Tags</Button>
+            <Button variant="ghost" onClick={() => router.push('/tasks')} className="text-[var(--color-brand)] font-medium bg-[var(--color-brand)]/8 hover:bg-[var(--color-brand)]/12">Tareas</Button>
+            <Button variant="outline" onClick={() => router.push('/products')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">Productos</Button>
+            <Button variant="outline" onClick={() => router.push('/opportunities')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Oportunidades
             </Button>
 
@@ -261,7 +261,7 @@ export default function TasksPage() {
             <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
               Tareas
             </h2>
-            <p className="text-sm text-gray-400 font-medium">
+            <p className="text-sm text-[var(--color-subtle)] font-medium">
               {taskList.length} tareas encontradas
             </p>
           </div>
@@ -269,7 +269,7 @@ export default function TasksPage() {
             <DialogTrigger asChild>
               <Button
                 onClick={openCreateDialog}
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 rounded-xl font-semibold"
+                className="bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 rounded-xl font-semibold"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Nueva Tarea
@@ -277,7 +277,7 @@ export default function TasksPage() {
             </DialogTrigger>
             <DialogContent className="rounded-2xl max-w-xl overflow-hidden">
               <DialogHeader>
-                <DialogTitle className="text-xl font-bold text-gray-800">Crear Nueva Tarea</DialogTitle>
+                <DialogTitle className="text-xl font-bold text-[var(--color-ink)]">Crear Nueva Tarea</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-2">
                 {error && (
@@ -291,7 +291,7 @@ export default function TasksPage() {
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     placeholder="Ej: Llamar para seguimiento"
-                    className="border-gray-200/60 rounded-xl h-11"
+                    className="border-[var(--color-line)] rounded-xl h-11"
                   />
                 </div>
                 <div className="flex flex-col gap-1.5">
@@ -302,7 +302,7 @@ export default function TasksPage() {
                             variant="outline"
                             role="combobox"
                             aria-expanded={openCombobox}
-                            className="w-full justify-between h-11 rounded-xl border-gray-200/60 font-normal text-left overflow-hidden"
+                            className="w-full justify-between h-11 rounded-xl border-[var(--color-line)] font-normal text-left overflow-hidden"
                         >
                             {formData.contact_id
                             ? contactOptions.find((c) => c.id === formData.contact_id)?.full_name
@@ -358,7 +358,7 @@ export default function TasksPage() {
                 <div>
                   <label className="text-sm font-medium text-gray-700">Descripción</label>
                   <textarea
-                    className="flex min-h-[70px] w-full rounded-xl border border-gray-200/60 bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2"
+                    className="flex min-h-[70px] w-full rounded-xl border border-[var(--color-line)] bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2"
                     value={formData.description}
                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     rows={2}
@@ -371,7 +371,7 @@ export default function TasksPage() {
                         value={formData.priority}
                         onValueChange={(v) => setFormData({ ...formData, priority: v })}
                     >
-                        <SelectTrigger className="w-full border-gray-200/60 rounded-xl h-11">
+                        <SelectTrigger className="w-full border-[var(--color-line)] rounded-xl h-11">
                         <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -388,7 +388,7 @@ export default function TasksPage() {
                       type="date"
                       value={formData.due_date}
                       onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
-                      className="border-gray-200/60 rounded-xl h-11"
+                      className="border-[var(--color-line)] rounded-xl h-11"
                     />
                   </div>
                 </div>
@@ -400,7 +400,7 @@ export default function TasksPage() {
                 <Button
                   onClick={handleCreate}
                   disabled={saving}
-                  className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl"
+                  className="bg-[var(--color-brand)] rounded-xl"
                 >
                   {saving ? 'Creando...' : 'Crear tarea'}
                 </Button>
@@ -410,7 +410,7 @@ export default function TasksPage() {
         </div>
 
         {/* Filtros */}
-        <Card className="border border-gray-200/30 shadow-sm rounded-2xl overflow-hidden bg-white/60 backdrop-blur-sm mb-6">
+        <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl overflow-hidden bg-[var(--color-surface)] mb-6">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
               <div className="p-1.5 rounded-lg bg-blue-100">
@@ -428,10 +428,10 @@ export default function TasksPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && fetchTasks()}
-                className="w-[280px] border-gray-200/60 rounded-xl h-11"
+                className="w-[280px] border-[var(--color-line)] rounded-xl h-11"
               />
               <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[160px] border-gray-200/60 rounded-xl h-11">
+                <SelectTrigger className="w-[160px] border-[var(--color-line)] rounded-xl h-11">
                   <SelectValue placeholder="Estado" />
                 </SelectTrigger>
                 <SelectContent>
@@ -443,7 +443,7 @@ export default function TasksPage() {
                 </SelectContent>
               </Select>
               <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-                <SelectTrigger className="w-[150px] border-gray-200/60 rounded-xl h-11">
+                <SelectTrigger className="w-[150px] border-[var(--color-line)] rounded-xl h-11">
                   <SelectValue placeholder="Prioridad" />
                 </SelectTrigger>
                 <SelectContent>
@@ -460,7 +460,7 @@ export default function TasksPage() {
                 className={`flex items-center gap-2 px-3 h-11 rounded-xl border transition-all ${
                   overdueFilter
                     ? 'bg-rose-50 border-rose-300 text-rose-700'
-                    : 'bg-white/50 border-gray-200/60 text-gray-600 hover:border-rose-300 hover:bg-rose-50/30'
+                    : 'bg-white/50 border-[var(--color-line)] text-gray-600 hover:border-rose-300 hover:bg-rose-50/30'
                 }`}
               >
                 <AlertTriangle className="h-4 w-4" />
@@ -471,7 +471,7 @@ export default function TasksPage() {
         </Card>
 
         {/* Tabla */}
-        <Card className="border border-gray-200/30 shadow-sm rounded-2xl overflow-hidden bg-white/60 backdrop-blur-sm">
+        <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl overflow-hidden bg-[var(--color-surface)]">
           <CardContent className="pt-6">
             {loading ? (
               <div className="space-y-3 animate-pulse">
@@ -480,12 +480,12 @@ export default function TasksPage() {
                 ))}
               </div>
             ) : taskList.length === 0 ? (
-              <p className="text-center text-gray-400 py-12 text-sm">No hay tareas registradas</p>
+              <p className="text-center text-[var(--color-subtle)] py-12 text-sm">No hay tareas registradas</p>
             ) : (
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader className="bg-gray-50/50">
-                    <TableRow className="hover:bg-transparent border-gray-200/30">
+                    <TableRow className="hover:bg-transparent border-[var(--color-line)]">
                       <TableHead className="font-semibold text-gray-600 text-xs uppercase">Tarea</TableHead>
                       <TableHead className="font-semibold text-gray-600 text-xs uppercase hidden md:table-cell">Contacto</TableHead>
                       <TableHead className="font-semibold text-gray-600 text-xs uppercase">Estado</TableHead>
@@ -506,7 +506,7 @@ export default function TasksPage() {
                         <TableCell>
                           <div className="flex items-center gap-2">
                             {task.is_overdue && <AlertTriangle className="h-3.5 w-3.5 text-rose-500 shrink-0" />}
-                            <span className="font-medium text-gray-800">{task.title}</span>
+                            <span className="font-medium text-[var(--color-ink)]">{task.title}</span>
                           </div>
                         </TableCell>
                         <TableCell className="text-gray-600 hidden md:table-cell">
@@ -527,10 +527,10 @@ export default function TasksPage() {
                             {PRIORITY_LABELS[task.priority]}
                           </Badge>
                         </TableCell>
-                        <TableCell className={`hidden lg:table-cell text-xs ${task.is_overdue ? 'text-rose-600 font-semibold' : 'text-gray-500'}`}>
+                        <TableCell className={`hidden lg:table-cell text-xs ${task.is_overdue ? 'text-rose-600 font-semibold' : 'text-[var(--color-subtle)]'}`}>
                           {formatDate(task.due_date)}
                         </TableCell>
-                        <TableCell className="hidden lg:table-cell text-xs text-gray-500">
+                        <TableCell className="hidden lg:table-cell text-xs text-[var(--color-subtle)]">
                           {task.assigned_to?.username || '-'}
                         </TableCell>
                         <TableCell>
@@ -565,14 +565,14 @@ export default function TasksPage() {
                                 className="h-7 px-2 text-xs hover:bg-gray-50 rounded-lg"
                                 title="Cancelar"
                               >
-                                <XCircle className="h-3.5 w-3.5 text-gray-400" />
+                                <XCircle className="h-3.5 w-3.5 text-[var(--color-subtle)]" />
                               </Button>
                             )}
                             {task.status === 'completed' && (
                               <span className="text-xs text-emerald-600 font-medium">Completada</span>
                             )}
                             {task.status === 'cancelled' && (
-                              <span className="text-xs text-gray-400 font-medium">Cancelada</span>
+                              <span className="text-xs text-[var(--color-subtle)] font-medium">Cancelada</span>
                             )}
                           </div>
                         </TableCell>

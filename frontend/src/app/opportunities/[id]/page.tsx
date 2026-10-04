@@ -258,11 +258,11 @@ export default function OpportunityDetailPage() {
   if (!opp) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-4">
-        <p className="text-gray-500">{error || 'Oportunidad no encontrada.'}</p>
+        <p className="text-[var(--color-subtle)]">{error || 'Oportunidad no encontrada.'}</p>
         <Button
           variant="outline"
           onClick={() => router.push('/opportunities')}
-          className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl"
+          className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl"
         >
           <ArrowLeft className="h-4 w-4 mr-1.5" />
           Volver a oportunidades
@@ -275,12 +275,12 @@ export default function OpportunityDetailPage() {
   const isOpen = opp.stage !== 'won' && opp.stage !== 'lost';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/40">
+    <div className="min-h-screen bg-[var(--color-bg)]">
       {/* Navbar mínima */}
-      <nav className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-gray-200/30 shadow-sm">
+      <nav className="sticky top-0 z-50 bg-[var(--color-surface)] border-b border-[var(--color-line)] shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 shadow-md">
+            <div className="p-1.5 rounded-lg bg-[var(--color-brand)] shadow-md">
               <Target className="h-5 w-5 text-white" />
             </div>
             <h1 className="text-xl font-bold text-gray-900 tracking-tight">
@@ -291,7 +291,7 @@ export default function OpportunityDetailPage() {
             <Button
               variant="outline"
               onClick={() => router.push('/opportunities')}
-              className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl"
+              className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl"
             >
               <ArrowLeft className="h-4 w-4 mr-1.5" />
               Volver
@@ -307,24 +307,24 @@ export default function OpportunityDetailPage() {
           </Alert>
         )}
 
-        <div className="flex items-center gap-2 text-sm text-gray-500 mb-4">
+        <div className="flex items-center gap-2 text-sm text-[var(--color-subtle)] mb-4">
           <span onClick={() => router.push('/opportunities')} className="hover:text-blue-600 cursor-pointer transition-colors">
             Oportunidades
           </span>
           <span>/</span>
-          <span className="text-gray-800 font-medium">{opp.name}</span>
+          <span className="text-[var(--color-ink)] font-medium">{opp.name}</span>
         </div>
 
-        <Card className="border border-gray-200/30 shadow-sm rounded-2xl bg-white/60 backdrop-blur-sm mb-6">
+        <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl bg-[var(--color-surface)] mb-6">
           <CardContent className="pt-6">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-md">
+                <div className="p-3 rounded-2xl bg-[var(--color-brand)] text-white shadow-md">
                   <Target className="h-6 w-6" />
                 </div>
                 <div>
                   <div className="flex items-center gap-3 flex-wrap">
-                    <h2 className="text-2xl font-bold text-gray-800 tracking-tight">{opp.name}</h2>
+                    <h2 className="text-2xl font-bold text-[var(--color-ink)] tracking-tight">{opp.name}</h2>
                     <Badge className={`${STAGE_COLORS[opp.stage] || 'bg-gray-100 text-gray-700 border-gray-200'} border font-medium rounded-full px-2.5 py-0.5 text-xs`}>
                       {STAGE_LABELS[opp.stage] || opp.stage}
                     </Badge>
@@ -335,7 +335,7 @@ export default function OpportunityDetailPage() {
                       </Badge>
                     )}
                   </div>
-                  <p className="text-sm text-gray-500 mt-1.5">
+                  <p className="text-sm text-[var(--color-subtle)] mt-1.5">
                     {opp.assigned_to ? `Asignada a ${opp.assigned_to.username}` : 'Sin asignar'}
                   </p>
                 </div>
@@ -345,7 +345,7 @@ export default function OpportunityDetailPage() {
                   variant="outline"
                   onClick={startEdit}
                   disabled={saving}
-                  className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl"
+                  className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl"
                 >
                   <Pencil className="h-4 w-4 mr-1.5" />
                   Editar
@@ -362,7 +362,7 @@ export default function OpportunityDetailPage() {
             </div>
 
             <div className="flex flex-wrap items-center gap-2 mt-5 pt-5 border-t border-gray-200/50">
-              <span className="text-xs font-medium text-gray-500 mr-1">Mover a:</span>
+              <span className="text-xs font-medium text-[var(--color-subtle)] mr-1">Mover a:</span>
               {STAGES.map((stage) => (
                 <Button
                   key={stage}
@@ -373,7 +373,7 @@ export default function OpportunityDetailPage() {
                   className={`rounded-xl transition-all duration-200 font-medium ${
                     opp.stage === stage
                       ? 'border-blue-400/50 bg-blue-50 text-blue-700'
-                      : 'border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:-translate-y-0.5 text-gray-600'
+                      : 'border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:-translate-y-0.5 text-gray-600'
                   }`}
                 >
                   {STAGE_LABELS[stage]}
@@ -383,42 +383,42 @@ export default function OpportunityDetailPage() {
           </CardContent>
         </Card>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <Card className="border border-gray-200/30 shadow-sm rounded-2xl bg-white/60 backdrop-blur-sm">
+          <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl bg-[var(--color-surface)]">
             <CardContent className="pt-5">
-              <div className="flex items-center gap-1.5 text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">
+              <div className="flex items-center gap-1.5 text-xs font-medium text-[var(--color-subtle)] uppercase tracking-wider mb-1">
                 <TrendingUp className="h-3.5 w-3.5 text-blue-500" />
                 Monto
               </div>
-              <p className="text-xl font-bold text-gray-800 tracking-tight">{formatCLP(opp.amount)}</p>
+              <p className="text-xl font-bold text-[var(--color-ink)] tracking-tight">{formatCLP(opp.amount)}</p>
             </CardContent>
           </Card>
-          <Card className="border border-gray-200/30 shadow-sm rounded-2xl bg-white/60 backdrop-blur-sm">
+          <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl bg-[var(--color-surface)]">
             <CardContent className="pt-5">
-              <div className="flex items-center gap-1.5 text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">
+              <div className="flex items-center gap-1.5 text-xs font-medium text-[var(--color-subtle)] uppercase tracking-wider mb-1">
                 <Target className="h-3.5 w-3.5 text-indigo-500" />
                 Ponderado
               </div>
               <p className="text-xl font-bold text-indigo-600 tracking-tight">{formatCLP(opp.weighted_amount)}</p>
             </CardContent>
           </Card>
-          <Card className="border border-gray-200/30 shadow-sm rounded-2xl bg-white/60 backdrop-blur-sm">
+          <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl bg-[var(--color-surface)]">
             <CardContent className="pt-5">
-              <div className="flex items-center gap-1.5 text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">
+              <div className="flex items-center gap-1.5 text-xs font-medium text-[var(--color-subtle)] uppercase tracking-wider mb-1">
                 <Percent className="h-3.5 w-3.5 text-violet-500" />
                 Probabilidad
               </div>
               <p className="text-xl font-bold text-violet-600 tracking-tight">{opp.probability}%</p>
             </CardContent>
           </Card>
-          <Card className="border border-gray-200/30 shadow-sm rounded-2xl bg-white/60 backdrop-blur-sm">
+          <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl bg-[var(--color-surface)]">
             <CardContent className="pt-5">
-              <div className="flex items-center gap-1.5 text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">
+              <div className="flex items-center gap-1.5 text-xs font-medium text-[var(--color-subtle)] uppercase tracking-wider mb-1">
                 <CalendarDays className="h-3.5 w-3.5 text-amber-500" />
                 Cierre esperado
               </div>
-              <p className="text-base font-bold text-gray-800 tracking-tight">{formatDate(opp.expected_close_date)}</p>
+              <p className="text-base font-bold text-[var(--color-ink)] tracking-tight">{formatDate(opp.expected_close_date)}</p>
               {isOpen && days !== null && (
-                <p className={`text-xs font-medium mt-0.5 flex items-center gap-1 ${days < 0 ? 'text-rose-500' : 'text-gray-500'}`}>
+                <p className={`text-xs font-medium mt-0.5 flex items-center gap-1 ${days < 0 ? 'text-rose-500' : 'text-[var(--color-subtle)]'}`}>
                   <Timer className="h-3 w-3" />
                   {days < 0 ? `${Math.abs(days)} días de atraso` : days === 0 ? 'Cierra hoy' : `en ${days} días`}
                 </p>
@@ -431,14 +431,14 @@ export default function OpportunityDetailPage() {
             {editing && (
               <Card className="border border-blue-200/60 shadow-sm rounded-2xl bg-white/70 backdrop-blur-sm">
                 <CardHeader>
-                  <CardTitle className="text-gray-800 flex items-center gap-2">
+                  <CardTitle className="text-[var(--color-ink)] flex items-center gap-2">
                     <Pencil className="h-4 w-4 text-blue-500" />
                     Editar oportunidad
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <label className="text-xs font-medium text-gray-500 mb-1.5 block">Nombre</label>
+                    <label className="text-xs font-medium text-[var(--color-subtle)] mb-1.5 block">Nombre</label>
                     <Input
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -447,7 +447,7 @@ export default function OpportunityDetailPage() {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs font-medium text-gray-500 mb-1.5 block">Monto (CLP)</label>
+                      <label className="text-xs font-medium text-[var(--color-subtle)] mb-1.5 block">Monto (CLP)</label>
                       <Input
                         type="number"
                         min={0}
@@ -457,7 +457,7 @@ export default function OpportunityDetailPage() {
                       />
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-gray-500 mb-1.5 block">Probabilidad (%)</label>
+                      <label className="text-xs font-medium text-[var(--color-subtle)] mb-1.5 block">Probabilidad (%)</label>
                       <Input
                         type="number"
                         min={0}
@@ -470,7 +470,7 @@ export default function OpportunityDetailPage() {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs font-medium text-gray-500 mb-1.5 block">Etapa</label>
+                      <label className="text-xs font-medium text-[var(--color-subtle)] mb-1.5 block">Etapa</label>
                       <Select value={formData.stage} onValueChange={(value) => setFormData({ ...formData, stage: value })}>
                         <SelectTrigger className="rounded-xl h-11">
                           <SelectValue placeholder="Etapa" />
@@ -485,7 +485,7 @@ export default function OpportunityDetailPage() {
                       </Select>
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-gray-500 mb-1.5 block">Fecha de cierre esperada</label>
+                      <label className="text-xs font-medium text-[var(--color-subtle)] mb-1.5 block">Fecha de cierre esperada</label>
                       <Input
                         type="date"
                         value={formData.expected_close_date}
@@ -496,7 +496,7 @@ export default function OpportunityDetailPage() {
                   </div>
                   {formData.stage === 'lost' && (
                     <div>
-                      <label className="text-xs font-medium text-gray-500 mb-1.5 block">Motivo de pérdida</label>
+                      <label className="text-xs font-medium text-[var(--color-subtle)] mb-1.5 block">Motivo de pérdida</label>
                       <Input
                         value={formData.lost_reason}
                         onChange={(e) => setFormData({ ...formData, lost_reason: e.target.value })}
@@ -508,7 +508,7 @@ export default function OpportunityDetailPage() {
                     <Button
                       onClick={save}
                       disabled={saving}
-                      className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl hover:-translate-y-0.5 transition-all duration-200"
+                      className="bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] text-white rounded-xl hover:-translate-y-0.5 transition-all duration-200"
                     >
                       <Save className="h-4 w-4 mr-1.5" />
                       {saving ? 'Guardando...' : 'Guardar'}
@@ -517,7 +517,7 @@ export default function OpportunityDetailPage() {
                       variant="outline"
                       onClick={() => { setEditing(false); setError(''); }}
                       disabled={saving}
-                      className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl font-medium text-gray-700 transition-all duration-200"
+                      className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl font-medium text-gray-700 transition-all duration-200"
                     >
                       <X className="h-4 w-4 mr-1.5" />
                       Cancelar
@@ -527,9 +527,9 @@ export default function OpportunityDetailPage() {
               </Card>
             )}
             {!editing && (
-              <Card className="border border-gray-200/30 shadow-sm rounded-2xl bg-white/60 backdrop-blur-sm">
+              <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl bg-[var(--color-surface)]">
                 <CardHeader>
-                  <CardTitle className="text-gray-800 flex items-center gap-2">
+                  <CardTitle className="text-[var(--color-ink)] flex items-center gap-2">
                     <Target className="h-4 w-4 text-indigo-500" />
                     Detalle
                   </CardTitle>
@@ -537,28 +537,28 @@ export default function OpportunityDetailPage() {
                 <CardContent>
                   <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <dt className="text-xs text-gray-400 uppercase tracking-wider font-medium">Etapa</dt>
-                      <dd className="text-sm text-gray-800 font-medium mt-0.5">{STAGE_LABELS[opp.stage] || opp.stage}</dd>
+                      <dt className="text-xs text-[var(--color-subtle)] uppercase tracking-wider font-medium">Etapa</dt>
+                      <dd className="text-sm text-[var(--color-ink)] font-medium mt-0.5">{STAGE_LABELS[opp.stage] || opp.stage}</dd>
                     </div>
                     <div>
-                      <dt className="text-xs text-gray-400 uppercase tracking-wider font-medium">Estado</dt>
-                      <dd className="text-sm text-gray-800 font-medium mt-0.5">{isOpen ? 'Abierta' : 'Cerrada'}</dd>
+                      <dt className="text-xs text-[var(--color-subtle)] uppercase tracking-wider font-medium">Estado</dt>
+                      <dd className="text-sm text-[var(--color-ink)] font-medium mt-0.5">{isOpen ? 'Abierta' : 'Cerrada'}</dd>
                     </div>
                     <div>
-                      <dt className="text-xs text-gray-400 uppercase tracking-wider font-medium">Monto</dt>
-                      <dd className="text-sm text-gray-800 font-medium mt-0.5">{formatCLP(opp.amount)}</dd>
+                      <dt className="text-xs text-[var(--color-subtle)] uppercase tracking-wider font-medium">Monto</dt>
+                      <dd className="text-sm text-[var(--color-ink)] font-medium mt-0.5">{formatCLP(opp.amount)}</dd>
                     </div>
                     <div>
-                      <dt className="text-xs text-gray-400 uppercase tracking-wider font-medium">Ponderado</dt>
-                      <dd className="text-sm text-gray-800 font-medium mt-0.5">{formatCLP(opp.weighted_amount)}</dd>
+                      <dt className="text-xs text-[var(--color-subtle)] uppercase tracking-wider font-medium">Ponderado</dt>
+                      <dd className="text-sm text-[var(--color-ink)] font-medium mt-0.5">{formatCLP(opp.weighted_amount)}</dd>
                     </div>
                     <div>
-                      <dt className="text-xs text-gray-400 uppercase tracking-wider font-medium">Probabilidad</dt>
-                      <dd className="text-sm text-gray-800 font-medium mt-0.5">{opp.probability}%</dd>
+                      <dt className="text-xs text-[var(--color-subtle)] uppercase tracking-wider font-medium">Probabilidad</dt>
+                      <dd className="text-sm text-[var(--color-ink)] font-medium mt-0.5">{opp.probability}%</dd>
                     </div>
                     <div>
-                      <dt className="text-xs text-gray-400 uppercase tracking-wider font-medium">Cierre esperado</dt>
-                      <dd className="text-sm text-gray-800 font-medium mt-0.5">{formatDate(opp.expected_close_date)}</dd>
+                      <dt className="text-xs text-[var(--color-subtle)] uppercase tracking-wider font-medium">Cierre esperado</dt>
+                      <dd className="text-sm text-[var(--color-ink)] font-medium mt-0.5">{formatDate(opp.expected_close_date)}</dd>
                     </div>
                   </dl>
                   {opp.lost_reason && (
@@ -572,9 +572,9 @@ export default function OpportunityDetailPage() {
             )}
           </div>
           <div className="space-y-6">
-            <Card className="border border-gray-200/30 shadow-sm rounded-2xl bg-white/60 backdrop-blur-sm">
+            <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl bg-[var(--color-surface)]">
               <CardHeader>
-                <CardTitle className="text-gray-800 flex items-center gap-2">
+                <CardTitle className="text-[var(--color-ink)] flex items-center gap-2">
                   <User className="h-4 w-4 text-blue-500" />
                   Contacto
                 </CardTitle>
@@ -585,18 +585,18 @@ export default function OpportunityDetailPage() {
                     onClick={() => router.push(`/contacts/${opp.contact!.id}`)}
                     className="p-3.5 bg-gray-50/60 rounded-xl border border-transparent hover:border-blue-200/40 hover:bg-blue-50/40 hover:shadow-sm transition-all duration-200 cursor-pointer"
                   >
-                    <p className="font-medium text-gray-800">{opp.contact.full_name}</p>
-                    <p className="text-sm text-gray-400">{opp.contact.email}</p>
+                    <p className="font-medium text-[var(--color-ink)]">{opp.contact.full_name}</p>
+                    <p className="text-sm text-[var(--color-subtle)]">{opp.contact.email}</p>
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-400">Sin contacto vinculado</p>
+                  <p className="text-sm text-[var(--color-subtle)]">Sin contacto vinculado</p>
                 )}
               </CardContent>
             </Card>
 
-            <Card className="border border-gray-200/30 shadow-sm rounded-2xl bg-white/60 backdrop-blur-sm">
+            <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl bg-[var(--color-surface)]">
               <CardHeader>
-                <CardTitle className="text-gray-800 flex items-center gap-2">
+                <CardTitle className="text-[var(--color-ink)] flex items-center gap-2">
                   <Building2 className="h-4 w-4 text-violet-500" />
                   Empresa
                 </CardTitle>
@@ -607,36 +607,36 @@ export default function OpportunityDetailPage() {
                     onClick={() => router.push(`/companies/${opp.company!.id}`)}
                     className="p-3.5 bg-gray-50/60 rounded-xl border border-transparent hover:border-violet-200/40 hover:bg-violet-50/40 hover:shadow-sm transition-all duration-200 cursor-pointer"
                   >
-                    <p className="font-medium text-gray-800">{opp.company.name}</p>
+                    <p className="font-medium text-[var(--color-ink)]">{opp.company.name}</p>
                   </div>
                 ) : (
-                  <p className="text-sm text-gray-400">Sin empresa vinculada</p>
+                  <p className="text-sm text-[var(--color-subtle)]">Sin empresa vinculada</p>
                 )}
               </CardContent>
             </Card>
 
-            <Card className="border border-gray-200/30 shadow-sm rounded-2xl bg-white/60 backdrop-blur-sm">
+            <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl bg-[var(--color-surface)]">
               <CardHeader>
-                <CardTitle className="text-gray-800 flex items-center gap-2">
+                <CardTitle className="text-[var(--color-ink)] flex items-center gap-2">
                   <Timer className="h-4 w-4 text-slate-500" />
                   Registro
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div>
-                  <p className="text-xs text-gray-400 uppercase tracking-wider font-medium">Creada</p>
+                  <p className="text-xs text-[var(--color-subtle)] uppercase tracking-wider font-medium">Creada</p>
                   <p className="text-sm text-gray-700 mt-0.5">{formatDateTime(opp.created_at)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-400 uppercase tracking-wider font-medium">Actualizada</p>
+                  <p className="text-xs text-[var(--color-subtle)] uppercase tracking-wider font-medium">Actualizada</p>
                   <p className="text-sm text-gray-700 mt-0.5">{formatDateTime(opp.updated_at)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-400 uppercase tracking-wider font-medium">Cerrada</p>
+                  <p className="text-xs text-[var(--color-subtle)] uppercase tracking-wider font-medium">Cerrada</p>
                   <p className="text-sm text-gray-700 mt-0.5">{formatDateTime(opp.closed_at)}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-400 uppercase tracking-wider font-medium">Asignada a</p>
+                  <p className="text-xs text-[var(--color-subtle)] uppercase tracking-wider font-medium">Asignada a</p>
                   <p className="text-sm text-gray-700 mt-0.5">
                     {opp.assigned_to ? opp.assigned_to.username : 'Sin asignar'}
                   </p>
@@ -650,21 +650,21 @@ export default function OpportunityDetailPage() {
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent className="rounded-2xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-gray-800">
+            <DialogTitle className="flex items-center gap-2 text-[var(--color-ink)]">
               <AlertTriangle className="h-5 w-5 text-rose-500" />
               Eliminar oportunidad
             </DialogTitle>
           </DialogHeader>
           <p className="text-sm text-gray-600">
             ¿Seguro que quieres eliminar{' '}
-            <span className="font-medium text-gray-800">{opp.name}</span>? Esta acción no se puede deshacer.
+            <span className="font-medium text-[var(--color-ink)]">{opp.name}</span>? Esta acción no se puede deshacer.
           </p>
           <DialogFooter className="gap-2">
             <Button
               variant="outline"
               onClick={() => setDeleteOpen(false)}
               disabled={deleting}
-              className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl font-medium text-gray-700 transition-all duration-200"
+              className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl font-medium text-gray-700 transition-all duration-200"
             >
               Cancelar
             </Button>

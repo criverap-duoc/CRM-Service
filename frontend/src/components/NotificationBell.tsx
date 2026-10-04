@@ -25,7 +25,7 @@ const TYPE_COLORS: Record<string, string> = {
   webhook_received: 'text-violet-500',
   task_overdue: 'text-rose-500',
   opportunity_won: 'text-emerald-500',
-  system: 'text-gray-500',
+  system: 'text-[var(--color-subtle)]',
 };
 
 function timeAgo(iso: string): string {
@@ -66,7 +66,7 @@ export function NotificationBell() {
         <Button
           variant="ghost"
           size="sm"
-          className="relative text-gray-500 hover:text-gray-700 hover:bg-gray-100/70 rounded-xl transition-all"
+          className="relative text-[var(--color-subtle)] hover:text-gray-700 hover:bg-gray-100/70 rounded-xl transition-all"
           aria-label="Notificaciones"
         >
           <Bell className="h-4 w-4" />
@@ -79,9 +79,9 @@ export function NotificationBell() {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-80 rounded-2xl p-0">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200/60">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-line)]">
           <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold text-gray-800">Notificaciones</h3>
+            <h3 className="text-sm font-semibold text-[var(--color-ink)]">Notificaciones</h3>
             <span
               className={`h-1.5 w-1.5 rounded-full ${
                 isConnected ? 'bg-emerald-500' : 'bg-gray-300'
@@ -104,12 +104,12 @@ export function NotificationBell() {
           {recent.length === 0 ? (
             <div className="py-10 text-center">
               <Bell className="h-8 w-8 text-gray-200 mx-auto mb-2" />
-              <p className="text-xs text-gray-400">Sin notificaciones</p>
+              <p className="text-xs text-[var(--color-subtle)]">Sin notificaciones</p>
             </div>
           ) : (
             recent.map((notif) => {
               const Icon = TYPE_ICONS[notif.type] || Info;
-              const color = TYPE_COLORS[notif.type] || 'text-gray-500';
+              const color = TYPE_COLORS[notif.type] || 'text-[var(--color-subtle)]';
               return (
                 <button
                   key={notif.id}
@@ -123,13 +123,13 @@ export function NotificationBell() {
                       <Icon className="h-4 w-4" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className={`text-sm ${!notif.read ? 'font-semibold text-gray-800' : 'font-medium text-gray-700'} truncate`}>
+                      <p className={`text-sm ${!notif.read ? 'font-semibold text-[var(--color-ink)]' : 'font-medium text-gray-700'} truncate`}>
                         {notif.title}
                       </p>
-                      <p className="text-xs text-gray-500 line-clamp-2 mt-0.5">
+                      <p className="text-xs text-[var(--color-subtle)] line-clamp-2 mt-0.5">
                         {notif.message}
                       </p>
-                      <p className="text-[10px] text-gray-400 mt-1">
+                      <p className="text-[10px] text-[var(--color-subtle)] mt-1">
                         {timeAgo(notif.created_at)}
                       </p>
                     </div>

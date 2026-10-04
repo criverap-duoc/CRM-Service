@@ -237,9 +237,9 @@ export default function ProductsPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/40">
+    <div className="min-h-screen bg-[var(--color-bg)]">
       {/* Navbar */}
-      <nav className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-gray-200/30 shadow-sm">
+      <nav className="sticky top-0 z-50 bg-[var(--color-surface)] border-b border-[var(--color-line)] shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 shadow-md">
@@ -250,28 +250,28 @@ export default function ProductsPage() {
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="outline" onClick={() => router.push('/dashboard')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/dashboard')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Dashboard
             </Button>
-            <Button variant="outline" onClick={() => router.push('/contacts')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/contacts')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Contactos
             </Button>
-            <Button variant="outline" onClick={() => router.push('/analytics')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/analytics')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Analítica
             </Button>
-            <Button variant="outline" onClick={() => router.push('/companies')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/companies')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Empresas
             </Button>
-            <Button variant="outline" onClick={() => router.push('/tags')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/tags')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Tags
             </Button>
-            <Button variant="outline" onClick={() => router.push('/tasks')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/tasks')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Tareas
             </Button>
-            <Button variant="outline" onClick={() => router.push('/products')} className="border-blue-400/50 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl bg-blue-50">
+            <Button variant="ghost" onClick={() => router.push('/products')} className="text-[var(--color-brand)] font-medium bg-[var(--color-brand)]/8 hover:bg-[var(--color-brand)]/12">
               Productos
             </Button>
-            <Button variant="outline" onClick={() => router.push('/opportunities')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/opportunities')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Oportunidades
             </Button>
 
@@ -291,13 +291,13 @@ export default function ProductsPage() {
             <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
               Productos
             </h2>
-            <p className="text-sm text-gray-400 font-medium">
+            <p className="text-sm text-[var(--color-subtle)] font-medium">
               {filteredProducts.length} productos registrados
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <Select value={categoryFilter || 'all'} onValueChange={(value) => setCategoryFilter(value === 'all' ? '' : value)}>
-              <SelectTrigger className="w-[180px] border-gray-200/60 rounded-xl h-11 bg-white/50 backdrop-blur-sm">
+              <SelectTrigger className="w-[180px] border-[var(--color-line)] rounded-xl h-11 bg-white/50 backdrop-blur-sm">
                 <SelectValue placeholder="Todas las categorías" />
               </SelectTrigger>
               <SelectContent>
@@ -313,15 +313,15 @@ export default function ProductsPage() {
               variant={activeOnly ? 'default' : 'outline'}
               onClick={() => setActiveOnly((prev) => !prev)}
               className={activeOnly
-                ? 'rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md'
-                : 'border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl text-gray-700'}
+                ? 'rounded-xl bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] shadow-md'
+                : 'border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl text-gray-700'}
             >
               <Filter className="h-4 w-4 mr-2" />
               Solo activos
             </Button>
             <Button
               onClick={openCreateDialog}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 rounded-xl font-semibold"
+              className="bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 rounded-xl font-semibold"
             >
               <Plus className="h-4 w-4 mr-2" />
               Nuevo Producto
@@ -333,7 +333,7 @@ export default function ProductsPage() {
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogContent className="rounded-2xl sm:max-w-lg">
             <DialogHeader>
-              <DialogTitle className="text-xl font-bold text-gray-800">
+              <DialogTitle className="text-xl font-bold text-[var(--color-ink)]">
                 {editingProduct ? 'Editar Producto' : 'Nuevo Producto'}
               </DialogTitle>
             </DialogHeader>
@@ -344,7 +344,7 @@ export default function ProductsPage() {
                   value={formData.name}
                   onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
                   placeholder="Nombre del producto"
-                  className="border-gray-200/60 rounded-xl h-11 focus:border-blue-400/50 focus:ring-4 focus:ring-blue-400/10"
+                  className="border-[var(--color-line)] rounded-xl h-11 focus:border-blue-400/50 focus:ring-4 focus:ring-blue-400/10"
                 />
               </div>
               <div className="space-y-2">
@@ -353,13 +353,13 @@ export default function ProductsPage() {
                   value={formData.sku}
                   onChange={(e) => setFormData((prev) => ({ ...prev, sku: e.target.value }))}
                   placeholder="SKU"
-                  className="border-gray-200/60 rounded-xl h-11 focus:border-blue-400/50 focus:ring-4 focus:ring-blue-400/10"
+                  className="border-[var(--color-line)] rounded-xl h-11 focus:border-blue-400/50 focus:ring-4 focus:ring-blue-400/10"
                 />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700">Categoría</label>
                 <Select value={formData.category} onValueChange={(value) => setFormData((prev) => ({ ...prev, category: value }))}>
-                  <SelectTrigger className="border-gray-200/60 rounded-xl h-11">
+                  <SelectTrigger className="border-[var(--color-line)] rounded-xl h-11">
                     <SelectValue placeholder="Categoría" />
                   </SelectTrigger>
                   <SelectContent>
@@ -379,7 +379,7 @@ export default function ProductsPage() {
                   step="1"
                   value={formData.unit_price}
                   onChange={(e) => setFormData((prev) => ({ ...prev, unit_price: Number(e.target.value) || 0 }))}
-                  className="border-gray-200/60 rounded-xl h-11 focus:border-blue-400/50 focus:ring-4 focus:ring-blue-400/10"
+                  className="border-[var(--color-line)] rounded-xl h-11 focus:border-blue-400/50 focus:ring-4 focus:ring-blue-400/10"
                 />
               </div>
               <div className="space-y-2 md:col-span-2">
@@ -388,7 +388,7 @@ export default function ProductsPage() {
                   value={formData.description}
                   onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
                   placeholder="Descripción del producto"
-                  className="border-gray-200/60 rounded-xl focus:border-blue-400/50 focus:ring-4 focus:ring-blue-400/10"
+                  className="border-[var(--color-line)] rounded-xl focus:border-blue-400/50 focus:ring-4 focus:ring-blue-400/10"
                 />
               </div>
               <div className="flex items-center gap-2 md:col-span-2">
@@ -415,7 +415,7 @@ export default function ProductsPage() {
                 type="button"
                 onClick={handleSave}
                 disabled={saving}
-                className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md"
+                className="rounded-xl bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] shadow-md"
               >
                 {saving ? 'Guardando...' : editingProduct ? 'Guardar cambios' : 'Crear producto'}
               </Button>
@@ -426,16 +426,16 @@ export default function ProductsPage() {
         {/* Grid de productos */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {loading ? (
-            <p className="col-span-full text-center text-gray-400 py-12 text-sm">Cargando productos...</p>
+            <p className="col-span-full text-center text-[var(--color-subtle)] py-12 text-sm">Cargando productos...</p>
           ) : filteredProducts.length === 0 ? (
-            <p className="col-span-full text-center text-gray-400 py-12 text-sm">No hay productos registrados</p>
+            <p className="col-span-full text-center text-[var(--color-subtle)] py-12 text-sm">No hay productos registrados</p>
           ) : (
             filteredProducts.map((product) => {
               const colors = CATEGORY_COLORS[product.category] || CATEGORY_COLORS.other;
               return (
                 <Card
                   key={product.id}
-                  className="group relative overflow-hidden border border-gray-200/30 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 rounded-2xl bg-white/60 backdrop-blur-sm"
+                  className="group relative overflow-hidden border border-[var(--color-line)] shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 rounded-2xl bg-[var(--color-surface)]"
                 >
                   <CardContent className="p-5">
                     {/* Hover actions */}
@@ -446,7 +446,7 @@ export default function ProductsPage() {
                         onClick={() => openEditDialog(product)}
                         className="h-8 w-8 p-0 hover:bg-blue-100/50 rounded-lg"
                       >
-                        <Pencil className="h-3.5 w-3.5 text-gray-500" />
+                        <Pencil className="h-3.5 w-3.5 text-[var(--color-subtle)]" />
                       </Button>
                       <Button
                         variant="ghost"
@@ -463,8 +463,8 @@ export default function ProductsPage() {
                         <Package className="h-4 w-4 text-white" />
                       </div>
                       <div className="min-w-0 flex-1 pr-14">
-                        <h3 className="font-semibold text-gray-800 truncate tracking-tight">{product.name}</h3>
-                        <p className="text-xs text-gray-400 font-mono truncate">{product.sku}</p>
+                        <h3 className="font-semibold text-[var(--color-ink)] truncate tracking-tight">{product.name}</h3>
+                        <p className="text-xs text-[var(--color-subtle)] font-mono truncate">{product.sku}</p>
                       </div>
                     </div>
 
@@ -473,16 +473,16 @@ export default function ProductsPage() {
                         {product.category}
                       </Badge>
                       {!product.active && (
-                        <Badge className="border-0 font-medium rounded-full px-2.5 py-0.5 text-xs bg-gray-100 text-gray-500">
+                        <Badge className="border-0 font-medium rounded-full px-2.5 py-0.5 text-xs bg-gray-100 text-[var(--color-subtle)]">
                           Inactivo
                         </Badge>
                       )}
                     </div>
 
-                    <p className="text-lg font-bold text-gray-800 tracking-tight mb-1">
+                    <p className="text-lg font-bold text-[var(--color-ink)] tracking-tight mb-1">
                       {formatPrice(product.unit_price)}
                     </p>
-                    <p className="text-xs text-gray-400 font-medium">
+                    <p className="text-xs text-[var(--color-subtle)] font-medium">
                       {product.interested_count} {product.interested_count === 1 ? 'interesado' : 'interesados'}
                     </p>
                   </CardContent>

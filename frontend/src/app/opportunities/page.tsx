@@ -302,8 +302,8 @@ export default function OpportunitiesPage() {
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/40">
-      <nav className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-gray-200/30 shadow-sm">
+    <div className="min-h-screen bg-[var(--color-bg)]">
+      <nav className="sticky top-0 z-50 bg-[var(--color-surface)] border-b border-[var(--color-line)] shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 shadow-md">
@@ -314,14 +314,14 @@ export default function OpportunitiesPage() {
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="outline" onClick={() => router.push('/dashboard')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Dashboard</Button>
-            <Button variant="outline" onClick={() => router.push('/contacts')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Contactos</Button>
-            <Button variant="outline" onClick={() => router.push('/analytics')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Analítica</Button>
-            <Button variant="outline" onClick={() => router.push('/companies')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Empresas</Button>
-            <Button variant="outline" onClick={() => router.push('/tags')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Tags</Button>
-            <Button variant="outline" onClick={() => router.push('/tasks')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Tareas</Button>
-            <Button variant="outline" onClick={() => router.push('/products')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Productos</Button>
-            <Button variant="outline" onClick={() => router.push('/opportunities')} className="border-blue-400/50 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl bg-blue-50">Oportunidades</Button>
+            <Button variant="outline" onClick={() => router.push('/dashboard')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Dashboard</Button>
+            <Button variant="outline" onClick={() => router.push('/contacts')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Contactos</Button>
+            <Button variant="outline" onClick={() => router.push('/analytics')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Analítica</Button>
+            <Button variant="outline" onClick={() => router.push('/companies')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Empresas</Button>
+            <Button variant="outline" onClick={() => router.push('/tags')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Tags</Button>
+            <Button variant="outline" onClick={() => router.push('/tasks')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Tareas</Button>
+            <Button variant="outline" onClick={() => router.push('/products')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Productos</Button>
+            <Button variant="ghost" onClick={() => router.push('/opportunities')} className="text-[var(--color-brand)] font-medium bg-[var(--color-brand)]/8 hover:bg-[var(--color-brand)]/12">Oportunidades</Button>
             <NotificationBell />
 
             <Button variant="ghost" size="sm" onClick={logout} className="text-rose-500 hover:text-rose-600 hover:bg-rose-50/50 rounded-xl">
@@ -338,30 +338,30 @@ export default function OpportunitiesPage() {
             <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
               Oportunidades
             </h2>
-            <p className="text-sm text-gray-400 font-medium">
+            <p className="text-sm text-[var(--color-subtle)] font-medium">
               {opps.length} oportunidades en el pipeline
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
             <Button
               onClick={openCreate}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 rounded-xl font-semibold"
+              className="bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200 rounded-xl font-semibold"
             >
               <Plus className="h-4 w-4 mr-2" />
               Nueva Oportunidad
             </Button>
-            <Button variant="outline" onClick={openPipeline} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 rounded-xl">
+            <Button variant="outline" onClick={openPipeline} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 rounded-xl">
               <BarChart3 className="h-4 w-4 mr-2" />
               Pipeline
             </Button>
-            <Button variant="outline" onClick={openForecast} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 rounded-xl">
+            <Button variant="outline" onClick={openForecast} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 rounded-xl">
               <TrendingUp className="h-4 w-4 mr-2" />
               Forecast
             </Button>
           </div>
         </div>
         {/* Filtros */}
-        <Card className="border border-gray-200/30 shadow-sm rounded-2xl overflow-hidden bg-white/60 backdrop-blur-sm mb-6">
+        <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl overflow-hidden bg-[var(--color-surface)] mb-6">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
               <div className="p-1.5 rounded-lg bg-blue-100">
@@ -383,7 +383,7 @@ export default function OpportunitiesPage() {
                     className={`px-3 h-9 rounded-xl border text-xs font-medium transition-all ${
                       stageFilter.includes(s)
                         ? `${STAGE_COLORS[s]} border-transparent`
-                        : 'bg-white/50 border-gray-200/60 text-gray-600 hover:border-blue-300 hover:bg-blue-50/30'
+                        : 'bg-white/50 border-[var(--color-line)] text-gray-600 hover:border-blue-300 hover:bg-blue-50/30'
                     }`}
                   >
                     {STAGE_LABELS[s]}
@@ -391,7 +391,7 @@ export default function OpportunitiesPage() {
                 ))}
               </div>
               <Select value={assignedFilter} onValueChange={setAssignedFilter}>
-                <SelectTrigger className="w-[190px] border-gray-200/60 rounded-xl h-11">
+                <SelectTrigger className="w-[190px] border-[var(--color-line)] rounded-xl h-11">
                   <SelectValue placeholder="Asignado a" />
                 </SelectTrigger>
                 <SelectContent>
@@ -407,7 +407,7 @@ export default function OpportunitiesPage() {
                 className={`flex items-center gap-2 px-3 h-11 rounded-xl border transition-all ${
                   openOnly
                     ? 'bg-emerald-50 border-emerald-300 text-emerald-700'
-                    : 'bg-white/50 border-gray-200/60 text-gray-600 hover:border-emerald-300 hover:bg-emerald-50/30'
+                    : 'bg-white/50 border-[var(--color-line)] text-gray-600 hover:border-emerald-300 hover:bg-emerald-50/30'
                 }`}
               >
                 <TrendingUp className="h-4 w-4" />
@@ -427,13 +427,13 @@ export default function OpportunitiesPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             {byStage.map(({ stage, items, total }) => (
-              <div key={stage} className="bg-white/60 backdrop-blur-sm border border-gray-200/30 rounded-2xl p-3 min-h-[220px] flex flex-col">
+              <div key={stage} className="bg-[var(--color-surface)] border border-[var(--color-line)] rounded-2xl p-3 min-h-[220px] flex flex-col">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2 min-w-0">
                     <Badge className={`${STAGE_COLORS[stage]} border-0 font-medium text-xs`}>
                       {STAGE_LABELS[stage]}
                     </Badge>
-                    <span className="text-xs text-gray-400 font-semibold">{items.length}</span>
+                    <span className="text-xs text-[var(--color-subtle)] font-semibold">{items.length}</span>
                   </div>
                   <span className="text-xs font-semibold text-gray-700 shrink-0">{formatCLP(total)}</span>
                 </div>
@@ -445,19 +445,19 @@ export default function OpportunitiesPage() {
                       <div
                         key={op.id}
                         onClick={() => router.push(`/opportunities/${op.id}`)}
-                        className="bg-white border border-gray-200/60 rounded-xl p-3 hover:shadow-md hover:-translate-y-0.5 hover:border-blue-200/60 transition-all duration-200 cursor-pointer"
+                        className="bg-white border border-[var(--color-line)] rounded-xl p-3 hover:shadow-md hover:-translate-y-0.5 hover:border-blue-200/60 transition-all duration-200 cursor-pointer"
                       >
                         <div className="flex items-start justify-between gap-2">
-                          <p className="font-medium text-gray-800 text-sm leading-snug">{op.name}</p>
+                          <p className="font-medium text-[var(--color-ink)] text-sm leading-snug">{op.name}</p>
                           {op.is_overdue && <AlertTriangle className="h-3.5 w-3.5 text-rose-500 shrink-0" />}
                         </div>
-                        <p className="text-xs text-gray-500 truncate mt-0.5">{op.contact?.full_name || '—'}</p>
-                        <p className="text-sm font-semibold text-gray-800 mt-1.5">{formatCLP(op.amount)}</p>
+                        <p className="text-xs text-[var(--color-subtle)] truncate mt-0.5">{op.contact?.full_name || '—'}</p>
+                        <p className="text-sm font-semibold text-[var(--color-ink)] mt-1.5">{formatCLP(op.amount)}</p>
                         <div className="flex items-center justify-between mt-2 gap-1">
                           <Badge className={`${probabilityColor(op.probability)} border-0 font-medium text-[10px] px-1.5 py-0`}>
                             {op.probability}%
                           </Badge>
-                          <span className={`text-[10px] flex items-center gap-1 ${op.is_overdue ? 'text-rose-600 font-semibold' : 'text-gray-400'}`}>
+                          <span className={`text-[10px] flex items-center gap-1 ${op.is_overdue ? 'text-rose-600 font-semibold' : 'text-[var(--color-subtle)]'}`}>
                             <Calendar className="h-3 w-3" />
                             {formatDate(op.expected_close_date)}
                           </span>
@@ -481,13 +481,13 @@ export default function OpportunitiesPage() {
       <Dialog open={pipelineOpen} onOpenChange={setPipelineOpen}>
         <DialogContent className="rounded-2xl max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-gray-800">Pipeline por stage</DialogTitle>
+            <DialogTitle className="text-xl font-bold text-[var(--color-ink)]">Pipeline por stage</DialogTitle>
           </DialogHeader>
           {pipelineData ? (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader className="bg-gray-50/50">
-                  <TableRow className="hover:bg-transparent border-gray-200/30">
+                  <TableRow className="hover:bg-transparent border-[var(--color-line)]">
                     <TableHead className="font-semibold text-gray-600 text-xs uppercase">Stage</TableHead>
                     <TableHead className="font-semibold text-gray-600 text-xs uppercase text-right">Cantidad</TableHead>
                     <TableHead className="font-semibold text-gray-600 text-xs uppercase text-right">Total</TableHead>
@@ -502,15 +502,15 @@ export default function OpportunitiesPage() {
                       </TableCell>
                       <TableCell className="text-right text-sm text-gray-700">{row.count}</TableCell>
                       <TableCell className="text-right text-sm text-gray-700">{formatCLP(row.total_amount)}</TableCell>
-                      <TableCell className="text-right text-sm font-medium text-gray-800">{formatCLP(row.weighted_amount)}</TableCell>
+                      <TableCell className="text-right text-sm font-medium text-[var(--color-ink)]">{formatCLP(row.weighted_amount)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
-              <p className="text-xs text-gray-400 mt-3 text-right">Total: {pipelineData.total_count} oportunidades</p>
+              <p className="text-xs text-[var(--color-subtle)] mt-3 text-right">Total: {pipelineData.total_count} oportunidades</p>
             </div>
           ) : (
-            <p className="text-sm text-gray-400 py-6 text-center">Cargando...</p>
+            <p className="text-sm text-[var(--color-subtle)] py-6 text-center">Cargando...</p>
           )}
         </DialogContent>
       </Dialog>
@@ -519,13 +519,13 @@ export default function OpportunitiesPage() {
       <Dialog open={forecastOpen} onOpenChange={setForecastOpen}>
         <DialogContent className="rounded-2xl max-w-lg">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-gray-800">Forecast por mes de cierre</DialogTitle>
+            <DialogTitle className="text-xl font-bold text-[var(--color-ink)]">Forecast por mes de cierre</DialogTitle>
           </DialogHeader>
           {forecastData.length > 0 ? (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader className="bg-gray-50/50">
-                  <TableRow className="hover:bg-transparent border-gray-200/30">
+                  <TableRow className="hover:bg-transparent border-[var(--color-line)]">
                     <TableHead className="font-semibold text-gray-600 text-xs uppercase">Mes</TableHead>
                     <TableHead className="font-semibold text-gray-600 text-xs uppercase text-right">Cantidad</TableHead>
                     <TableHead className="font-semibold text-gray-600 text-xs uppercase text-right">Total</TableHead>
@@ -538,14 +538,14 @@ export default function OpportunitiesPage() {
                       <TableCell className="text-sm font-medium text-gray-700">{row.month}</TableCell>
                       <TableCell className="text-right text-sm text-gray-700">{row.count}</TableCell>
                       <TableCell className="text-right text-sm text-gray-700">{formatCLP(row.total_amount)}</TableCell>
-                      <TableCell className="text-right text-sm font-medium text-gray-800">{formatCLP(row.weighted_amount)}</TableCell>
+                      <TableCell className="text-right text-sm font-medium text-[var(--color-ink)]">{formatCLP(row.weighted_amount)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
               </Table>
             </div>
           ) : (
-            <p className="text-sm text-gray-400 py-6 text-center">Sin datos de forecast</p>
+            <p className="text-sm text-[var(--color-subtle)] py-6 text-center">Sin datos de forecast</p>
           )}
         </DialogContent>
       </Dialog>
@@ -554,7 +554,7 @@ export default function OpportunitiesPage() {
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent className="rounded-2xl max-w-xl overflow-hidden">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-gray-800">Nueva Oportunidad</DialogTitle>
+            <DialogTitle className="text-xl font-bold text-[var(--color-ink)]">Nueva Oportunidad</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             {error && (
@@ -566,7 +566,7 @@ export default function OpportunitiesPage() {
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="Ej: Renovación anual CRM Pro"
-                className="border-gray-200/60 rounded-xl h-11"
+                className="border-[var(--color-line)] rounded-xl h-11"
               />
             </div>
             <div className="flex flex-col gap-1.5">
@@ -577,7 +577,7 @@ export default function OpportunitiesPage() {
                     variant="outline"
                     role="combobox"
                     aria-expanded={openCombobox}
-                    className="w-full justify-between h-11 rounded-xl border-gray-200/60 font-normal text-left overflow-hidden"
+                    className="w-full justify-between h-11 rounded-xl border-[var(--color-line)] font-normal text-left overflow-hidden"
                   >
                     {formData.contact_id
                       ? contactOptions.find((c) => c.id === formData.contact_id)?.full_name
@@ -624,7 +624,7 @@ export default function OpportunitiesPage() {
                   value={formData.amount}
                   onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
                   placeholder="Ej: 2490000"
-                  className="border-gray-200/60 rounded-xl h-11"
+                  className="border-[var(--color-line)] rounded-xl h-11"
                 />
               </div>
               <div className="min-w-0">
@@ -634,13 +634,13 @@ export default function OpportunitiesPage() {
                   value={formData.probability}
                   onChange={(e) => setFormData({ ...formData, probability: e.target.value })}
                   placeholder="0-100"
-                  className="border-gray-200/60 rounded-xl h-11"
+                  className="border-[var(--color-line)] rounded-xl h-11"
                 />
               </div>
               <div className="min-w-0">
                 <label className="text-sm font-medium text-gray-700">Stage</label>
                 <Select value={formData.stage} onValueChange={(v) => setFormData({ ...formData, stage: v })}>
-                  <SelectTrigger className="w-full border-gray-200/60 rounded-xl h-11">
+                  <SelectTrigger className="w-full border-[var(--color-line)] rounded-xl h-11">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -656,7 +656,7 @@ export default function OpportunitiesPage() {
                   type="date"
                   value={formData.expected_close_date}
                   onChange={(e) => setFormData({ ...formData, expected_close_date: e.target.value })}
-                  className="border-gray-200/60 rounded-xl h-11"
+                  className="border-[var(--color-line)] rounded-xl h-11"
                 />
               </div>
             </div>
@@ -664,7 +664,7 @@ export default function OpportunitiesPage() {
               <div>
                 <label className="text-sm font-medium text-gray-700">Motivo de pérdida *</label>
                 <textarea
-                  className="flex min-h-[70px] w-full rounded-xl border border-gray-200/60 bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2"
+                  className="flex min-h-[70px] w-full rounded-xl border border-[var(--color-line)] bg-background px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2"
                   value={formData.lost_reason}
                   onChange={(e) => setFormData({ ...formData, lost_reason: e.target.value })}
                   rows={2}
@@ -677,7 +677,7 @@ export default function OpportunitiesPage() {
             <Button
               onClick={handleCreate}
               disabled={saving}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl"
+              className="bg-[var(--color-brand)] rounded-xl"
             >
               {saving ? 'Creando...' : 'Crear oportunidad'}
             </Button>

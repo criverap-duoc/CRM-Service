@@ -131,9 +131,9 @@ export default function AnalyticsPage() {
   const BAR_COLORS = ['#6366f1', '#818cf8', '#a5b4fc', '#c7d2fe', '#e0e7ff'];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/40">
+    <div className="min-h-screen bg-[var(--color-bg)]">
       {/* Navbar */}
-      <nav className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-gray-200/30 shadow-sm">
+      <nav className="sticky top-0 z-50 bg-[var(--color-surface)] border-b border-[var(--color-line)] shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
           <div className="flex items-center gap-2">
             <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 shadow-md">
@@ -144,28 +144,28 @@ export default function AnalyticsPage() {
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="outline" onClick={() => router.push('/dashboard')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/dashboard')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Dashboard
             </Button>
-            <Button variant="outline" onClick={() => router.push('/contacts')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/contacts')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Contactos
             </Button>
-            <Button variant="outline" onClick={() => router.push('/analytics')} className="border-blue-400/50 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl bg-blue-50">
+            <Button variant="ghost" onClick={() => router.push('/analytics')} className="text-[var(--color-brand)] font-medium bg-[var(--color-brand)]/8 hover:bg-[var(--color-brand)]/12">
               Analítica
             </Button>
-            <Button variant="outline" onClick={() => router.push('/companies')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/companies')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Empresas
             </Button>
-            <Button variant="outline" onClick={() => router.push('/tags')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/tags')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Tags
             </Button>
-            <Button variant="outline" onClick={() => router.push('/tasks')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/tasks')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Tareas
             </Button>
-            <Button variant="outline" onClick={() => router.push('/products')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/products')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Productos
             </Button>
-            <Button variant="outline" onClick={() => router.push('/opportunities')} className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
+            <Button variant="outline" onClick={() => router.push('/opportunities')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Oportunidades
             </Button>
 
@@ -193,56 +193,56 @@ export default function AnalyticsPage() {
 
         {/* KPIs */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-          <Card className="border border-gray-200/30 shadow-sm rounded-2xl overflow-hidden bg-white/60 backdrop-blur-sm">
+          <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl overflow-hidden bg-[var(--color-surface)]">
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
                 <div className="p-3.5 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-400 text-white shadow-lg">
                   <Users className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">Total Contactos</p>
-                  <p className="text-2xl font-bold text-gray-800">{contactList.length}</p>
+                  <p className="text-xs font-medium text-[var(--color-subtle)] uppercase tracking-wider">Total Contactos</p>
+                  <p className="text-2xl font-bold text-[var(--color-ink)]">{contactList.length}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          <Card className="border border-gray-200/30 shadow-sm rounded-2xl overflow-hidden bg-white/60 backdrop-blur-sm">
+          <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl overflow-hidden bg-[var(--color-surface)]">
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
                 <div className="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-400 text-white shadow-lg">
                   <Heart className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">Sentimiento Promedio</p>
-                  <p className="text-2xl font-bold text-gray-800">
+                  <p className="text-xs font-medium text-[var(--color-subtle)] uppercase tracking-wider">Sentimiento Promedio</p>
+                  <p className="text-2xl font-bold text-[var(--color-ink)]">
                     {sentimentStats?.avg_score ? (sentimentStats.avg_score * 100).toFixed(0) : 0}%
                   </p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          <Card className="border border-gray-200/30 shadow-sm rounded-2xl overflow-hidden bg-white/60 backdrop-blur-sm">
+          <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl overflow-hidden bg-[var(--color-surface)]">
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
                 <div className="p-3.5 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-400 text-white shadow-lg">
                   <Brain className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">Interacciones Analizadas</p>
-                  <p className="text-2xl font-bold text-gray-800">{sentimentStats?.distribution.total || 0}</p>
+                  <p className="text-xs font-medium text-[var(--color-subtle)] uppercase tracking-wider">Interacciones Analizadas</p>
+                  <p className="text-2xl font-bold text-[var(--color-ink)]">{sentimentStats?.distribution.total || 0}</p>
                 </div>
               </div>
             </CardContent>
           </Card>
-          <Card className="border border-gray-200/30 shadow-sm rounded-2xl overflow-hidden bg-white/60 backdrop-blur-sm">
+          <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl overflow-hidden bg-[var(--color-surface)]">
             <CardContent className="p-5">
               <div className="flex items-center gap-4">
                 <div className="p-3.5 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-400 text-white shadow-lg">
                   <Target className="h-5 w-5" />
                 </div>
                 <div>
-                  <p className="text-xs font-medium text-gray-400 uppercase tracking-wider">Lead Score Promedio</p>
-                  <p className="text-2xl font-bold text-gray-800">
+                  <p className="text-xs font-medium text-[var(--color-subtle)] uppercase tracking-wider">Lead Score Promedio</p>
+                  <p className="text-2xl font-bold text-[var(--color-ink)]">
                     {leadScore?.lead_score?.toFixed(0) || 0}
                   </p>
                 </div>
@@ -254,7 +254,7 @@ export default function AnalyticsPage() {
         {/* Gráficos */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* Distribución de Sentimiento */}
-          <Card className="border border-gray-200/30 shadow-sm rounded-2xl overflow-hidden bg-white/60 backdrop-blur-sm">
+          <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl overflow-hidden bg-[var(--color-surface)]">
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-semibold text-gray-700 tracking-tight">
                 Distribución de Sentimiento
@@ -281,13 +281,13 @@ export default function AnalyticsPage() {
                   </PieChart>
                 </ResponsiveContainer>
               ) : (
-                <p className="text-center text-gray-400 py-8 text-sm">Sin datos de sentimiento</p>
+                <p className="text-center text-[var(--color-subtle)] py-8 text-sm">Sin datos de sentimiento</p>
               )}
             </CardContent>
           </Card>
 
           {/* Contactos por Fuente */}
-          <Card className="border border-gray-200/30 shadow-sm rounded-2xl overflow-hidden bg-white/60 backdrop-blur-sm">
+          <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl overflow-hidden bg-[var(--color-surface)]">
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-semibold text-gray-700 tracking-tight">
                 Contactos por Fuente
@@ -316,14 +316,14 @@ export default function AnalyticsPage() {
                   </BarChart>
                 </ResponsiveContainer>
               ) : (
-                <p className="text-center text-gray-400 py-8 text-sm">Sin datos de contactos</p>
+                <p className="text-center text-[var(--color-subtle)] py-8 text-sm">Sin datos de contactos</p>
               )}
             </CardContent>
           </Card>
         </div>
 
         {segmentStats && (
-          <Card className="border border-gray-200/30 shadow-sm rounded-2xl overflow-hidden bg-white/60 backdrop-blur-sm mb-8">
+          <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl overflow-hidden bg-[var(--color-surface)] mb-8">
             <CardHeader className="pb-2">
               <CardTitle className="text-base font-semibold text-gray-700 tracking-tight">
                 Distribución de Segmentos (K-Means V3)
@@ -345,11 +345,11 @@ export default function AnalyticsPage() {
                     <p className="text-sm font-medium text-gray-700 mb-2">{cluster.label}</p>
                     <div className="grid grid-cols-2 gap-2 text-[11px]">
                       <div>
-                        <p className="text-gray-400">Conversión</p>
+                        <p className="text-[var(--color-subtle)]">Conversión</p>
                         <p className="font-medium text-gray-700">{(cluster.conversion_rate * 100).toFixed(1)}%</p>
                       </div>
                       <div>
-                        <p className="text-gray-400">Churn</p>
+                        <p className="text-[var(--color-subtle)]">Churn</p>
                         <p className="font-medium text-gray-700">{(cluster.churn_rate * 100).toFixed(1)}%</p>
                       </div>
                     </div>
@@ -361,7 +361,7 @@ export default function AnalyticsPage() {
         )}
 
         {/* Lead Score por Contacto */}
-        <Card className="border border-gray-200/30 shadow-sm rounded-2xl overflow-hidden bg-white/60 backdrop-blur-sm">
+        <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl overflow-hidden bg-[var(--color-surface)]">
           <CardHeader className="pb-3">
             <CardTitle className="text-base font-semibold text-gray-700 tracking-tight">
               Lead Score por Contacto
@@ -377,23 +377,23 @@ export default function AnalyticsPage() {
                 </div>
                 <div className="grid grid-cols-4 gap-4 mt-4 text-sm">
                   <div>
-                    <p className="text-gray-400">Frecuencia interacción</p>
+                    <p className="text-[var(--color-subtle)]">Frecuencia interacción</p>
                     <p className="font-medium">
                       {(leadScore.features?.interaction_frequency ?? 0).toFixed(2)}
                     </p>
                   </div>
                   <div>
-                    <p className="text-gray-400">Interacciones (7d)</p>
+                    <p className="text-[var(--color-subtle)]">Interacciones (7d)</p>
                     <p className="font-medium">{leadScore.features?.interactions_7d ?? 0}</p>
                   </div>
                   <div>
-                    <p className="text-gray-400">Tasa de respuesta</p>
+                    <p className="text-[var(--color-subtle)]">Tasa de respuesta</p>
                     <p className="font-medium">
                       {((leadScore.features?.response_rate ?? 0) * 100).toFixed(0)}%
                     </p>
                   </div>
                   <div>
-                    <p className="text-gray-400">Sentimiento</p>
+                    <p className="text-[var(--color-subtle)]">Sentimiento</p>
                     <p className="font-medium">
                       {(leadScore.features?.sentiment_avg ?? 0).toFixed(1)}
                     </p>
@@ -410,8 +410,8 @@ export default function AnalyticsPage() {
                   onClick={() => handleGetLeadScore(contact.id)}
                 >
                   <div>
-                    <p className="font-medium text-gray-800 text-sm">{contact.full_name}</p>
-                    <p className="text-xs text-gray-400">{contact.email}</p>
+                    <p className="font-medium text-[var(--color-ink)] text-sm">{contact.full_name}</p>
+                    <p className="text-xs text-[var(--color-subtle)]">{contact.email}</p>
                   </div>
                   <Button variant="ghost" size="sm" className="text-blue-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
                     <TrendingUp className="h-4 w-4" />
@@ -421,7 +421,7 @@ export default function AnalyticsPage() {
             </div>
 
             {leadScoreLoading && (
-              <p className="text-center text-gray-400 py-4 text-sm animate-pulse">Calculando lead score...</p>
+              <p className="text-center text-[var(--color-subtle)] py-4 text-sm animate-pulse">Calculando lead score...</p>
             )}
           </CardContent>
         </Card>
