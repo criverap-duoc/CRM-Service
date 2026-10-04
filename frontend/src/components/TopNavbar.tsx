@@ -66,9 +66,11 @@ export function TopNavbar({ breadcrumb }: TopNavbarProps) {
                   }`}
                 >
                   {item.label}
-                  {active && (
-                    <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-[var(--color-brand)] rounded-full" />
-                  )}
+                  <span
+                    className={`absolute bottom-0 left-3 right-3 h-0.5 bg-[var(--color-brand)] rounded-full transition-opacity duration-150 ${
+                      active ? 'opacity-100' : 'opacity-0'
+                    }`}
+                  />
                 </button>
               );
             })}

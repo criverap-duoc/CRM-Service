@@ -31,9 +31,10 @@ Apply to any visual component (CSS, Tailwind, shadcn/ui):
 
 Este proyecto tiene DOS patrones de navbar válidos:
 
-1. **Navbar completo** — para páginas de listado (dashboard, contacts,
-   companies, tags, tasks, analytics, products).
-   Contiene botones a todas las vistas + botón de cerrar sesión.
+1. **Navbar completo** — la barra superior unificada (`TopNavbar`), para
+   páginas de listado (dashboard, contacts, companies, tags, tasks,
+   analytics, products, opportunities).
+   Contiene links a todas las vistas; el logout vive dentro del `AvatarMenu`.
 
 2. **Navbar mínimo** — para páginas de detalle o formularios ([id], new).
    Solo contiene un botón "Volver" con icono ArrowLeft.
@@ -41,39 +42,50 @@ Este proyecto tiene DOS patrones de navbar válidos:
 NO conviertas un navbar mínimo en completo sin autorización explícita.
 NO agregues links de navegación a un navbar mínimo.
 
-## Navbar — Orden fijo de botones
+## Navbar — Barra superior unificada (Iteración 3)
 
-El navbar completo (páginas de listado) SIEMPRE debe respetar este orden:
+El navbar del proyecto es una **barra superior sticky** (NO sidebar),
+implementada una sola vez en `frontend/src/components/TopNavbar.tsx`
+y reutilizada por todas las páginas de listado.
 
-1. Dashboard       → /dashboard
-2. Contactos       → /contacts
-3. Analítica       → /analytics
-4. Empresas        → /companies
-5. Tags            → /tags
-6. Tareas          → /tasks
-7. Productos       → /products
-8. Cerrar sesión   → (botón ghost, onClick=logout, con icono LogOut)
+Contenedor:
+`sticky top-0 z-50 bg-[var(--color-surface)] border-b border-[var(--color-line)]`
+Sin backdrop-blur, sin gradientes y sin bordes en los links del navbar.
+
+Estructura fija (izquierda → derecha):
+
+1. **Logo** → /dashboard (icono `CircleUserRound` en caja
+   `bg-[var(--color-brand)]` + texto "CRM Service", oculto en móvil).
+2. **6 links planos**, en este orden exacto:
+   1. Dashboard     → /dashboard
+   2. Contactos     → /contacts
+   3. Empresas      → /companies
+   4. Oportunidades → /opportunities
+   5. Tareas        → /tasks
+   6. Analítica     → /analytics
+3. **Dropdown "Catálogo ▾"** (`CatalogDropdown`), con:
+   - Productos → /products
+   - Tags      → /tags
+4. **Zona derecha**, en este orden:
+   1. `ConnectionIndicator` — píldora "En vivo" / "Desconectado".
+   2. `NotificationBell` — campana con badge de no leídas.
+   3. `AvatarMenu` — iniciales del usuario; el **logout vive dentro
+      de su dropdown**, ya no es un botón suelto de la barra.
 
 Reglas:
-- NO cambiar el orden de los botones existentes.
-- Al añadir una entidad nueva, insértala justo antes de "Cerrar sesión"
-  (al final de la lista de links, dejando logout siempre como último).
-- Mantener el estilo idéntico:
-  - Links intermedios: variant="outline" con
-    className="border-gray-200/60 hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl"
-  - El link activo (página actual): mismo className pero con
-    border-blue-400/50, bg-blue-50, hover:border-blue-400/50
-  - Cerrar sesión: variant="ghost" size="sm" con
-    className="text-rose-500 hover:text-rose-600 hover:bg-rose-50/50 rounded-xl transition-all duration-200" y el icono <LogOut className="h-4 w-4 mr-1.5" />
-
-Aplica este orden a TODOS los navbars completos:
-- dashboard/page.tsx
-- contacts/page.tsx
-- analytics/page.tsx
-- companies/page.tsx
-- tags/page.tsx
-- tasks/page.tsx
-- products/page.tsx
+- NO cambiar el orden de los links existentes.
+- Entidad nueva: si es de catálogo va dentro de "Catálogo ▾"; si no,
+  se inserta en los links planos (antes de "Analítica").
+- Link activo: **subrayado de 2px en `--color-brand`** — span
+  `absolute bottom-0 left-3 right-3 h-0.5 bg-[var(--color-brand)]
+  rounded-full transition-opacity duration-150` — con el texto en
+  `text-[var(--color-ink)]`. El inactivo usa
+  `text-[var(--color-subtle)]`.
+- Todos los links comparten
+  `relative px-3 py-2 text-sm font-medium transition-colors rounded-lg hover:text-[var(--color-ink)]`.
+- Breadcrumb opcional vía prop `breadcrumb?: { label, href? }[]`
+  (último ítem sin link, en `--color-ink`).
 
 Las páginas de detalle ([id]) y formularios (new) usan navbar mínimo
-(solo botón "Volver"). NO convertir esos a navbar completo.
+(solo botón "Volver" con icono ArrowLeft). NO convertir esos a navbar
+completo ni agregarles links de navegación.

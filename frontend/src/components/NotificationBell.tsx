@@ -84,7 +84,7 @@ export function NotificationBell() {
             <h3 className="text-sm font-semibold text-[var(--color-ink)]">Notificaciones</h3>
             <span
               className={`h-1.5 w-1.5 rounded-full ${
-                isConnected ? 'bg-emerald-500' : 'bg-gray-300'
+                isConnected ? 'bg-[var(--color-success)]' : 'bg-[var(--color-subtle)]'
               }`}
               title={isConnected ? 'Conectado' : 'Desconectado'}
             />

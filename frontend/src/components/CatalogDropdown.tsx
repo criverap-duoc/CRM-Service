@@ -31,9 +31,11 @@ export function CatalogDropdown() {
         >
           Catálogo
           <ChevronDown className="h-3.5 w-3.5 opacity-60" />
-          {isActive && (
-            <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-[var(--color-brand)] rounded-full" />
-          )}
+          <span
+            className={`absolute bottom-0 left-3 right-3 h-0.5 bg-[var(--color-brand)] rounded-full transition-opacity duration-150 ${
+              isActive ? 'opacity-100' : 'opacity-0'
+            }`}
+          />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-48 rounded-xl">

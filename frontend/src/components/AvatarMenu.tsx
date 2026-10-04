@@ -22,7 +22,7 @@ export function AvatarMenu() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          className="h-8 w-8 rounded-full bg-[var(--color-brand)] text-white text-xs font-semibold flex items-center justify-center hover:opacity-90 transition-opacity"
+          className="h-8 w-8 rounded-full bg-[var(--color-brand)] text-white text-xs font-semibold flex items-center justify-center hover:bg-[var(--color-brand-hover)] transition-colors"
           aria-label="Menú de usuario"
         >
           {initials}
