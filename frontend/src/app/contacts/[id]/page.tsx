@@ -156,7 +156,7 @@ export default function ContactDetailPage() {
     const response = await interactions.list({ contact: id });
     const data = response.data.results || response.data;
     setInteractionList(data);
-    
+
     // Cargar sentimiento para cada interacción
   const sentimentData: Record<number, any> = {};
       for (const interaction of data) {
@@ -500,16 +500,16 @@ const fetchSegment = async () => {
             <p className="text-[var(--color-subtle)]">{contact.email}</p>
           </div>
           <div className="flex gap-2">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => alert('La integración con IA estará disponible en la próxima versión')}
               className="border-blue-200 hover:bg-blue-50 transition-colors"
             >
               <Sparkles className="h-4 w-4 mr-2 text-blue-500" />
               Resumen con IA
             </Button>
-            <Button 
-              variant={editing ? 'default' : 'outline'} 
+            <Button
+              variant={editing ? 'default' : 'outline'}
               onClick={() => setEditing(!editing)}
               className={editing ? 'bg-[var(--color-brand)]' : 'border-gray-300'}
             >
@@ -818,7 +818,7 @@ const fetchSegment = async () => {
                       const sentimentBadge = sentiment?.label === 'positive' ? 'bg-emerald-100 text-emerald-700' :
                                             sentiment?.label === 'negative' ? 'bg-rose-100 text-rose-700' :
                                             'bg-blue-100 text-blue-700';
-                      
+
                       return (
                         <div key={interaction.id} className={`flex gap-3 p-3 bg-gray-50/70 rounded-lg border-l-4 ${sentimentColor}`}>
                           <div className="flex-1">

@@ -145,8 +145,7 @@ export default function OpportunityDetailPage() {
     try {
       const response = await opportunities.get(Number(id));
       setOpp(response.data);
-    } catch (err) {
-      console.error('Error fetching opportunity:', err);
+    } catch {
       setError('No se pudo cargar la oportunidad.');
     } finally {
       setLoading(false);
