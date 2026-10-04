@@ -12,12 +12,10 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, 
   ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts';
-import { 
-  LogOut, TrendingUp, 
-  Users, Target, Heart, Brain,
-  ChartColumn
+import {
+  TrendingUp, Users, Target, Heart, Brain
 } from 'lucide-react';
-import { NotificationBell } from '@/components/NotificationBell';
+import { TopNavbar } from '@/components/TopNavbar';
 
 
 interface Contact {
@@ -39,7 +37,7 @@ interface SentimentStats {
 }
 
 export default function AnalyticsPage() {
-  const { isAuthenticated, isLoading, logout } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const [contactList, setContactList] = useState<Contact[]>([]);
   const [sentimentStats, setSentimentStats] = useState<SentimentStats | null>(null);
@@ -133,51 +131,7 @@ export default function AnalyticsPage() {
   return (
     <div className="min-h-screen bg-[var(--color-bg)]">
       {/* Navbar */}
-      <nav className="sticky top-0 z-50 bg-[var(--color-surface)] border-b border-[var(--color-line)] shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 shadow-md">
-              <ChartColumn className="h-5 w-5 text-white" />
-            </div>
-            <h1 className="text-xl font-bold text-gray-900 tracking-tight">
-              CRM Service
-            </h1>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button variant="outline" onClick={() => router.push('/dashboard')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
-              Dashboard
-            </Button>
-            <Button variant="outline" onClick={() => router.push('/contacts')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
-              Contactos
-            </Button>
-            <Button variant="ghost" onClick={() => router.push('/analytics')} className="text-[var(--color-brand)] font-medium bg-[var(--color-brand)]/8 hover:bg-[var(--color-brand)]/12 hover:text-[var(--color-brand)]">
-              Analítica
-            </Button>
-            <Button variant="outline" onClick={() => router.push('/companies')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
-              Empresas
-            </Button>
-            <Button variant="outline" onClick={() => router.push('/tags')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
-              Tags
-            </Button>
-            <Button variant="outline" onClick={() => router.push('/tasks')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
-              Tareas
-            </Button>
-            <Button variant="outline" onClick={() => router.push('/products')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
-              Productos
-            </Button>
-            <Button variant="outline" onClick={() => router.push('/opportunities')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
-              Oportunidades
-            </Button>
-
-            <NotificationBell />
-
-            <Button variant="ghost" size="sm" onClick={logout} className="text-rose-500 hover:text-rose-600 hover:bg-rose-50/50 rounded-xl transition-all duration-200">
-              <LogOut className="h-4 w-4 mr-1.5" />
-              Cerrar sesión
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <TopNavbar breadcrumb={[{ label: 'Analítica' }]} />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
