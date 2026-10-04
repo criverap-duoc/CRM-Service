@@ -1,24 +1,20 @@
 ﻿import type { Metadata } from "next";
-import { Outfit, Inter } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
 import { NotificationsProvider } from "@/context/NotificationsContext";
 import { Toaster } from "sonner";
 
-// Outfit para títulos (más elegante y con carácter)
-const outfit = Outfit({
-  variable: "--font-outfit",
+const geistSans = Geist({
   subsets: ["latin"],
+  variable: "--font-geist-sans",
   display: "swap",
-  weight: ["400", "500", "600", "700", "800"],
 });
 
-// Inter para cuerpo (legible y profesional)
-const inter = Inter({
-  variable: "--font-inter",
+const geistMono = Geist_Mono({
   subsets: ["latin"],
+  variable: "--font-geist-mono",
   display: "swap",
-  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -32,8 +28,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es">
-      <body className={`${outfit.variable} ${inter.variable} antialiased font-sans`}>
+    <html lang="es" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <body className="antialiased font-sans">
         <AuthProvider>
           <NotificationsProvider>
             {children}

@@ -69,3 +69,21 @@ de inserción, no se copia del `old_text`.
 4. **Verificación obligatoria después de cada edit:**
    ```bash
    python -c "import ast; ast.parse(open('<archivo>', encoding='utf-8').read()); print('OK')"
+
+
+## Migración de tokens CSS con shadcn/ui
+
+shadcn/ui define su propio conjunto de tokens (--muted, --accent,
+--primary, etc.) en un bloque @theme inline. Si vamos a agregar
+tokens propios, SIEMPRE verificar que los nombres no colisionen.
+
+Regla: usar prefijos para tokens propios que no existan en shadcn:
+- shadcn tiene: --muted, --accent, --primary, --secondary, --card, ...
+- Nosotros usamos: --color-bg, --color-surface, --color-line,
+  --color-ink, --color-subtle, --color-brand, ...
+
+NUNCA usar un nombre que coincida con un token de shadcn. Si necesitas
+"texto secundario silencioso", usa --color-subtle, no --color-muted.
+
+Además, si el @theme inline de shadcn aparece DESPUÉS de nuestro @theme,
+nuestro bloque queda pisado. Colocar nuestro @theme AL FINAL del archivo.
