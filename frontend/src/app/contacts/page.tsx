@@ -332,8 +332,11 @@ export default function ContactsPage() {
                               contact.tags.map((tag) => (
                                 <span
                                   key={tag.id}
-                                  className="inline-block px-2 py-0.5 rounded-full text-[10px] font-medium text-white"
-                                  style={{ backgroundColor: tag.color }}
+                                  className="inline-block px-2 py-0.5 rounded-full text-[10px] font-medium text-[var(--color-ink)] border"
+                                  style={{
+                                    backgroundColor: `color-mix(in oklab, ${tag.color} 12%, transparent)`,
+                                    borderColor: tag.color,
+                                  }}
                                 >
                                   {tag.name}
                                 </span>

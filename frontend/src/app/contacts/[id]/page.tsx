@@ -863,8 +863,11 @@ const fetchSegment = async () => {
                     contact.tags.map((tag) => (
                       <span
                         key={tag.id}
-                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium text-white group"
-                        style={{ backgroundColor: tag.color }}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium text-[var(--color-ink)] border group"
+                        style={{
+                          backgroundColor: `color-mix(in oklab, ${tag.color} 12%, transparent)`,
+                          borderColor: tag.color,
+                        }}
                       >
                         {tag.name}
                         {tagSelectorOpen && (
@@ -897,11 +900,10 @@ const fetchSegment = async () => {
                             type="button"
                             onClick={() => toggleTag(tag)}
                             disabled={savingTags}
-                            className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border transition-all hover:scale-105 disabled:opacity-50"
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium border transition-all hover:scale-105 disabled:opacity-50 text-[var(--color-ink)]"
                             style={{
                               borderColor: tag.color,
-                              color: tag.color,
-                              backgroundColor: 'transparent',
+                              backgroundColor: `color-mix(in oklab, ${tag.color} 8%, transparent)`,
                             }}
                           >
                             <PlusIcon className="h-3 w-3" />

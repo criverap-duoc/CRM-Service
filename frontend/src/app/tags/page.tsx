@@ -203,9 +203,13 @@ export default function TagsPage() {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-700 mb-2 block">Vista previa</label>
+                  {/* El variant default de Badge emite text-primary-foreground, que gana por orden en el CSS compilado: '!' es necesario */}
                   <Badge
-                    className="border-0 font-medium px-3 py-1 text-white"
-                    style={{ backgroundColor: formData.color }}
+                    className="border font-medium px-3 py-1 text-[var(--color-ink)]!"
+                    style={{
+                      backgroundColor: `color-mix(in oklab, ${formData.color} 12%, transparent)`,
+                      borderColor: formData.color,
+                    }}
                   >
                     {formData.name || 'Nombre del tag'}
                   </Badge>
@@ -243,9 +247,13 @@ export default function TagsPage() {
                     className="flex items-center justify-between p-4 bg-gray-50/70 rounded-xl border border-gray-100 hover:border-blue-200/50 hover:bg-white/80 transition-all group"
                   >
                     <div className="flex items-center gap-3 min-w-0 flex-1">
+                      {/* El variant default de Badge emite text-primary-foreground, que gana por orden en el CSS compilado: '!' es necesario */}
                       <Badge
-                        className="border-0 font-medium px-3 py-1 text-white shrink-0"
-                        style={{ backgroundColor: tag.color }}
+                        className="border font-medium px-3 py-1 text-[var(--color-ink)]! shrink-0"
+                        style={{
+                          backgroundColor: `color-mix(in oklab, ${tag.color} 12%, transparent)`,
+                          borderColor: tag.color,
+                        }}
                       >
                         {tag.name}
                       </Badge>
