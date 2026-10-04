@@ -145,7 +145,7 @@ export default function DashboardPage() {
             </h1>
           </div>
           <div className="flex items-center gap-3">
-            <Button variant="ghost" onClick={() => router.push('/dashboard')} className="text-[var(--color-brand)] font-medium bg-[var(--color-brand)]/8 hover:bg-[var(--color-brand)]/12">
+            <Button variant="ghost" onClick={() => router.push('/dashboard')} className="text-[var(--color-brand)] font-medium bg-[var(--color-brand)]/8 hover:bg-[var(--color-brand)]/12 hover:text-[var(--color-brand)]">
               Dashboard
             </Button>
             <Button 

@@ -150,7 +150,7 @@ export default function AnalyticsPage() {
             <Button variant="outline" onClick={() => router.push('/contacts')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Contactos
             </Button>
-            <Button variant="ghost" onClick={() => router.push('/analytics')} className="text-[var(--color-brand)] font-medium bg-[var(--color-brand)]/8 hover:bg-[var(--color-brand)]/12">
+            <Button variant="ghost" onClick={() => router.push('/analytics')} className="text-[var(--color-brand)] font-medium bg-[var(--color-brand)]/8 hover:bg-[var(--color-brand)]/12 hover:text-[var(--color-brand)]">
               Analítica
             </Button>
             <Button variant="outline" onClick={() => router.push('/companies')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">

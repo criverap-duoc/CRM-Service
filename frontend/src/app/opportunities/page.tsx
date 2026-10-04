@@ -321,7 +321,7 @@ export default function OpportunitiesPage() {
             <Button variant="outline" onClick={() => router.push('/tags')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Tags</Button>
             <Button variant="outline" onClick={() => router.push('/tasks')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Tareas</Button>
             <Button variant="outline" onClick={() => router.push('/products')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Productos</Button>
-            <Button variant="ghost" onClick={() => router.push('/opportunities')} className="text-[var(--color-brand)] font-medium bg-[var(--color-brand)]/8 hover:bg-[var(--color-brand)]/12">Oportunidades</Button>
+            <Button variant="ghost" onClick={() => router.push('/opportunities')} className="text-[var(--color-brand)] font-medium bg-[var(--color-brand)]/8 hover:bg-[var(--color-brand)]/12 hover:text-[var(--color-brand)]">Oportunidades</Button>
             <NotificationBell />
 
             <Button variant="ghost" size="sm" onClick={logout} className="text-rose-500 hover:text-rose-600 hover:bg-rose-50/50 rounded-xl">

@@ -239,7 +239,7 @@ export default function TasksPage() {
             <Button variant="outline" onClick={() => router.push('/analytics')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Analítica</Button>
             <Button variant="outline" onClick={() => router.push('/companies')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Empresas</Button>
             <Button variant="outline" onClick={() => router.push('/tags')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 rounded-xl">Tags</Button>
-            <Button variant="ghost" onClick={() => router.push('/tasks')} className="text-[var(--color-brand)] font-medium bg-[var(--color-brand)]/8 hover:bg-[var(--color-brand)]/12">Tareas</Button>
+            <Button variant="ghost" onClick={() => router.push('/tasks')} className="text-[var(--color-brand)] font-medium bg-[var(--color-brand)]/8 hover:bg-[var(--color-brand)]/12 hover:text-[var(--color-brand)]">Tareas</Button>
             <Button variant="outline" onClick={() => router.push('/products')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">Productos</Button>
             <Button variant="outline" onClick={() => router.push('/opportunities')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Oportunidades

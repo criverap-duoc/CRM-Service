@@ -164,7 +164,7 @@ export default function ContactsPage() {
             <Button variant="outline" onClick={() => router.push('/dashboard')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
               Dashboard
             </Button>
-            <Button variant="ghost" onClick={() => router.push('/contacts')} className="text-[var(--color-brand)] font-medium bg-[var(--color-brand)]/8 hover:bg-[var(--color-brand)]/12">
+            <Button variant="ghost" onClick={() => router.push('/contacts')} className="text-[var(--color-brand)] font-medium bg-[var(--color-brand)]/8 hover:bg-[var(--color-brand)]/12 hover:text-[var(--color-brand)]">
               Contactos
             </Button>
             <Button variant="outline" onClick={() => router.push('/analytics')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
