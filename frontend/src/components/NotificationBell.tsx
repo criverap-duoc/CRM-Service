@@ -45,7 +45,7 @@ function timeAgo(iso: string): string {
 
 export function NotificationBell() {
   const router = useRouter();
-  const { notifications, unreadCount, isConnected, markAsRead, markAllAsRead } = useNotifications();
+  const { notifications, unreadCount, markAsRead, markAllAsRead } = useNotifications();
 
   const recent = notifications.slice(0, 10);
 
@@ -80,15 +80,7 @@ export function NotificationBell() {
 
       <DropdownMenuContent align="end" className="w-80 rounded-2xl p-0">
         <div className="flex items-center justify-between px-4 py-3 border-b border-[var(--color-line)]">
-          <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold text-[var(--color-ink)]">Notificaciones</h3>
-            <span
-              className={`h-1.5 w-1.5 rounded-full ${
-                isConnected ? 'bg-[var(--color-success)]' : 'bg-[var(--color-subtle)]'
-              }`}
-              title={isConnected ? 'Conectado' : 'Desconectado'}
-            />
-          </div>
+          <h3 className="text-sm font-semibold text-[var(--color-ink)]">Notificaciones</h3>
           {unreadCount > 0 && (
             <button
               onClick={markAllAsRead}

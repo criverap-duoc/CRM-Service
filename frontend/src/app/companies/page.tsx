@@ -10,8 +10,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Building2, Search, Filter, Eye, LogOut, Plus } from 'lucide-react';
-import { NotificationBell } from '@/components/NotificationBell';
+import { Search, Filter, Eye, Plus } from 'lucide-react';
+import { TopNavbar } from '@/components/TopNavbar';
 
 
 interface Company {
@@ -44,7 +44,7 @@ const SIZE_LABELS: Record<string, string> = {
 };
 
 export default function CompaniesPage() {
-  const { isAuthenticated, isLoading, logout } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
   const [companyList, setCompanyList] = useState<Company[]>([]);
   const [loading, setLoading] = useState(true);
@@ -97,56 +97,7 @@ export default function CompaniesPage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)]">
-      <nav className="sticky top-0 z-50 bg-[var(--color-surface)] border-b border-[var(--color-line)] shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 shadow-md">
-              <Building2 className="h-5 w-5 text-white" />
-            </div>
-            <h1 className="text-xl font-bold text-gray-900 tracking-tight">
-              CRM Service
-            </h1>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button variant="outline" onClick={() => router.push('/dashboard')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
-              Dashboard
-            </Button>
-            <Button variant="outline" onClick={() => router.push('/contacts')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
-              Contactos
-            </Button>
-            <Button variant="outline" onClick={() => router.push('/analytics')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
-              Analítica
-            </Button>
-            <Button variant="ghost" onClick={() => router.push('/companies')} className="text-[var(--color-brand)] font-medium bg-[var(--color-brand)]/8 hover:bg-[var(--color-brand)]/12 hover:text-[var(--color-brand)]">
-              Empresas
-            </Button>
-            <Button variant="outline" onClick={() => router.push('/tags')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
-              Tags
-            </Button>
-            <Button variant="outline" onClick={() => router.push('/tasks')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
-              Tareas
-            </Button>
-            <Button variant="outline" onClick={() => router.push('/products')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
-              Productos
-            </Button>
-            <Button variant="outline" onClick={() => router.push('/opportunities')} className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl">
-              Oportunidades
-            </Button>
-
-            <NotificationBell />
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={logout}
-              className="text-rose-500 hover:text-rose-600 hover:bg-rose-50/50 rounded-xl transition-all duration-200"
-            >
-              <LogOut className="h-4 w-4 mr-1.5" />
-              Cerrar sesión
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <TopNavbar breadcrumb={[{ label: 'Empresas' }]} />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
