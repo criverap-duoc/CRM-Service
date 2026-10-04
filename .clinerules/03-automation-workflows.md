@@ -99,3 +99,15 @@ Inmediatamente después de cualquier edit:
 2. cd frontend && npx tsc --noEmit --pretty false (EXIT=0)
 3. git status --short (listar cambios)
 4. Reportar resumen y esperar confirmación del usuario antes de commitear.
+
+
+## Problema: 429 en desarrollo
+
+Si el frontend empieza a recibir 429, revisar:
+1. ¿Hay un proceso Django zombie en el puerto 8000? (netstat -ano | findstr :8000)
+2. ¿El throttle rate de dev.py es suficientemente alto?
+   - base.py: 1000/día para user (apropiado para prod)
+   - dev.py: 100000/día para user (necesario por el Strict Mode de Next.js)
+
+Regla: cualquier cambio que agregue más fetches al montar (widgets del
+navbar, contadores, KPIs) puede agotar el rate limit de base.py en dev.
