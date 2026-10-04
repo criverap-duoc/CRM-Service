@@ -43,7 +43,9 @@ NOMBRES = [
     'Sebastián', 'Josefa', 'Nicolás', 'Antonia', 'Gabriel', 'Martina', 'Lucas',
     'Catalina', 'Benjamín', 'Constanza', 'Vicente', 'Javiera', 'Ignacio',
     'Fernanda', 'Cristóbal', 'Amanda', 'Tomás', 'Trinidad', 'Maximiliano',
-    'Emilia', 'Facundo', 'Renata', 'Agustín', 'Paz', 'Bruno'
+    'Emilia', 'Facundo', 'Renata', 'Agustín', 'Paz', 'Bruno',
+    'Josefina', 'Manuel', 'Elisa', 'Esteban', 'Magdalena', 'Mauricio',
+    'Paloma', 'Rodrigo', 'Beatriz', 'Gonzalo'
 ]
 
 APELLIDOS = [
@@ -52,7 +54,9 @@ APELLIDOS = [
     'Morales', 'Fuentes', 'Araya', 'Reyes', 'Cáceres', 'Vargas', 'Castillo',
     'Flores', 'Herrera', 'Riquelme', 'Vera', 'Torres', 'Ramírez', 'Cortés',
     'Navarro', 'Pizarro', 'Salazar', 'Guzmán', 'Valenzuela', 'Tapia', 'Bravo',
-    'Miranda', 'Soto', 'Paredes', 'Carrasco', 'Núñez', 'Álvarez'
+    'Miranda', 'Soto', 'Paredes', 'Carrasco', 'Núñez', 'Álvarez',
+    'Medina', 'Ortiz', 'Hidalgo', 'Molina', 'Aguilar', 'Castro',
+    'Leiva', 'Vergara', 'Bustos', 'Campos'
 ]
 
 # Empresas con metadata realista para features de ML
@@ -161,7 +165,10 @@ INDUSTRIAS = ['tech', 'healthcare', 'finance', 'retail', 'education', 'other']
 CARGOS = [
     'Gerente General', 'Director de TI', 'Jefe de Proyectos', 'Analista de Datos',
     'Desarrollador Senior', 'Product Manager', 'CTO', 'CIO', 'Consultor',
-    'Especialista en Marketing', 'Ventas', 'Recursos Humanos'
+    'Especialista en Marketing', 'Ventas', 'Recursos Humanos',
+    'Gerente de Operaciones', 'Jefe de Finanzas', 'Scrum Master', 'Diseñador UX',
+    'Ingeniero DevOps', 'Ejecutivo Comercial', 'Administrador de Sistemas',
+    'Gerente de Marketing'
 ]
 
 # Textos para interacciones (con diferentes sentimientos)

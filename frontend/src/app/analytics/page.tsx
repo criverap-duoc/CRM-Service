@@ -139,7 +139,7 @@ export default function AnalyticsPage() {
             <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 shadow-md">
               <ChartColumn className="h-5 w-5 text-white" />
             </div>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent tracking-tight">
+            <h1 className="text-xl font-bold text-gray-900 tracking-tight">
               CRM Service
             </h1>
           </div>
@@ -182,7 +182,7 @@ export default function AnalyticsPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent tracking-tight">
+          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
             Analítica
           </h2>
           <div className="flex-1 h-px bg-gradient-to-r from-blue-200/60 to-transparent"></div>

@@ -432,7 +432,7 @@ const fetchSegment = async () => {
             <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 shadow-md">
               <CircleUserRound className="h-5 w-5 text-white" />
             </div>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent tracking-tight">
+            <h1 className="text-xl font-bold text-gray-900 tracking-tight">
               CRM Service
             </h1>
           </div>

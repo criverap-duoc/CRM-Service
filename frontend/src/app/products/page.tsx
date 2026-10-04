@@ -245,7 +245,7 @@ export default function ProductsPage() {
             <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 shadow-md">
               <Package className="h-5 w-5 text-white" />
             </div>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent tracking-tight">
+            <h1 className="text-xl font-bold text-gray-900 tracking-tight">
               CRM Service
             </h1>
           </div>
@@ -288,7 +288,7 @@ export default function ProductsPage() {
         {/* Header + Filtros */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
           <div>
-            <h2 className="text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent tracking-tight">
+            <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
               Productos
             </h2>
             <p className="text-sm text-gray-400 font-medium">
