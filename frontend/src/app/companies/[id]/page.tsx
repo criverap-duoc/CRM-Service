@@ -9,8 +9,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ArrowLeft, Building2, Globe, MapPin, DollarSign, Users, Activity, TrendingUp, CircleUserRound } from 'lucide-react';
+import { Building2, Globe, MapPin, DollarSign, Users, Activity, TrendingUp, CircleUserRound } from 'lucide-react';
 
+import { TopNavbar } from '@/components/TopNavbar';
 interface Company {
   id: number;
   name: string;
@@ -156,28 +157,12 @@ export default function CompanyDetailPage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)]">
-      <nav className="sticky top-0 z-50 bg-[var(--color-surface)] border-b border-[var(--color-line)] shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 shadow-md">
-              <Building2 className="h-5 w-5 text-white" />
-            </div>
-            <h1 className="text-xl font-bold text-gray-900 tracking-tight">
-              CRM Service
-            </h1>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              onClick={() => router.push('/companies')}
-              className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl"
-            >
-              <ArrowLeft className="h-4 w-4 mr-1.5" />
-              Volver
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <TopNavbar
+        breadcrumb={[
+          { label: 'Empresas', href: '/companies' },
+          { label: company?.name || 'Cargando...' },
+        ]}
+      />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {error && (
@@ -186,13 +171,6 @@ export default function CompanyDetailPage() {
           </Alert>
         )}
 
-        <div className="flex items-center gap-2 text-sm text-[var(--color-subtle)] mb-4">
-          <span onClick={() => router.push('/companies')} className="hover:text-blue-600 cursor-pointer transition-colors">
-            Empresas
-          </span>
-          <span>/</span>
-          <span className="text-[var(--color-ink)] font-medium">{company.name}</span>
-        </div>
 
         {/* Header con nombre y health score */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">

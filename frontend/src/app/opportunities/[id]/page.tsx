@@ -19,6 +19,7 @@ import {
   TrendingUp, AlertTriangle, Percent, Timer, Pencil,
 } from 'lucide-react';
 
+import { TopNavbar } from '@/components/TopNavbar';
 interface OppUser {
   id: number;
   username: string;
@@ -276,29 +277,12 @@ export default function OpportunityDetailPage() {
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)]">
-      {/* Navbar mínima */}
-      <nav className="sticky top-0 z-50 bg-[var(--color-surface)] border-b border-[var(--color-line)] shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-[var(--color-brand)] shadow-md">
-              <Target className="h-5 w-5 text-white" />
-            </div>
-            <h1 className="text-xl font-bold text-gray-900 tracking-tight">
-              CRM Service
-            </h1>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              onClick={() => router.push('/opportunities')}
-              className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl"
-            >
-              <ArrowLeft className="h-4 w-4 mr-1.5" />
-              Volver
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <TopNavbar
+        breadcrumb={[
+          { label: 'Oportunidades', href: '/opportunities' },
+          { label: opp?.name || 'Cargando...' },
+        ]}
+      />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {error && (
@@ -306,14 +290,6 @@ export default function OpportunityDetailPage() {
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
-
-        <div className="flex items-center gap-2 text-sm text-[var(--color-subtle)] mb-4">
-          <span onClick={() => router.push('/opportunities')} className="hover:text-blue-600 cursor-pointer transition-colors">
-            Oportunidades
-          </span>
-          <span>/</span>
-          <span className="text-[var(--color-ink)] font-medium">{opp.name}</span>
-        </div>
 
         <Card className="border border-[var(--color-line)] shadow-sm rounded-2xl bg-[var(--color-surface)] mb-6">
           <CardContent className="pt-6">

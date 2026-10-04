@@ -5,12 +5,13 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { contacts, interactions, integrations, tags as tagsApi, tasks as tasksApi, products as productsApi } from '@/lib/api-client';
+import { TopNavbar } from '@/components/TopNavbar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { ArrowLeft, Save, Sparkles, Mail, Phone, Building, User, TrendingUp, CircleUserRound, X, Plus as PlusIcon, CheckCircle2, Clock, XCircle, AlertTriangle, CheckSquare, Brain } from 'lucide-react';
+import { Save, Sparkles, Mail, Phone, Building, User, TrendingUp, CircleUserRound, X, Plus as PlusIcon, CheckCircle2, Clock, XCircle, AlertTriangle, CheckSquare, Brain } from 'lucide-react';
 import { analytics } from '@/lib/analytics-client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -426,28 +427,12 @@ const fetchSegment = async () => {
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)]">
-      <nav className="sticky top-0 z-50 bg-[var(--color-surface)] border-b border-[var(--color-line)] shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 shadow-md">
-              <CircleUserRound className="h-5 w-5 text-white" />
-            </div>
-            <h1 className="text-xl font-bold text-gray-900 tracking-tight">
-              CRM Service
-            </h1>
-          </div>
-          <div className="flex items-center gap-3">
-            <Button 
-              variant="outline" 
-              onClick={() => router.push('/contacts')} 
-              className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 font-medium text-gray-700 rounded-xl"
-            >
-              <ArrowLeft className="h-4 w-4 mr-1.5" />
-              Volver
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <TopNavbar
+        breadcrumb={[
+          { label: 'Contactos', href: '/contacts' },
+          { label: contact?.full_name || 'Cargando...' },
+        ]}
+      />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {error && (
@@ -456,13 +441,6 @@ const fetchSegment = async () => {
           </Alert>
         )}
 
-        <div className="flex items-center gap-2 text-sm text-[var(--color-subtle)] mb-4">
-          <span onClick={() => router.push('/contacts')} className="hover:text-blue-600 cursor-pointer transition-colors">
-            Contactos
-          </span>
-          <span>/</span>
-          <span className="text-[var(--color-ink)] font-medium">{contact.full_name}</span>
-        </div>
         {(leadScore || churnData || segmentData) && (
   <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
     {/* Lead Score */}
