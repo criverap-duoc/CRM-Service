@@ -27,20 +27,16 @@ Apply to any visual component (CSS, Tailwind, shadcn/ui):
 - Bar colors: ['#6366f1', '#818cf8', '#a5b4fc', '#c7d2fe', '#e0e7ff']
 - Tooltips: bg-white border rounded-xl shadow-lg
 
-## Navbar — dos patrones válidos en el proyecto
+## Navbar — patrón único: barra superior unificada
 
-Este proyecto tiene DOS patrones de navbar válidos:
+Todas las páginas del proyecto usan la misma barra superior unificada
+(`TopNavbar`): los listados (dashboard, contacts, companies, tags,
+opportunities, tasks, products, analytics) y también las páginas de
+detalle ([id]), que le pasan un breadcrumb dinámico.
+Contiene links a todas las vistas; el logout vive dentro del `AvatarMenu`.
 
-1. **Navbar completo** — la barra superior unificada (`TopNavbar`), para
-   páginas de listado (dashboard, contacts, companies, tags, tasks,
-   analytics, products, opportunities).
-   Contiene links a todas las vistas; el logout vive dentro del `AvatarMenu`.
-
-2. **Navbar mínimo** — para páginas de detalle o formularios ([id], new).
-   Solo contiene un botón "Volver" con icono ArrowLeft.
-
-NO conviertas un navbar mínimo en completo sin autorización explícita.
-NO agregues links de navegación a un navbar mínimo.
+El patrón "navbar mínimo" (logo + botón "Volver") quedó descontinuado:
+ya no se usa en ninguna página. No crear navbars mínimos nuevos.
 
 ## Navbar — Barra superior unificada (Iteración 3)
 
@@ -86,6 +82,17 @@ Reglas:
 - Breadcrumb opcional vía prop `breadcrumb?: { label, href? }[]`
   (último ítem sin link, en `--color-ink`).
 
-Las páginas de detalle ([id]) y formularios (new) usan navbar mínimo
-(solo botón "Volver" con icono ArrowLeft). NO convertir esos a navbar
-completo ni agregarles links de navegación.
+## Páginas de detalle ([id]) — navbar completo con breadcrumb
+
+Las páginas de detalle (/contacts/[id], /companies/[id],
+/opportunities/[id]) usan <TopNavbar> completo, igual que los listados,
+pero con breadcrumb dinámico de 2 niveles:
+
+- Nivel 1: recurso base con link (ej: "Contactos" → /contacts).
+- Nivel 2: nombre del recurso actual (no clickeable).
+
+Durante la carga del recurso, el breadcrumb muestra solo el nivel 1.
+Al cargar, aparece el nivel 2 con el nombre real.
+
+NO usar navbar mínimo en páginas de detalle. NO dejar botón "Volver"
+suelto; el breadcrumb cumple esa función.

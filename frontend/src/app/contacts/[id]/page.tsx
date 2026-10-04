@@ -329,8 +329,11 @@ const fetchSegment = async () => {
 
   if (isLoading || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p>Cargando...</p>
+      <div className="min-h-screen bg-[var(--color-bg)]">
+        <TopNavbar breadcrumb={[{ label: 'Contactos', href: '/contacts' }]} />
+        <div className="min-h-[60vh] flex items-center justify-center">
+          <p className="text-[var(--color-subtle)]">Cargando...</p>
+        </div>
       </div>
     );
   }
