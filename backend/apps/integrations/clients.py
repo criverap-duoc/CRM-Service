@@ -126,7 +126,7 @@ class OpenAIClient:
     def _summarize_contact_simulated(self, contact, interactions):
         """
         Resumen simulado cuando no hay API key.
-        Analiza sentimiento + cantidad de interacciones para dar algo útil.
+        Analiza cantidad de interacciones y estado para dar algo útil.
         """
         total = len(interactions)
         from datetime import timedelta
@@ -135,22 +135,26 @@ class OpenAIClient:
         week_ago = timezone.now() - timedelta(days=7)
         recent = sum(1 for i in interactions if i.occurred_at >= week_ago)
 
-        parts = [f"Cliente con {total} interacciones registradas"]
+        parts = []
+
+        parts.append(f"Cliente con {total} interacciones registradas")
+
         if recent > 0:
             parts.append(f"{recent} en los últimos 7 días")
         else:
             parts.append("sin actividad reciente")
 
         if contact.status == "customer":
-            parts.append("Cliente activo. Relación establecida.")
+            parts.append("Cliente activo, relación establecida")
         elif contact.status == "prospect":
-            parts.append("En etapa de prospección.")
+            parts.append("En etapa de prospección")
         elif contact.status == "churned":
-            parts.append("Cliente que abandonó el servicio.")
+            parts.append("Cliente que abandonó el servicio")
         else:
-            parts.append("Lead en fase inicial.")
+            parts.append("Lead en fase inicial")
 
-        parts.append("(Resumen simulado — configura OPENAI_API_KEY para análisis real.)")
+        parts.append("(Resumen simulado — configura OPENAI_API_KEY para análisis real)")
+
         return ". ".join(parts) + "."
 
     def analyze_sentiment(self, text: str) -> dict:
