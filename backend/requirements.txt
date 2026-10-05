@@ -15,8 +15,11 @@ psycopg2-binary>=2.9,<3.0
 
 # ML / analítica V3 — requerido en runtime: apps/analytics/urls.py importa
 # lead_scoring_v3, churn_prediction_v3 y segmentation_v3 al cargar las URLs.
-joblib
-scikit-learn
-pandas
-numpy
-scipy
+# Pines = versiones con las que se entrenaron los .pkl de ml/models/.
+# Subirlas provoca InconsistentVersionWarning (sklearn) al deserializar los
+# modelos; si se actualizan, reentrenar los modelos primero.
+joblib==1.5.3
+scikit-learn==1.9.0
+pandas==3.0.5
+numpy==2.5.2
+scipy==1.18.1

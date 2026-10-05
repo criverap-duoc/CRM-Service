@@ -17,7 +17,7 @@ from rest_framework_simplejwt.views import (
 class DemoLoginView(APIView):
     """
     Login de demo: devuelve un JWT del usuario 'demo'.
-    Solo disponible si DEBUG=True. En producción devuelve 404.
+    Solo disponible si ALLOW_DEMO_LOGIN=True. En producción devuelve 404.
     """
     permission_classes = [AllowAny]
 
