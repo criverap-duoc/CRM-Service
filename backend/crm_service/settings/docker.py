@@ -18,14 +18,46 @@ DATABASES = {
 }
 
 # Redis como channel layer
+#
+# Se usa la sintaxis de dict (no la tupla) porque sólo el dict llega
+# intacto a channels_redis.utils.create_pool(), que es el único punto
+# donde se puede inyectar health_check_interval:
+#   decode_hosts()  -> si la entrada ya es un dict, la copia tal cual;
+#                      si es una tupla, la convierte a
+#                      {"host": ..., "port": ...} SIN kwargs extra.
+#   create_pool()   -> con clave "address" llama
+#                      ConnectionPool.from_url(address, **host) y con
+#                      cualquier otra clave ConnectionPool(**host).
+# Por eso las claves son "host"/"port" (que redis-py acepta) y NO
+# "address" con una tupla: from_url() recibe el valor sin normalizar y
+# falla con AttributeError: 'tuple' object has no attribute 'decode'.
+# El health check hace PING cada 30s sobre las conexiones ociosas del
+# pool y evita el "Timeout reading from redis" de la primera operación
+# tras un período inactivo.
+#
+# socket_timeout: redis-py 8.x cambió el default a 5s
+# (redis/_defaults.py: DEFAULT_SOCKET_TIMEOUT = 5) y read_response()
+# lo aplica a CUALQUIER lectura, incluidas las bloqueantes. Pero
+# channels_redis recibe con un BZPOPMIN de 5s en bucle
+# (core.py: brpop_timeout = 5 / _brpop_with_clean), así que el cancel
+# del cliente y el nil del servidor compiten por el mismo segundo:
+# cuando gana el cliente, la excepción sube por receive_single y mata
+# al consumer, y daphne cierra el socket (WSDISCONNECT/WSCONNECTING =
+# el parpadeo "En vivo" <-> "Desconectado"). 30s da 6x de margen sobre
+# el bloqueo de 5s y sigue siendo un límite finito, para que una
+# conexión realmente muerta falle en vez de quedarse colgada.
+# socket_connect_timeout se fija aparte para no heredarlo.
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [(
-                os.environ.get("REDIS_HOST", "redis"),
-                int(os.environ.get("REDIS_PORT", "6379")),
-            )],
+            "hosts": [{
+                "host": os.environ.get("REDIS_HOST", "redis"),
+                "port": int(os.environ.get("REDIS_PORT", "6379")),
+                "health_check_interval": 30,
+                "socket_timeout": 30,
+                "socket_connect_timeout": 5,
+            }],
         },
     },
 }

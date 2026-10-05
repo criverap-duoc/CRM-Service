@@ -68,11 +68,15 @@ Estructura fija (izquierda → derecha):
 4. **Zona derecha**, en este orden:
    1. `ConnectionIndicator` — píldora "En vivo" / "Desconectado".
    2. `NotificationBell` — campana con badge de no leídas.
-   3. `AvatarMenu` — iniciales del usuario; el **logout vive dentro
+   3. Botón **"?"** (`HelpCircle` de lucide) → navega a `/help`
+      (`aria-label="Ayuda"`, `title="Manual de usuario"`).
+   4. `AvatarMenu` — iniciales del usuario; el **logout vive dentro
       de su dropdown**, ya no es un botón suelto de la barra.
 
 Reglas:
 - NO cambiar el orden de los links existentes.
+- NO quitar el botón "?" de la zona derecha: `/help` es el manual de
+  usuario del proyecto y debe quedar alcanzable desde cualquier página.
 - Entidad nueva: si es de catálogo va dentro de "Catálogo ▾"; si no,
   se inserta en los links planos (antes de "Analítica").
 - Link activo: **subrayado de 2px en `--color-brand`** — span

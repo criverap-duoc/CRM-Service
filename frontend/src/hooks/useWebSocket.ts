@@ -17,6 +17,7 @@ interface UseWebSocketOptions {
 export function useWebSocket(path: string, options: UseWebSocketOptions = {}) {
   const { onMessage, onOpen, onClose, enabled = true } = options;
   const [isConnected, setIsConnected] = useState(false);
+  const [isReconnecting, setIsReconnecting] = useState(false);
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectAttemptsRef = useRef(0);
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -48,6 +49,7 @@ export function useWebSocket(path: string, options: UseWebSocketOptions = {}) {
 
     ws.onopen = () => {
       setIsConnected(true);
+      setIsReconnecting(false);
       reconnectAttemptsRef.current = 0;
       onOpenRef.current?.();
     };
@@ -65,7 +67,19 @@ export function useWebSocket(path: string, options: UseWebSocketOptions = {}) {
       setIsConnected(false);
       onCloseRef.current?.();
 
-      if (isIntentionalCloseRef.current || !enabled) return;
+      // Cierre intencional (logout / unmount / deshabilitado): no se
+      // programa reconexión, así que tampoco se anuncia "Reconectando".
+      if (isIntentionalCloseRef.current || !enabled) {
+        setIsReconnecting(false);
+        return;
+      }
+
+      // Entre caída y caída el ref vuelve a 0 en cada onopen, por lo que
+      // los 3 primeros reintentos consecutivos se muestran como
+      // "Reconectando..." en lugar de "Desconectado".
+      if (reconnectAttemptsRef.current < 3) {
+        setIsReconnecting(true);
+      }
 
       // Backoff exponencial: 1s, 2s, 4s, 8s, 16s, 30s max
       const delay = Math.min(1000 * 2 ** reconnectAttemptsRef.current, 30000);
@@ -103,5 +117,5 @@ export function useWebSocket(path: string, options: UseWebSocketOptions = {}) {
     }
   }, []);
 
-  return { isConnected, send };
+  return { isConnected, isReconnecting, send };
 }

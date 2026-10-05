@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter, usePathname } from 'next/navigation';
-import { CircleUserRound, ChevronRight } from 'lucide-react';
+import { CircleUserRound, ChevronRight, HelpCircle } from 'lucide-react';
 import { NotificationBell } from '@/components/NotificationBell';
 import { ConnectionIndicator } from '@/components/ConnectionIndicator';
 import { CatalogDropdown } from '@/components/CatalogDropdown';
@@ -81,6 +81,14 @@ export function TopNavbar({ breadcrumb }: TopNavbarProps) {
           <div className="flex items-center gap-3 shrink-0">
             <ConnectionIndicator />
             <NotificationBell />
+            <button
+              onClick={() => router.push('/help')}
+              className="h-8 w-8 rounded-lg flex items-center justify-center text-[var(--color-subtle)] hover:text-[var(--color-ink)] hover:bg-[var(--color-line)]/50 transition-colors"
+              aria-label="Ayuda"
+              title="Manual de usuario"
+            >
+              <HelpCircle className="h-4 w-4" />
+            </button>
             <AvatarMenu />
           </div>
         </div>

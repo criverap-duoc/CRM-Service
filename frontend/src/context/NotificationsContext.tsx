@@ -20,6 +20,7 @@ interface NotificationsContextType {
   notifications: Notification[];
   unreadCount: number;
   isConnected: boolean;
+  isReconnecting: boolean;
   markAsRead: (id: number) => Promise<void>;
   markAllAsRead: () => Promise<void>;
   refresh: () => Promise<void>;
@@ -75,7 +76,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const { isConnected } = useWebSocket('/ws/notifications/', {
+  const { isConnected, isReconnecting } = useWebSocket('/ws/notifications/', {
     onMessage: handleWsMessage,
     enabled: isAuthenticated,
   });
@@ -108,6 +109,7 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
         notifications,
         unreadCount,
         isConnected,
+        isReconnecting,
         markAsRead,
         markAllAsRead,
         refresh: fetchNotifications,
