@@ -71,11 +71,11 @@ export default function ContactsPage() {
       if (sourceFilter && sourceFilter !== 'all') params.source = sourceFilter;
       if (ordering) params.ordering = ordering;
       if (pageSize) params.page_size = pageSize;
-      
+
       const response = await contacts.list(params);
       const data = response.data.results || response.data;
       setContactList(data);
-      
+
       // Cargar lead scores
       const scores: Record<number, any> = {};
       for (const contact of data) {
@@ -101,14 +101,14 @@ export default function ContactsPage() {
   const handleExport = async (type: 'contacts' | 'interactions') => {
     try {
       const token = localStorage.getItem('access_token');
-      const url = type === 'contacts' 
+      const url = type === 'contacts'
         ? 'http://localhost:8000/api/v3/export/contacts/'
         : 'http://localhost:8000/api/v3/export/interactions/';
-      
+
       const response = await fetch(url, {
         headers: { 'Authorization': `Bearer ${token}` },
       });
-      
+
       const blob = await response.blob();
       const downloadUrl = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -155,8 +155,8 @@ export default function ContactsPage() {
             </p>
           </div>
           <div className="flex gap-2">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => handleExport('contacts')}
               className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 transition-all rounded-xl"
             >
@@ -252,8 +252,8 @@ export default function ContactsPage() {
               <p className="text-xs text-[var(--color-subtle)] font-medium">
                 {contactList.length} contactos encontrados
               </p>
-              <Button 
-                onClick={handleSearch} 
+              <Button
+                onClick={handleSearch}
                 className="bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] transition-all rounded-xl shadow-md hover:shadow-lg"
               >
                 <Search className="h-4 w-4 mr-2" />

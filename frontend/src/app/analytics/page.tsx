@@ -8,8 +8,8 @@ import { analytics } from '@/lib/analytics-client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, 
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts';
 import {
@@ -124,7 +124,7 @@ export default function AnalyticsPage() {
   }
 
   if (!isAuthenticated) return null;
-  
+
   // Paleta de matices para las barras (azules/índigos)
   const BAR_COLORS = ['#6366f1', '#818cf8', '#a5b4fc', '#c7d2fe', '#e0e7ff'];
 
@@ -254,7 +254,7 @@ export default function AnalyticsPage() {
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                     <XAxis dataKey="name" tick={{ fontSize: 12 }} />
                     <YAxis tick={{ fontSize: 12 }} />
-                    <Tooltip 
+                    <Tooltip
                       contentStyle={{
                         backgroundColor: 'white',
                         border: '1px solid #e5e7eb',

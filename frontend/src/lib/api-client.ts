@@ -79,9 +79,9 @@ export const contacts = {
   get: (id: number) => apiClient.get('/contacts/' + id + '/'),
   update: (id: number, data: any) => apiClient.patch('/contacts/' + id + '/', data),
   delete: (id: number) => apiClient.delete('/contacts/' + id + '/'),
-  changeStatus: (id: number, status: string) => 
+  changeStatus: (id: number, status: string) =>
     apiClient.patch('/contacts/' + id + '/status/', { status }),
-  assign: (id: number, assignedToId: number) => 
+  assign: (id: number, assignedToId: number) =>
     apiClient.patch('/contacts/' + id + '/assign/', { assigned_to_id: assignedToId }),
   mine: (params?: any) => apiClient.get('/contacts/mine/', { params }),
   assignTags: (id: number, tagIds: number[]) =>
@@ -94,11 +94,6 @@ export const interactions = {
   list: (params?: any) => apiClient.get('/interactions/', { params }),
   create: (data: any) => apiClient.post('/interactions/', data),
   get: (id: number) => apiClient.get('/interactions/' + id + '/'),
-};
-
-export const integrations = {
-  summarize: (interactionId: number) => 
-    apiClient.post('/integrations/ai/summarize/', { interaction_id: interactionId }),
 };
 
 export const companies = {

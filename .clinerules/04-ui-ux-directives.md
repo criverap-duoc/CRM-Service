@@ -3,7 +3,10 @@
 Apply to any visual component (CSS, Tailwind, shadcn/ui):
 
 ## Typography
-- Inter for body, Outfit for headings
+- Geist Sans for body and headings (via next/font)
+- Geist Mono for numbers, SKUs, scores, dates
+- No usar otras fuentes: el proyecto tiene una sola familia sans
+  unificada para consistencia
 - No generic fonts (Roboto, Arial, Open Sans)
 - Headings: tracking-tight
 

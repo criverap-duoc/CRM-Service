@@ -174,7 +174,7 @@ export default function ProductsPage() {
       setError('El precio debe ser mayor o igual a cero');
       return;
     }
-    
+
     setSaving(true);
     setError('');
     try {
