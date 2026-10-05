@@ -1,0 +1,42 @@
+# Entornos virtuales
+.venv/
+venv/
+env/
+ENV/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Base de datos local
+*.sqlite3
+db.sqlite3
+
+# Variables de entorno
+.env
+.env.*
+
+# Logs
+logs/
+*.log
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Nota: tests/ SÍ se incluye en la imagen para poder correr la suite
+# completa dentro del contenedor: docker compose exec backend python -m pytest -q
+.pytest_cache/

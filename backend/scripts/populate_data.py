@@ -470,6 +470,21 @@ def generate_tasks(contacts, users, tasks_per_contact=(0, 3)):
     print(f"✅ {len(tasks_created)} tareas creadas")
     return tasks_created
 
+def ensure_admin_user():
+    """Crea el superusuario admin si no existe. Solo para desarrollo."""
+    if User.objects.filter(username="admin").exists():
+        print("✅ Usuario admin verificado")
+        return
+    admin = User.objects.create_superuser(
+        username="admin",
+        email="admin@admin.com",
+        password="admin123",
+    )
+    managers, _ = Group.objects.get_or_create(name="managers")
+    admin.groups.add(managers)
+    print("✅ Usuario admin creado (username=admin, password=admin123)")
+
+
 # Usuario demo (dev): permite "Entrar como demo" desde el login
 def ensure_demo_user():
     """Crea el usuario demo si no existe. Solo para desarrollo."""
@@ -500,7 +515,8 @@ def main(n=DEFAULT_CONTACTS):
     print("🚀 Generando datos de prueba para CRM Service V3...")
     print("-" * 50)
 
-    # Dev: garantiza que exista el usuario demo antes de generar datos
+    # Dev: garantiza que existan los usuarios admin y demo antes de generar datos
+    ensure_admin_user()
     ensure_demo_user()
 
     print(f"📝 Creando {n} contactos...")

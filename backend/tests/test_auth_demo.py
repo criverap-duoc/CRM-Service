@@ -24,27 +24,27 @@ def demo_user(db):
 
 @pytest.mark.django_db
 class TestDemoLogin:
-    @override_settings(DEBUG=True)
+    @override_settings(ALLOW_DEMO_LOGIN=True)
     def test_demo_login_returns_tokens(self, api_client, demo_user):
         res = api_client.post("/api/v1/auth/demo/", format="json")
         assert res.status_code == 200
         assert "access" in res.data
         assert "refresh" in res.data
 
-    @override_settings(DEBUG=True)
+    @override_settings(ALLOW_DEMO_LOGIN=True)
     def test_demo_token_can_list_contacts(self, api_client, demo_user):
         res = api_client.post("/api/v1/auth/demo/", format="json")
         api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {res.data['access']}")
         contacts = api_client.get("/api/v1/contacts/")
         assert contacts.status_code == 200
 
-    @override_settings(DEBUG=True)
+    @override_settings(ALLOW_DEMO_LOGIN=True)
     def test_demo_login_without_demo_user_returns_503(self, api_client):
         res = api_client.post("/api/v1/auth/demo/", format="json")
         assert res.status_code == 503
         assert res.data["error"]["code"] == "demo_unavailable"
 
-    @override_settings(DEBUG=False)
-    def test_demo_login_disabled_outside_debug(self, api_client, demo_user):
+    @override_settings(ALLOW_DEMO_LOGIN=False)
+    def test_demo_login_disabled_when_flag_off(self, api_client, demo_user):
         res = api_client.post("/api/v1/auth/demo/", format="json")
         assert res.status_code == 404

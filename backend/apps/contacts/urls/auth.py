@@ -22,7 +22,7 @@ class DemoLoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request):
-        if not settings.DEBUG:
+        if not getattr(settings, "ALLOW_DEMO_LOGIN", False):
             raise Http404()
 
         try:
