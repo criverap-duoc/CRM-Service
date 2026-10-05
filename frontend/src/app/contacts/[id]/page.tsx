@@ -4,8 +4,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { contacts, interactions, integrations, tags as tagsApi, tasks as tasksApi, products as productsApi } from '@/lib/api-client';
-import { CONTACT_STATUS_DOT, TASK_PRIORITY_DOT } from '@/lib/badge-colors';
+import { contacts, interactions, opportunities as opportunitiesApi, tags as tagsApi, tasks as tasksApi, products as productsApi } from '@/lib/api-client';
+import { CONTACT_STATUS_DOT, OPPORTUNITY_STAGE_DOT, TASK_PRIORITY_DOT } from '@/lib/badge-colors';
 import { TopNavbar } from '@/components/TopNavbar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { StatusBadge } from '@/components/StatusBadge';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Save, Sparkles, Mail, Phone, Building, User, TrendingUp, CircleUserRound, X, Plus as PlusIcon, CheckCircle2, Clock, XCircle, AlertTriangle, CheckSquare, Brain } from 'lucide-react';
+import { Save, Sparkles, Pencil, Mail, Phone, Building, User, X, Plus as PlusIcon, CheckCircle2, Clock, XCircle, AlertTriangle } from 'lucide-react';
 import { analytics } from '@/lib/analytics-client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -43,6 +43,7 @@ interface Contact {
   email: string;
   phone: string;
   company: string;
+  company_id: number | null;
   tags: Tag[];
   interests: Product[];
   status: string;
@@ -77,6 +78,27 @@ interface Task {
   created_at: string;
 }
 
+interface Opportunity {
+  id: number;
+  name: string;
+  amount: number;
+  stage: string;
+  probability: number;
+  expected_close_date: string | null;
+}
+
+// Etapas elegibles al crear una oportunidad desde el detalle del contacto.
+// "lost" queda fuera: el backend exige lost_reason para esa etapa.
+const CREATABLE_OPPORTUNITY_STAGES = ['discovery', 'proposal', 'negotiation', 'won'] as const;
+
+const OPPORTUNITY_STAGE_LABELS: Record<string, string> = {
+  discovery: 'Descubrimiento',
+  proposal: 'Propuesta',
+  negotiation: 'Negociación',
+  won: 'Ganada',
+  lost: 'Perdida',
+};
+
 export default function ContactDetailPage() {
   const { isAuthenticated, isLoading } = useAuth();
   const router = useRouter();
@@ -90,8 +112,6 @@ export default function ContactDetailPage() {
   const [formData, setFormData] = useState<any>({});
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
-  const [summary, setSummary] = useState('');
-  const [summarizing, setSummarizing] = useState(false);
   const [leadScore, setLeadScore] = useState<any>(null);
   const [sentimentMap, setSentimentMap] = useState<Record<number, any>>({});
   const [allTags, setAllTags] = useState<Tag[]>([]);
@@ -108,6 +128,12 @@ export default function ContactDetailPage() {
   const [savingTask, setSavingTask] = useState(false);
   const [churnData, setChurnData] = useState<any>(null);
   const [segmentData, setSegmentData] = useState<any>(null);
+  const [opportunityList, setOpportunityList] = useState<Opportunity[]>([]);
+  const [opportunityDialogOpen, setOpportunityDialogOpen] = useState(false);
+  const [newOppName, setNewOppName] = useState('');
+  const [newOppAmount, setNewOppAmount] = useState('');
+  const [newOppStage, setNewOppStage] = useState('discovery');
+  const [savingOpp, setSavingOpp] = useState(false);
 
 
   useEffect(() => {
@@ -125,6 +151,7 @@ export default function ContactDetailPage() {
       fetchTasks();
       fetchChurn();
       fetchSegment();
+      fetchOpportunities();
 
       // Productos para el selector de intereses.
       // IIFE async para evitar setState síncrono dentro del effect.
@@ -222,6 +249,16 @@ const fetchSegment = async () => {
     }
   };
 
+  const fetchOpportunities = async () => {
+    try {
+      const response = await opportunitiesApi.list({ contact: parseInt(id), page_size: 50 });
+      const data = response.data.results || response.data;
+      setOpportunityList(data);
+    } catch (error) {
+      console.error('Error fetching opportunities:', error);
+    }
+  };
+
   const handleSave = async () => {
     setSaving(true);
     setError('');
@@ -248,34 +285,6 @@ const fetchSegment = async () => {
     } finally {
       setSaving(false);
     }
-  };
-
-  const handleSummarize = async () => {
-    if (!contact) return;
-    setSummarizing(true);
-    try {
-      const response = await integrations.summarize(parseInt(id));
-      setSummary(response.data.summary);
-    } catch (error) {
-      setError('Error al generar resumen con IA');
-    } finally {
-      setSummarizing(false);
-    }
-  };
-
-  const getChurnColor = (prob: number) => {
-    if (prob >= 70) return { text: 'text-rose-600', bg: 'bg-rose-100', label: 'Alto' };
-    if (prob >= 40) return { text: 'text-amber-600', bg: 'bg-amber-100', label: 'Medio' };
-    return { text: 'text-emerald-600', bg: 'bg-emerald-100', label: 'Bajo' };
-  };
-
-  const getSegmentColor = (cluster: number) => {
-    const colors: Record<number, string> = {
-      0: 'bg-slate-100 text-slate-700',
-      1: 'bg-emerald-100 text-emerald-700',
-      2: 'bg-blue-100 text-blue-700',
-    };
-    return colors[cluster] || 'bg-gray-100 text-gray-700';
   };
 
   const getTaskStatusColor = (status: string) => {
@@ -308,6 +317,26 @@ const fetchSegment = async () => {
       currency: 'CLP',
       maximumFractionDigits: 0,
     }).format(price);
+
+  const formatDate = (value: string) =>
+    new Date(value).toLocaleDateString('es-CL', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+
+  // Fechas relativas para el timeline: "hace 5 min", "hace 3 h", "hace 2 d".
+  // Sobre un año se muestra la fecha absoluta (más legible que "hace 400 d").
+  const formatRelativeDate = (value: string) => {
+    const diffMs = Date.now() - new Date(value).getTime();
+    const minutes = Math.floor(diffMs / 60000);
+    if (minutes < 60) return `hace ${Math.max(minutes, 1)} min`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `hace ${hours} h`;
+    const days = Math.floor(hours / 24);
+    if (days < 365) return `hace ${days} d`;
+    return formatDate(value);
+  };
 
   if (isLoading || loading) {
     return (
@@ -410,6 +439,28 @@ const fetchSegment = async () => {
     }
   };
 
+  const handleCreateOpportunity = async () => {
+    if (!newOppName.trim() || !newOppAmount) return;
+    setSavingOpp(true);
+    try {
+      await opportunitiesApi.create({
+        name: newOppName,
+        contact_id: parseInt(id),
+        amount: parseFloat(newOppAmount),
+        stage: newOppStage,
+      });
+      setNewOppName('');
+      setNewOppAmount('');
+      setNewOppStage('discovery');
+      setOpportunityDialogOpen(false);
+      fetchOpportunities();
+    } catch (error) {
+      console.error('Error creating opportunity:', error);
+    } finally {
+      setSavingOpp(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[var(--color-bg)]">
       <TopNavbar
@@ -426,211 +477,429 @@ const fetchSegment = async () => {
           </Alert>
         )}
 
-        {(leadScore || churnData || segmentData) && (
-  <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-    {/* Lead Score */}
-    {leadScore && (
-        <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200 flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-500 text-white shadow-md">
-            <TrendingUp className="h-4 w-4" />
+        {/* Header: identidad del contacto a la izquierda, acciones a la derecha */}
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-3 mb-2">
+              <h1 className="text-2xl font-bold text-[var(--color-ink)] truncate min-w-0">
+                {contact.full_name}
+              </h1>
+              <StatusBadge
+                label={contact.status}
+                dotClass={CONTACT_STATUS_DOT[contact.status]}
+              />
+            </div>
+            <div className="flex items-center gap-3 text-sm text-[var(--color-subtle)] flex-wrap">
+              <span>{contact.email}</span>
+              {contact.company && (
+                <>
+                  <span>·</span>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      router.push(
+                        contact.company_id != null
+                          ? `/companies/${contact.company_id}`
+                          : '/companies'
+                      )
+                    }
+                    className="hover:text-[var(--color-brand)] transition-colors"
+                  >
+                    {contact.company}
+                  </button>
+                </>
+              )}
+            </div>
+            {contact.tags && contact.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-3">
+                {contact.tags.map((tag) => (
+                  <span
+                    key={tag.id}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium text-[var(--color-ink)] border"
+                    style={{
+                      backgroundColor: `color-mix(in oklab, ${tag.color} 12%, transparent)`,
+                      borderColor: tag.color,
+                    }}
+                  >
+                    {tag.name}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs text-[var(--color-subtle)] font-medium">Lead Score</p>
-            <p className="text-2xl font-bold text-blue-600">{leadScore.lead_score}</p>
-            <p className="text-[11px] text-[var(--color-subtle)] truncate">{leadScore.label}</p>
-          </div>
-        </div>
-      )}
 
-      {/* Churn */}
-      {churnData && (
-        <div className="p-4 bg-gradient-to-r from-rose-50 to-orange-50 rounded-xl border border-rose-200 flex items-center gap-3">
-          <div className={`p-2.5 rounded-2xl ${getChurnColor(churnData.churn_probability).bg} shadow-sm`}>
-            <AlertTriangle className={`h-4 w-4 ${getChurnColor(churnData.churn_probability).text}`} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs text-[var(--color-subtle)] font-medium">Churn</p>
-            <p className={`text-2xl font-bold ${getChurnColor(churnData.churn_probability).text}`}>
-              {churnData.churn_probability}%
-            </p>
-            <p className="text-[11px] text-[var(--color-subtle)] truncate">{churnData.risk_level}</p>
-          </div>
-        </div>
-      )}
-
-      {/* Segmento */}
-      {segmentData && (
-        <div className="p-4 bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl border border-violet-200 flex items-center gap-3">
-          <div className="p-2.5 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-500 text-white shadow-md">
-            <Brain className="h-4 w-4" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-xs text-[var(--color-subtle)] font-medium">Segmento</p>
-            <Badge className={`${getSegmentColor(segmentData.segment.cluster)} border-0 font-medium text-[11px] mb-0.5`}>
-              Cluster {segmentData.segment.cluster}
-            </Badge>
-            <p className="text-[11px] text-gray-600 truncate">{segmentData.segment.label}</p>
-          </div>
-        </div>
-      )}
-    </div>
-  )}
-
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-[var(--color-ink)]">{contact.full_name}</h2>
-            <p className="text-[var(--color-subtle)]">{contact.email}</p>
-          </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
             <Button
               variant="outline"
               onClick={() => alert('La integración con IA estará disponible en la próxima versión')}
-              className="border-blue-200 hover:bg-blue-50 transition-colors"
+              className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 rounded-xl"
             >
               <Sparkles className="h-4 w-4 mr-2 text-blue-500" />
               Resumen con IA
             </Button>
             <Button
+              variant="outline"
+              onClick={() => setTaskDialogOpen(true)}
+              className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 rounded-xl"
+            >
+              <PlusIcon className="h-4 w-4 mr-2 text-blue-500" />
+              Nueva tarea
+            </Button>
+            <Button
               variant={editing ? 'default' : 'outline'}
               onClick={() => setEditing(!editing)}
-              className={editing ? 'bg-[var(--color-brand)]' : 'border-gray-300'}
+              className={
+                editing
+                  ? 'bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] rounded-xl'
+                  : 'border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 rounded-xl'
+              }
             >
+              {editing ? <X className="h-4 w-4 mr-2" /> : <Pencil className="h-4 w-4 mr-2" />}
               {editing ? 'Cancelar' : 'Editar'}
             </Button>
           </div>
         </div>
 
-        {summary && (
-          <Card className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 shadow-sm">
-            <CardContent className="pt-4">
-              <p className="text-sm text-gray-600 font-medium">Resumen generado por IA:</p>
-              <p className="text-[var(--color-ink)]">{summary}</p>
-            </CardContent>
-          </Card>
+        {/* Franja ML única: lead score, churn y segmento en una sola card */}
+        {(leadScore || churnData || segmentData) && (
+          <div className="mb-6 rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] overflow-hidden">
+            <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[var(--color-line)]">
+              {leadScore && (
+                <div className="p-4">
+                  <p className="text-xs uppercase tracking-wide text-[var(--color-subtle)] mb-1">
+                    Lead Score
+                  </p>
+                  <div className="flex items-baseline gap-2 mb-2">
+                    <span className="text-2xl font-bold tabular-nums text-[var(--color-ink)]">
+                      {leadScore.lead_score}
+                    </span>
+                    <span className="text-xs text-[var(--color-subtle)]">/ 100</span>
+                  </div>
+                  <div className="h-1 bg-[var(--color-line)] rounded-full overflow-hidden mb-2">
+                    <div
+                      className="h-full bg-[var(--color-brand)] transition-all"
+                      style={{ width: `${leadScore.lead_score}%` }}
+                    />
+                  </div>
+                  <p className="text-xs text-[var(--color-subtle)] truncate">{leadScore.label}</p>
+                </div>
+              )}
+
+              {churnData && (
+                <div className="p-4">
+                  <p className="text-xs uppercase tracking-wide text-[var(--color-subtle)] mb-1">
+                    Churn
+                  </p>
+                  <div className="flex items-baseline gap-2 mb-2">
+                    <span
+                      className={`text-2xl font-bold tabular-nums ${
+                        churnData.churn_probability >= 70
+                          ? 'text-[var(--color-danger)]'
+                          : churnData.churn_probability >= 40
+                            ? 'text-[var(--color-warning)]'
+                            : 'text-[var(--color-success)]'
+                      }`}
+                    >
+                      {churnData.churn_probability}%
+                    </span>
+                  </div>
+                  <p className="text-xs text-[var(--color-subtle)] truncate">{churnData.risk_level}</p>
+                </div>
+              )}
+
+              {segmentData && (
+                <div className="p-4">
+                  <p className="text-xs uppercase tracking-wide text-[var(--color-subtle)] mb-1">
+                    Segmento
+                  </p>
+                  <div className="flex items-baseline gap-2 mb-2">
+                    <StatusBadge
+                      label={`Cluster ${segmentData.segment.cluster}`}
+                      dotClass="bg-[var(--color-brand)]"
+                      size="xs"
+                    />
+                  </div>
+                  <p className="text-xs text-[var(--color-subtle)] line-clamp-2">
+                    {segmentData.segment.label}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Card className="lg:col-span-2 border border-gray-200/80 shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-[var(--color-ink)]">Información del Contacto</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {editing ? (
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">Nombre</label>
-                    <Input
-                      value={formData.first_name || ''}
-                      onChange={(e: any) => setFormData({ ...formData, first_name: e.target.value })}
-                      className="border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition-all"
-                    />
+          {/* Columna principal (2/3): Información + Interacciones */}
+          <div className="lg:col-span-2 space-y-6">
+            <Card className="border border-gray-200/80 shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-[var(--color-ink)]">Información del Contacto</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {editing ? (
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Nombre</label>
+                      <Input
+                        value={formData.first_name || ''}
+                        onChange={(e: any) => setFormData({ ...formData, first_name: e.target.value })}
+                        className="border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Apellido</label>
+                      <Input
+                        value={formData.last_name || ''}
+                        onChange={(e: any) => setFormData({ ...formData, last_name: e.target.value })}
+                        className="border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Email</label>
+                      <Input
+                        value={formData.email || ''}
+                        onChange={(e: any) => setFormData({ ...formData, email: e.target.value })}
+                        className="border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Teléfono</label>
+                      <Input
+                        value={formData.phone || ''}
+                        onChange={(e: any) => setFormData({ ...formData, phone: e.target.value })}
+                        className="border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Empresa</label>
+                      <Input
+                        value={formData.company || ''}
+                        readOnly
+                        className="border-gray-200 bg-gray-50 text-[var(--color-subtle)] cursor-not-allowed"
+                      />
+                      <p className="text-xs text-[var(--color-subtle)] mt-1">La empresa se gestiona desde la vista de Empresas.</p>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-gray-700">Notas</label>
+                      <textarea
+                        className="flex min-h-[80px] w-full rounded-md border border-gray-200 bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
+                        value={formData.notes || ''}
+                        onChange={(e: any) => setFormData({ ...formData, notes: e.target.value })}
+                        rows={3}
+                      />
+                    </div>
+                    <Button onClick={handleSave} disabled={saving} className="bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] transition-all shadow-md hover:shadow-lg">
+                      <Save className="h-4 w-4 mr-2" />
+                      {saving ? 'Guardando...' : 'Guardar'}
+                    </Button>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">Apellido</label>
-                    <Input
-                      value={formData.last_name || ''}
-                      onChange={(e: any) => setFormData({ ...formData, last_name: e.target.value })}
-                      className="border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition-all"
-                    />
+                ) : (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex items-start gap-3 p-3 bg-gray-50/80 rounded-lg border border-gray-100">
+                      <User className="h-4 w-4 text-[var(--color-subtle)] mt-0.5" />
+                      <div>
+                        <p className="text-xs text-[var(--color-subtle)]">Nombre completo</p>
+                        <p className="text-sm font-medium text-[var(--color-ink)]">{contact.full_name}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-3 bg-gray-50/80 rounded-lg border border-gray-100">
+                      <Mail className="h-4 w-4 text-[var(--color-subtle)] mt-0.5" />
+                      <div>
+                        <p className="text-xs text-[var(--color-subtle)]">Email</p>
+                        <p className="text-sm font-medium text-[var(--color-ink)]">{contact.email}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-3 bg-gray-50/80 rounded-lg border border-gray-100">
+                      <Phone className="h-4 w-4 text-[var(--color-subtle)] mt-0.5" />
+                      <div>
+                        <p className="text-xs text-[var(--color-subtle)]">Teléfono</p>
+                        <p className="text-sm font-medium text-[var(--color-ink)]">{contact.phone || '-'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-3 bg-gray-50/80 rounded-lg border border-gray-100">
+                      <Building className="h-4 w-4 text-[var(--color-subtle)] mt-0.5" />
+                      <div>
+                        <p className="text-xs text-[var(--color-subtle)]">Empresa</p>
+                        <p className="text-sm font-medium text-[var(--color-ink)]">{contact.company || '-'}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-3 p-3 bg-gray-50/80 rounded-lg border border-gray-100 col-span-2">
+                      <div>
+                        <p className="text-xs text-[var(--color-subtle)]">Notas</p>
+                        <p className="text-sm text-gray-700">{contact.notes || 'Sin notas'}</p>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">Email</label>
-                    <Input
-                      value={formData.email || ''}
-                      onChange={(e: any) => setFormData({ ...formData, email: e.target.value })}
-                      className="border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">Teléfono</label>
-                    <Input
-                      value={formData.phone || ''}
-                      onChange={(e: any) => setFormData({ ...formData, phone: e.target.value })}
-                      className="border-gray-200 focus:border-blue-400 focus:ring-2 focus:ring-blue-200 transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">Empresa</label>
-                    <Input
-                      value={formData.company || ''}
-                      readOnly
-                      className="border-gray-200 bg-gray-50 text-[var(--color-subtle)] cursor-not-allowed"
-                    />
-                    <p className="text-xs text-[var(--color-subtle)] mt-1">La empresa se gestiona desde la vista de Empresas.</p>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-gray-700">Notas</label>
-                    <textarea
-                      className="flex min-h-[80px] w-full rounded-md border border-gray-200 bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 transition-all"
-                      value={formData.notes || ''}
-                      onChange={(e: any) => setFormData({ ...formData, notes: e.target.value })}
-                      rows={3}
-                    />
-                  </div>
-                  <Button onClick={handleSave} disabled={saving} className="bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] transition-all shadow-md hover:shadow-lg">
-                    <Save className="h-4 w-4 mr-2" />
-                    {saving ? 'Guardando...' : 'Guardar'}
-                  </Button>
+                )}
+                {/* Metadatos: creado, actualizado, interacciones */}
+                <div className="border-t border-[var(--color-line)] mt-4 pt-3 flex flex-wrap gap-x-6 gap-y-1 text-xs text-[var(--color-subtle)]">
+                  <span>Creado: {formatDate(contact.created_at)}</span>
+                  <span>Actualizado: {formatDate(contact.updated_at)}</span>
+                  <span>{contact.interaction_count} interacciones</span>
                 </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex items-start gap-3 p-3 bg-gray-50/80 rounded-lg border border-gray-100">
-                    <User className="h-4 w-4 text-[var(--color-subtle)] mt-0.5" />
-                    <div>
-                      <p className="text-xs text-[var(--color-subtle)]">Nombre completo</p>
-                      <p className="text-sm font-medium text-[var(--color-ink)]">{contact.full_name}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3 p-3 bg-gray-50/80 rounded-lg border border-gray-100">
-                    <Mail className="h-4 w-4 text-[var(--color-subtle)] mt-0.5" />
-                    <div>
-                      <p className="text-xs text-[var(--color-subtle)]">Email</p>
-                      <p className="text-sm font-medium text-[var(--color-ink)]">{contact.email}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3 p-3 bg-gray-50/80 rounded-lg border border-gray-100">
-                    <Phone className="h-4 w-4 text-[var(--color-subtle)] mt-0.5" />
-                    <div>
-                      <p className="text-xs text-[var(--color-subtle)]">Teléfono</p>
-                      <p className="text-sm font-medium text-[var(--color-ink)]">{contact.phone || '-'}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3 p-3 bg-gray-50/80 rounded-lg border border-gray-100">
-                    <Building className="h-4 w-4 text-[var(--color-subtle)] mt-0.5" />
-                    <div>
-                      <p className="text-xs text-[var(--color-subtle)]">Empresa</p>
-                      <p className="text-sm font-medium text-[var(--color-ink)]">{contact.company || '-'}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-start gap-3 p-3 bg-gray-50/80 rounded-lg border border-gray-100 col-span-2">
-                    <div>
-                      <p className="text-xs text-[var(--color-subtle)]">Notas</p>
-                      <p className="text-sm text-gray-700">{contact.notes || 'Sin notas'}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
+            <Card className="border border-gray-200/80 shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-[var(--color-ink)]">Interacciones</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {interactionList.length === 0 ? (
+                  <p className="py-1 text-xs text-[var(--color-subtle)]">Sin interacciones registradas</p>
+                ) : (
+                  <div className="relative">
+                    {/* Línea vertical del timeline */}
+                    <div className="absolute left-4 top-0 bottom-0 w-px bg-[var(--color-line)]" />
+
+                    <div className="space-y-4">
+                      {interactionList.map((interaction) => {
+                        const sentiment = sentimentMap[interaction.id];
+                        const dotColor =
+                          sentiment?.label === 'positive' ? 'bg-[var(--color-success)]' :
+                          sentiment?.label === 'negative' ? 'bg-[var(--color-danger)]' :
+                          'bg-[var(--color-subtle)]';
+
+                        return (
+                          <div key={interaction.id} className="relative flex gap-4 pl-10">
+                            {/* Punto del timeline */}
+                            <div className={`absolute left-2.5 top-2 h-3 w-3 rounded-full ring-4 ring-[var(--color-surface)] ${dotColor}`} />
+
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-baseline justify-between gap-2 mb-1">
+                                <p className="text-sm font-medium text-[var(--color-ink)] truncate">
+                                  {interaction.subject}
+                                </p>
+                                <span className="text-xs text-[var(--color-subtle)] tabular-nums shrink-0">
+                                  {formatRelativeDate(interaction.occurred_at)}
+                                </span>
+                              </div>
+                              <p className="text-xs text-[var(--color-subtle)]">
+                                {interaction.channel} · {interaction.direction}
+                              </p>
+                              {interaction.body && (
+                                <p className="text-xs text-[var(--color-subtle)] line-clamp-2 mt-1">
+                                  {interaction.body}
+                                </p>
+                              )}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Columna lateral (1/3): Oportunidades → Tareas → Tags → Intereses */}
           <div className="space-y-6">
             <Card className="border border-gray-200/80 shadow-sm">
               <CardHeader>
-                <CardTitle className="text-[var(--color-ink)]">Estado</CardTitle>
+                <div className="flex justify-between items-center">
+                  <CardTitle className="text-[var(--color-ink)]">Oportunidades</CardTitle>
+                  <Dialog open={opportunityDialogOpen} onOpenChange={setOpportunityDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50/50 rounded-lg"
+                      >
+                        + Nueva
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="rounded-2xl">
+                      <DialogHeader>
+                        <DialogTitle className="text-xl font-bold text-[var(--color-ink)]">Nueva Oportunidad</DialogTitle>
+                      </DialogHeader>
+                      <div className="space-y-4 py-2">
+                        <div>
+                          <label className="text-sm font-medium text-gray-700">Nombre *</label>
+                          <Input
+                            value={newOppName}
+                            onChange={(e) => setNewOppName(e.target.value)}
+                            placeholder="Ej: Renovación anual"
+                            className="border-[var(--color-line)] rounded-xl h-11"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="min-w-0">
+                            <label className="text-sm font-medium text-gray-700">Monto (CLP) *</label>
+                            <Input
+                              type="number"
+                              value={newOppAmount}
+                              onChange={(e) => setNewOppAmount(e.target.value)}
+                              placeholder="0"
+                              className="border-[var(--color-line)] rounded-xl h-11"
+                            />
+                          </div>
+                          <div className="min-w-0">
+                            <label className="text-sm font-medium text-gray-700">Etapa</label>
+                            <Select value={newOppStage} onValueChange={setNewOppStage}>
+                              <SelectTrigger className="w-full border-[var(--color-line)] rounded-xl h-11">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {CREATABLE_OPPORTUNITY_STAGES.map((stage) => (
+                                  <SelectItem key={stage} value={stage}>
+                                    {OPPORTUNITY_STAGE_LABELS[stage]}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+                        <Button
+                          onClick={handleCreateOpportunity}
+                          disabled={savingOpp || !newOppName.trim() || !newOppAmount}
+                          className="w-full bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] rounded-xl"
+                        >
+                          {savingOpp ? 'Guardando...' : 'Crear oportunidad'}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
               </CardHeader>
               <CardContent>
-                <StatusBadge label={contact.status} dotClass={CONTACT_STATUS_DOT[contact.status]} />
-                <div className="mt-4 space-y-1 text-sm">
-                  <p className="text-[var(--color-subtle)]">
-                    <span className="font-medium text-gray-700">Creado:</span> {new Date(contact.created_at).toLocaleDateString()}
-                  </p>
-                  <p className="text-[var(--color-subtle)]">
-                    <span className="font-medium text-gray-700">Actualizado:</span> {new Date(contact.updated_at).toLocaleDateString()}
-                  </p>
-                  <p className="text-[var(--color-subtle)]">
-                    <span className="font-medium text-gray-700">Interacciones:</span> {contact.interaction_count}
-                  </p>
-                </div>
+                {opportunityList.length === 0 ? (
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-xs text-[var(--color-subtle)]">Sin oportunidades</span>
+                    <button
+                      type="button"
+                      onClick={() => setOpportunityDialogOpen(true)}
+                      className="text-xs text-[var(--color-brand)] hover:underline font-medium"
+                    >
+                      + Agregar
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {opportunityList.map((opp) => (
+                      <button
+                        key={opp.id}
+                        type="button"
+                        onClick={() => router.push(`/opportunities/${opp.id}`)}
+                        className="w-full text-left p-3 rounded-xl border border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/40 transition-all duration-200"
+                      >
+                        <div className="flex items-baseline justify-between gap-2">
+                          <p className="text-sm font-medium text-[var(--color-ink)] truncate">{opp.name}</p>
+                          <span className="text-sm font-semibold text-[var(--color-ink)] tabular-nums shrink-0">
+                            {formatPrice(Number(opp.amount))}
+                          </span>
+                        </div>
+                        <div className="mt-1.5">
+                          <StatusBadge
+                            label={OPPORTUNITY_STAGE_LABELS[opp.stage] || opp.stage}
+                            dotClass={OPPORTUNITY_STAGE_DOT[opp.stage]}
+                            size="xs"
+                          />
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
@@ -710,7 +979,16 @@ const fetchSegment = async () => {
               </CardHeader>
               <CardContent>
                 {taskList.length === 0 ? (
-                  <p className="text-[var(--color-subtle)] text-sm">Sin tareas registradas</p>
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-xs text-[var(--color-subtle)]">Sin pendientes</span>
+                    <button
+                      type="button"
+                      onClick={() => setTaskDialogOpen(true)}
+                      className="text-xs text-[var(--color-brand)] hover:underline font-medium"
+                    >
+                      + Agregar
+                    </button>
+                  </div>
                 ) : (
                   <div className="space-y-2 max-h-72 overflow-y-auto pr-2">
                     {taskList.map((task) => (
@@ -785,47 +1063,6 @@ const fetchSegment = async () => {
 
             <Card className="border border-gray-200/80 shadow-sm">
               <CardHeader>
-                <CardTitle className="text-[var(--color-ink)]">Interacciones</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {interactionList.length === 0 ? (
-                  <p className="text-[var(--color-subtle)] text-sm">Sin interacciones registradas</p>
-                ) : (
-                  <div className="space-y-3 max-h-60 overflow-y-auto pr-2">
-                    {interactionList.map((interaction) => {
-                      const sentiment = sentimentMap[interaction.id];
-                      const sentimentColor = sentiment?.label === 'positive' ? 'border-emerald-400' :
-                                            sentiment?.label === 'negative' ? 'border-rose-400' :
-                                            'border-blue-400';
-                      const sentimentBadge = sentiment?.label === 'positive' ? 'bg-emerald-100 text-emerald-700' :
-                                            sentiment?.label === 'negative' ? 'bg-rose-100 text-rose-700' :
-                                            'bg-blue-100 text-blue-700';
-
-                      return (
-                        <div key={interaction.id} className={`flex gap-3 p-3 bg-gray-50/70 rounded-lg border-l-4 ${sentimentColor}`}>
-                          <div className="flex-1">
-                            <p className="font-medium text-sm text-[var(--color-ink)]">{interaction.subject}</p>
-                            <p className="text-xs text-[var(--color-subtle)]">
-                              {interaction.channel} · {interaction.direction}
-                            </p>
-                            <p className="text-xs text-[var(--color-subtle)]">
-                              {new Date(interaction.occurred_at).toLocaleDateString()}
-                            </p>
-                          </div>
-                          {sentiment && (
-                            <Badge className={`${sentimentBadge} border-0 text-xs h-5`}>
-                              {sentiment.label === 'positive' ? '😊' : sentiment.label === 'negative' ? '😟' : '😐'}
-                            </Badge>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-            <Card className="border border-gray-200/80 shadow-sm">
-              <CardHeader>
                 <div className="flex justify-between items-center">
                   <CardTitle className="text-[var(--color-ink)]">Tags</CardTitle>
                   <Button
@@ -865,7 +1102,16 @@ const fetchSegment = async () => {
                       </span>
                     ))
                   ) : (
-                    <p className="text-xs text-[var(--color-subtle)]">Sin tags asignados</p>
+                    <div className="flex w-full items-center justify-between py-1">
+                      <span className="text-xs text-[var(--color-subtle)]">Sin tags</span>
+                      <button
+                        type="button"
+                        onClick={() => setTagSelectorOpen(true)}
+                        className="text-xs text-[var(--color-brand)] hover:underline font-medium"
+                      >
+                        + Agregar
+                      </button>
+                    </div>
                   )}
                 </div>
 
@@ -939,7 +1185,16 @@ const fetchSegment = async () => {
                       </span>
                     ))
                   ) : (
-                    <p className="text-xs text-[var(--color-subtle)]">Sin intereses asignados</p>
+                    <div className="flex w-full items-center justify-between py-1">
+                      <span className="text-xs text-[var(--color-subtle)]">Sin intereses</span>
+                      <button
+                        type="button"
+                        onClick={() => setInterestSelectorOpen(true)}
+                        className="text-xs text-[var(--color-brand)] hover:underline font-medium"
+                      >
+                        + Agregar
+                      </button>
+                    </div>
                   )}
                 </div>
 

@@ -74,15 +74,19 @@ const formatCLP = (value: number | string | null | undefined) =>
     maximumFractionDigits: 0,
   }).format(Number(value || 0));
 
+// `expected_close_date` llega como "YYYY-MM-DD" (DateField de DRF). Sin la hora
+// local explícita, `new Date("2026-11-03")` se interpreta como medianoche UTC y
+// en America/Santiago (UTC-3) se renderiza un día antes ("02 nov 2026").
 const formatDate = (date: string | null) => {
   if (!date) return '—';
-  return new Date(date).toLocaleDateString('es-CL', {
+  return new Date(date + 'T00:00:00').toLocaleDateString('es-CL', {
     day: '2-digit',
     month: 'short',
     year: 'numeric',
   });
 };
 
+// Los timestamps (created_at/updated_at/closed_at) ya incluyen hora y offset.
 const formatDateTime = (date: string | null) => {
   if (!date) return '—';
   return new Date(date).toLocaleString('es-CL', {
@@ -98,7 +102,7 @@ const daysToClose = (date: string | null) => {
   if (!date) return null;
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const target = new Date(date);
+  const target = new Date(date + 'T00:00:00');
   target.setHours(0, 0, 0, 0);
   return Math.round((target.getTime() - today.getTime()) / 86400000);
 };

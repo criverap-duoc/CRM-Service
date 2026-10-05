@@ -38,10 +38,12 @@ class ContactSerializer(serializers.ModelSerializer):
         allow_null=True,
     )
     company = serializers.CharField(source="company.name", read_only=True, default="")
+    # `company_id` es legible y escribible: el detalle del contacto lo usa
+    # desde el frontend para enlazar a /companies/<id>. `company` (nombre)
+    # sigue siendo la representación por defecto para mostrar.
     company_id = serializers.PrimaryKeyRelatedField(
         queryset=Company.objects.all(),
         source="company",
-        write_only=True,
         required=False,
         allow_null=True,
     )
