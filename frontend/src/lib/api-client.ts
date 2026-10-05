@@ -96,6 +96,11 @@ export const interactions = {
   get: (id: number) => apiClient.get('/interactions/' + id + '/'),
 };
 
+export const integrations = {
+  summarizeContact: (contactId: number) =>
+    apiClient.post('/integrations/ai/summarize-contact/', { contact_id: contactId }),
+};
+
 export const companies = {
   list: (params?: any) => apiClient.get('/companies/', { params }),
   get: (id: number) => apiClient.get(`/companies/${id}/`),

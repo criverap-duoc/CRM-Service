@@ -17,3 +17,13 @@ class SummarizeInteractionSerializer(serializers.Serializer):
 class SummarizeResponseSerializer(serializers.Serializer):
     interaction_id = serializers.IntegerField()
     summary = serializers.CharField()
+
+
+class SummarizeContactSerializer(serializers.Serializer):
+    contact_id = serializers.IntegerField()
+
+
+class SummarizeContactResponseSerializer(serializers.Serializer):
+    contact_id = serializers.IntegerField()
+    contact_name = serializers.CharField()
+    summary = serializers.CharField()

@@ -78,6 +78,81 @@ class OpenAIClient:
             ]
         )
 
+    def summarize_contact(self, contact, interactions):
+        """
+        Resume el historial completo de un contacto a partir de sus
+        interacciones. Si no hay API key, devuelve un resumen simulado.
+        """
+        if not interactions:
+            return "Sin interacciones registradas todavía."
+
+        # Si no hay API key, modo simulado
+        if not self._has_api_key:
+            return self._summarize_contact_simulated(contact, interactions)
+
+        # Construir el contexto de las interacciones
+        lines = []
+        for i in interactions[:10]:  # últimas 10
+            date = i.occurred_at.strftime("%Y-%m-%d")
+            channel = i.channel
+            direction = i.direction
+            body = (i.body or i.subject or "").strip()[:500]
+            lines.append(f"[{date}] ({channel}·{direction}) {body}")
+
+        context = "\n".join(lines)
+
+        return self.chat(
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "Eres un asistente de CRM. Resume el historial del cliente "
+                        "en 3-4 oraciones. Destaca: (1) el estado general de la relación, "
+                        "(2) intenciones principales del cliente, (3) cualquier acción "
+                        "pendiente o riesgo detectado. Responde en español."
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": (
+                        f"Cliente: {contact.full_name}\n"
+                        f"Estado: {contact.status}\n\n"
+                        f"Historial de interacciones:\n{context}"
+                    ),
+                },
+            ]
+        )
+
+    def _summarize_contact_simulated(self, contact, interactions):
+        """
+        Resumen simulado cuando no hay API key.
+        Analiza sentimiento + cantidad de interacciones para dar algo útil.
+        """
+        total = len(interactions)
+        from datetime import timedelta
+        from django.utils import timezone
+
+        week_ago = timezone.now() - timedelta(days=7)
+        recent = sum(1 for i in interactions if i.occurred_at >= week_ago)
+
+        parts = [f"Cliente con {total} interacciones registradas"]
+        if recent > 0:
+            parts.append(f"{recent} en los últimos 7 días")
+        else:
+            parts.append("sin actividad reciente")
+
+        if contact.status == "customer":
+            parts.append("Cliente activo. Relación establecida.")
+        elif contact.status == "prospect":
+            parts.append("En etapa de prospección.")
+        elif contact.status == "churned":
+            parts.append("Cliente que abandonó el servicio.")
+        else:
+            parts.append("Lead en fase inicial.")
+
+        parts.append("(Resumen simulado — configura OPENAI_API_KEY para análisis real.)")
+        return ". ".join(parts) + "."
+
     def analyze_sentiment(self, text: str) -> dict:
         """
         Analiza el sentimiento de un texto.

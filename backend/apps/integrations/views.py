@@ -15,6 +15,8 @@ from apps.interactions.models import Interaction
 from .clients import MetaClient, OpenAIClient
 from .serializers import (
     MetaLeadWebhookSerializer,
+    SummarizeContactResponseSerializer,
+    SummarizeContactSerializer,
     SummarizeInteractionSerializer,
     SummarizeResponseSerializer,
 )
@@ -159,3 +161,48 @@ class SummarizeInteractionView(APIView):
             )
 
         return Response({"interaction_id": interaction.pk, "summary": summary})
+
+
+class SummarizeContactView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        summary="AI summary of a contact",
+        request=SummarizeContactSerializer,
+        responses={200: SummarizeContactResponseSerializer},
+        tags=["Integrations"],
+    )
+    def post(self, request):
+        serializer = SummarizeContactSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        contact_id = serializer.validated_data["contact_id"]
+
+        try:
+            contact = Contact.objects.get(pk=contact_id)
+        except Contact.DoesNotExist:
+            return Response(
+                {"error": {"code": "not_found", "message": f"Contact {contact_id} not found."}},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        # Recolectar las últimas interacciones (más recientes primero)
+        interactions = list(
+            Interaction.objects.filter(contact=contact).order_by("-occurred_at")[:10]
+        )
+
+        client = OpenAIClient()
+        try:
+            summary = client.summarize_contact(contact, interactions)
+        except Exception as exc:
+            logger.error("OpenAI summarize_contact failed: %s", exc)
+            return Response(
+                {"error": {"code": "integration_error", "message": "Could not reach OpenAI."}},
+                status=status.HTTP_502_BAD_GATEWAY,
+            )
+
+        return Response({
+            "contact_id": contact.pk,
+            "contact_name": contact.full_name,
+            "summary": summary,
+        })

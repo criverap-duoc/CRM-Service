@@ -4,7 +4,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import { contacts, interactions, opportunities as opportunitiesApi, tags as tagsApi, tasks as tasksApi, products as productsApi } from '@/lib/api-client';
+import { contacts, integrations, interactions, opportunities as opportunitiesApi, tags as tagsApi, tasks as tasksApi, products as productsApi } from '@/lib/api-client';
 import { CONTACT_STATUS_DOT, OPPORTUNITY_STAGE_DOT, TASK_PRIORITY_DOT } from '@/lib/badge-colors';
 import { TopNavbar } from '@/components/TopNavbar';
 import { Button } from '@/components/ui/button';
@@ -134,6 +134,9 @@ export default function ContactDetailPage() {
   const [newOppAmount, setNewOppAmount] = useState('');
   const [newOppStage, setNewOppStage] = useState('discovery');
   const [savingOpp, setSavingOpp] = useState(false);
+  const [summary, setSummary] = useState('');
+  const [summarizing, setSummarizing] = useState(false);
+  const [summaryError, setSummaryError] = useState('');
 
 
   useEffect(() => {
@@ -284,6 +287,21 @@ const fetchSegment = async () => {
       );
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleSummarize = async () => {
+    setSummarizing(true);
+    setSummaryError('');
+    setSummary('');
+    try {
+      const res = await integrations.summarizeContact(parseInt(id));
+      setSummary(res.data.summary);
+    } catch (err) {
+      console.error('Error generating AI summary:', err);
+      setSummaryError('No se pudo generar el resumen. Intenta de nuevo.');
+    } finally {
+      setSummarizing(false);
     }
   };
 
@@ -531,11 +549,12 @@ const fetchSegment = async () => {
           <div className="flex flex-wrap items-center gap-2 shrink-0">
             <Button
               variant="outline"
-              onClick={() => alert('La integración con IA estará disponible en la próxima versión')}
+              onClick={handleSummarize}
+              disabled={summarizing}
               className="border-[var(--color-line)] hover:border-blue-400/50 hover:bg-blue-50/50 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 rounded-xl"
             >
-              <Sparkles className="h-4 w-4 mr-2 text-blue-500" />
-              Resumen con IA
+              <Sparkles className={`h-4 w-4 mr-2 text-blue-500 ${summarizing ? 'animate-pulse' : ''}`} />
+              {summarizing ? 'Generando...' : 'Resumen con IA'}
             </Button>
             <Button
               variant="outline"
@@ -625,6 +644,38 @@ const fetchSegment = async () => {
                 </div>
               )}
             </div>
+          </div>
+        )}
+
+        {summary && (
+          <div className="mb-6 rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] p-4">
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-xl bg-[var(--color-brand)]/10">
+                <Sparkles className="h-4 w-4 text-[var(--color-brand)]" />
+              </div>
+              <div className="flex-1">
+                <p className="text-xs uppercase tracking-wide text-[var(--color-subtle)] mb-1">
+                  Resumen generado por IA
+                </p>
+                <p className="text-sm text-[var(--color-ink)] leading-relaxed">
+                  {summary}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSummary('')}
+                className="p-1 rounded hover:bg-[var(--color-line)]/50 transition-colors"
+                title="Cerrar"
+              >
+                <X className="h-3.5 w-3.5 text-[var(--color-subtle)]" />
+              </button>
+            </div>
+          </div>
+        )}
+
+        {summaryError && (
+          <div className="mb-6 rounded-2xl border border-[var(--color-danger)]/30 bg-[var(--color-danger)]/5 p-4">
+            <p className="text-sm text-[var(--color-danger)]">{summaryError}</p>
           </div>
         )}
 
