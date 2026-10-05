@@ -45,7 +45,11 @@ export function NotificationsProvider({ children }: { children: ReactNode }) {
   }, [isAuthenticated]);
 
   useEffect(() => {
-    fetchNotifications();
+    // La carga se difiere a un macrotask: la regla
+    // react-hooks/set-state-in-effect prohíbe llamar setState de forma
+    // síncrona dentro de un efecto, y fetchNotifications actualiza estado.
+    const id = setTimeout(fetchNotifications, 0);
+    return () => clearTimeout(id);
   }, [fetchNotifications]);
 
   const handleWsMessage = useCallback((msg: any) => {

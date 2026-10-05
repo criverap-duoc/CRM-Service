@@ -1,14 +1,17 @@
 # CRM Service
 
-[![Python](https://img.shields.io/badge/Python-3.12-blue)](https://python.org)
+[![Backend Tests](https://github.com/criverap-duoc/CRM-Service/actions/workflows/backend-tests.yml/badge.svg)](https://github.com/criverap-duoc/CRM-Service/actions/workflows/backend-tests.yml)
+[![Frontend Checks](https://github.com/criverap-duoc/CRM-Service/actions/workflows/frontend-checks.yml/badge.svg)](https://github.com/criverap-duoc/CRM-Service/actions/workflows/frontend-checks.yml)
+[![Docker Build](https://github.com/criverap-duoc/CRM-Service/actions/workflows/docker-build.yml/badge.svg)](https://github.com/criverap-duoc/CRM-Service/actions/workflows/docker-build.yml)
+
+[![Python](https://img.shields.io/badge/Python-3.14-blue)](https://python.org)
 [![Django](https://img.shields.io/badge/Django-6.x-green)](https://djangoproject.com)
 [![DRF](https://img.shields.io/badge/DRF-3.15-red)](https://www.django-rest-framework.org)
 [![Next.js](https://img.shields.io/badge/Next.js-16.x-black)](https://nextjs.org)
 [![Tailwind](https://img.shields.io/badge/Tailwind-4.x-38bdf8)](https://tailwindcss.com)
 [![shadcn/ui](https://img.shields.io/badge/shadcn/ui-latest-000000)](https://ui.shadcn.com)
-[![scikit-learn](https://img.shields.io/badge/scikit--learn-1.5-orange)](https://scikit-learn.org)
+[![scikit-learn](https://img.shields.io/badge/scikit--learn-1.9.0-orange)](https://scikit-learn.org)
 [![Django Channels](https://img.shields.io/badge/Channels-4.x-092E20)](https://channels.readthedocs.io)
-[![pytest](https://img.shields.io/badge/tests-101_passed-blueviolet)](https://pytest.org)
 
 > Sistema CRM completo con Django REST Framework, Next.js 16, WebSockets en tiempo real y capacidades de ciencia de datos. Incluye autenticación JWT, gestión de contactos, empresas, tags, tareas, productos y oportunidades, integración con Meta Lead Ads y OpenAI, lead scoring con Machine Learning, predicción de churn, segmentación de clientes, análisis de sentimiento y notificaciones en vivo.
 

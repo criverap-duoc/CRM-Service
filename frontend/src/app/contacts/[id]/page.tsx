@@ -345,8 +345,14 @@ const fetchSegment = async () => {
 
   // Fechas relativas para el timeline: "hace 5 min", "hace 3 h", "hace 2 d".
   // Sobre un año se muestra la fecha absoluta (más legible que "hace 400 d").
+  // `now` se congela una sola vez con un lazy initializer: el render debe ser
+  // puro (react-hooks/purity), así que no se puede llamar Date.now() en el
+  // cuerpo del render. Ojo: useMemo(() => Date.now(), []) la regla también lo
+  // marca; el initializer de useState sí pasa. No hay riesgo de hidratación
+  // porque estas fechas solo se pintan tras cargar las interacciones (cliente).
+  const [now] = useState(() => Date.now());
   const formatRelativeDate = (value: string) => {
-    const diffMs = Date.now() - new Date(value).getTime();
+    const diffMs = now - new Date(value).getTime();
     const minutes = Math.floor(diffMs / 60000);
     if (minutes < 60) return `hace ${Math.max(minutes, 1)} min`;
     const hours = Math.floor(minutes / 60);
