@@ -12,7 +12,7 @@ from apps.analytics.ml.lead_scoring import LeadScoringModel
 if __name__ == "__main__":
     print("🚀 Entrenando modelo de Lead Scoring...")
     print("-" * 40)
-    
+
     model = LeadScoringModel()
     try:
         model.train()

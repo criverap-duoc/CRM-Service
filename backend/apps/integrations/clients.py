@@ -31,7 +31,7 @@ class OpenAIClient:
     def __init__(self, api_key=None):
         self.api_key = api_key or settings.OPENAI_API_KEY
         self._has_api_key = bool(self.api_key)
-        
+
         if not self._has_api_key:
             logger.warning("OpenAI API key no configurada. Usando modo simulado.")
 
@@ -166,7 +166,7 @@ class OpenAIClient:
         # MODO SIMULADO: si no hay API key, usar reglas básicas
         if not self._has_api_key:
             return self._analyze_sentiment_simulated(text)
-        
+
         # MODO REAL: usar OpenAI
         try:
             response = self.chat(
@@ -183,13 +183,13 @@ class OpenAIClient:
                 ],
                 max_tokens=100
             )
-            
+
             # Parsear la respuesta
             import json
             response_text = response.strip()
             if response_text.startswith('```json'):
                 response_text = response_text.replace('```json', '').replace('```', '').strip()
-            
+
             result = json.loads(response_text)
             return {
                 'label': result.get('label', 'neutral'),
@@ -198,38 +198,38 @@ class OpenAIClient:
         except Exception as e:
             logger.error(f"Error en análisis de sentimiento con OpenAI: {e}")
             return self._analyze_sentiment_simulated(text)
-    
+
     def _analyze_sentiment_simulated(self, text: str) -> dict:
         """
         Análisis de sentimiento simulado basado en reglas simples.
         Útil cuando no hay API key de OpenAI.
         """
         text_lower = text.lower()
-        
+
         # Palabras positivas
         positive_words = [
-            'excelente', 'gracias', 'contento', 'satisfecho', 'genial', 
+            'excelente', 'gracias', 'contento', 'satisfecho', 'genial',
             'bueno', 'bien', 'mejor', 'ayuda', 'resolvió', 'feliz',
             'agradecido', 'fantástico', 'increíble', 'perfecto'
         ]
-        
+
         # Palabras negativas
         negative_words = [
             'problema', 'error', 'falla', 'malo', 'urgencia', 'queja',
             'tarde', 'lento', 'difícil', 'mal', 'peor', 'terrible',
             'frustrado', 'molesto', 'grave'
         ]
-        
+
         positive_count = sum(1 for word in positive_words if word in text_lower)
         negative_count = sum(1 for word in negative_words if word in text_lower)
-        
+
         # Calcular score
         total = positive_count + negative_count
         if total == 0:
             return {'label': 'neutral', 'score': 0.5}
-        
+
         score = positive_count / total
-        
+
         # Etiqueta
         if score >= 0.7:
             label = 'positive'
@@ -237,7 +237,7 @@ class OpenAIClient:
             label = 'negative'
         else:
             label = 'neutral'
-        
+
         return {
             'label': label,
             'score': round(score, 2)

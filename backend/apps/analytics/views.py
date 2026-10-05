@@ -139,7 +139,7 @@ class LeadScoreView(APIView):
 
 class SentimentAnalysisView(APIView):
     permission_classes = [IsAuthenticated]
-    
+
     @extend_schema(
         summary="Analizar sentimiento de una interacción",
         description="Analiza el sentimiento de una interacción usando OpenAI",
@@ -148,7 +148,7 @@ class SentimentAnalysisView(APIView):
     def post(self, request, interaction_id):
         Interaction = apps.get_model('interactions', 'Interaction')
         SentimentAnalysis = apps.get_model('analytics', 'SentimentAnalysis')
-        
+
         try:
             interaction = Interaction.objects.get(pk=interaction_id)
         except Interaction.DoesNotExist:
@@ -156,7 +156,7 @@ class SentimentAnalysisView(APIView):
                 {"error": "Interacción no encontrada"},
                 status=status.HTTP_404_NOT_FOUND
             )
-        
+
         # Verificar si ya tiene análisis
         if hasattr(interaction, 'sentiment_analysis'):
             analysis = interaction.sentiment_analysis
@@ -167,18 +167,18 @@ class SentimentAnalysisView(APIView):
                 "analyzed_at": analysis.created_at,
                 "cached": True
             })
-        
+
         # Analizar sentimiento
         from apps.integrations.clients import OpenAIClient
         client = OpenAIClient()
         text = f"{interaction.subject or ''} {interaction.body or ''}".strip()
-        
+
         if not text:
             return Response(
                 {"error": "La interacción no tiene texto para analizar"},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
+
         try:
             result = client.analyze_sentiment(text)
         except Exception as e:
@@ -186,14 +186,14 @@ class SentimentAnalysisView(APIView):
                 {"error": f"Error al analizar sentimiento: {str(e)}"},
                 status=status.HTTP_502_BAD_GATEWAY
             )
-        
+
         # Guardar análisis
         analysis = SentimentAnalysis.objects.create(
             interaction=interaction,
             label=result['label'],
             score=result['score']
         )
-        
+
         return Response({
             "interaction_id": interaction.id,
             "label": analysis.label,
@@ -205,7 +205,7 @@ class SentimentAnalysisView(APIView):
 
 class SentimentStatsView(APIView):
     permission_classes = [IsAuthenticated]
-    
+
     @extend_schema(
         summary="Estadísticas de sentimiento",
         description="Obtiene estadísticas agregadas de sentimiento por contacto",
@@ -213,23 +213,23 @@ class SentimentStatsView(APIView):
     )
     def get(self, request):
         SentimentAnalysis = apps.get_model('analytics', 'SentimentAnalysis')
-        
+
         contact_id = request.query_params.get('contact_id')
-        
+
         queryset = SentimentAnalysis.objects.all()
-        
+
         if contact_id:
             queryset = queryset.filter(interaction__contact_id=contact_id)
-        
+
         stats = queryset.aggregate(
             avg_score=Avg('score'),
             positive_count=Count('id', filter=Q(label='positive')),
             neutral_count=Count('id', filter=Q(label='neutral')),
             negative_count=Count('id', filter=Q(label='negative')),
         )
-        
+
         total = stats['positive_count'] + stats['neutral_count'] + stats['negative_count']
-        
+
         return Response({
             "avg_score": round(stats['avg_score'] or 0.5, 2),
             "distribution": {
@@ -243,7 +243,7 @@ class SentimentStatsView(APIView):
 
 class ExportContactsCSVView(APIView):
     permission_classes = [IsAuthenticated]
-    
+
     @extend_schema(
         summary="Exportar contactos a CSV",
         description="Exporta todos los contactos a un archivo CSV",
@@ -253,19 +253,19 @@ class ExportContactsCSVView(APIView):
         Contact = apps.get_model('contacts', 'Contact')
         Interaction = apps.get_model('interactions', 'Interaction')
         SentimentAnalysis = apps.get_model('analytics', 'SentimentAnalysis')
-        
+
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="contactos.csv"'
-        
+
         writer = csv.writer(response)
         writer.writerow([
-            'ID', 'Nombre', 'Email', 'Teléfono', 'Empresa', 
-            'Estado', 'Fuente', 'Asignado a', 'Interacciones', 
+            'ID', 'Nombre', 'Email', 'Teléfono', 'Empresa',
+            'Estado', 'Fuente', 'Asignado a', 'Interacciones',
             'Sentimiento Promedio', 'Creado', 'Actualizado'
         ])
-        
+
         contacts = Contact.objects.select_related('assigned_to').all()
-        
+
         for contact in contacts:
             # Calcular sentimiento promedio
             sentiments = SentimentAnalysis.objects.filter(interaction__contact=contact)
@@ -281,7 +281,7 @@ class ExportContactsCSVView(APIView):
                 sentiment_avg = round(sum(values) / len(values), 2)
             else:
                 sentiment_avg = '-'
-            
+
             writer.writerow([
                 contact.id,
                 contact.full_name,
@@ -296,13 +296,13 @@ class ExportContactsCSVView(APIView):
                 contact.created_at.strftime('%Y-%m-%d'),
                 contact.updated_at.strftime('%Y-%m-%d'),
             ])
-        
+
         return response
 
 
 class ExportInteractionsCSVView(APIView):
     permission_classes = [IsAuthenticated]
-    
+
     @extend_schema(
         summary="Exportar interacciones a CSV",
         description="Exporta todas las interacciones a un archivo CSV",
@@ -310,18 +310,18 @@ class ExportInteractionsCSVView(APIView):
     )
     def get(self, request):
         Interaction = apps.get_model('interactions', 'Interaction')
-        
+
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename="interacciones.csv"'
-        
+
         writer = csv.writer(response)
         writer.writerow([
-            'ID', 'Contacto', 'Email Contacto', 'Agente', 
+            'ID', 'Contacto', 'Email Contacto', 'Agente',
             'Canal', 'Dirección', 'Asunto', 'Ocurrió', 'Creado'
         ])
-        
+
         interactions = Interaction.objects.select_related('contact', 'agent').all()
-        
+
         for interaction in interactions:
             writer.writerow([
                 interaction.id,
@@ -334,7 +334,7 @@ class ExportInteractionsCSVView(APIView):
                 interaction.occurred_at.strftime('%Y-%m-%d %H:%M'),
                 interaction.created_at.strftime('%Y-%m-%d %H:%M'),
             ])
-        
+
         return response
 
 class ChurnPredictionView(APIView):
@@ -527,7 +527,7 @@ class SegmentStatsView(APIView):
 
 class AgentDashboardView(APIView):
     permission_classes = [IsAuthenticated]
-    
+
     @extend_schema(
         summary="Dashboard de agentes",
         description="Métricas por agente: leads asignados, conversiones, etc.",
@@ -537,9 +537,9 @@ class AgentDashboardView(APIView):
         Contact = apps.get_model('contacts', 'Contact')
         Interaction = apps.get_model('interactions', 'Interaction')
         User = apps.get_model('auth', 'User')
-        
+
         agents = User.objects.filter(contacts__isnull=False).distinct()
-        
+
         data = []
         for agent in agents:
             agent_contacts = Contact.objects.filter(assigned_to=agent)
@@ -548,12 +548,12 @@ class AgentDashboardView(APIView):
             leads = agent_contacts.filter(status='lead').count()
             prospects = agent_contacts.filter(status='prospect').count()
             churned = agent_contacts.filter(status='churned').count()
-            
+
             conversion_rate = (customers / total * 100) if total > 0 else 0
-            
+
             # Interacciones del agente
             interactions_count = Interaction.objects.filter(agent=agent).count()
-            
+
             data.append({
                 'agent_id': agent.id,
                 'agent_username': agent.username,
@@ -566,10 +566,10 @@ class AgentDashboardView(APIView):
                 'conversion_rate': round(conversion_rate, 1),
                 'total_interactions': interactions_count,
             })
-        
+
         # Ordenar por tasa de conversión
         data.sort(key=lambda x: x['conversion_rate'], reverse=True)
-        
+
         return Response({
             'agents': data,
             'total_agents': len(data),

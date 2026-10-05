@@ -9,6 +9,23 @@ import django
 import random
 from datetime import datetime, timedelta
 
+import io
+
+# Forzar UTF-8 en stdout/stderr en Windows (evita UnicodeEncodeError
+# con emojis cuando stdout es un pipe).
+if sys.platform == "win32":
+    try:
+        sys.stdout = io.TextIOWrapper(
+            sys.stdout.buffer, encoding="utf-8", errors="replace"
+        )
+        sys.stderr = io.TextIOWrapper(
+            sys.stderr.buffer, encoding="utf-8", errors="replace"
+        )
+    except AttributeError:
+        # En algunos entornos (Jupyter, pytest capturado) stdout no
+        # tiene .buffer. Ignorar silenciosamente.
+        pass
+
 # Configurar Django
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'crm_service.settings.dev')
@@ -351,28 +368,28 @@ def generate_interactions(contacts, interactions_per_contact=(1, 8)):
     """Genera interacciones para cada contacto"""
     users = list(User.objects.all())
     interactions_created = []
-    
+
     for contact in contacts:
         num_interactions = random.randint(*interactions_per_contact)
-        
+
         for j in range(num_interactions):
             # Elegir sentimiento y texto correspondiente
             sentiment_type = random.choices(
                 ['positive', 'neutral', 'negative'],
                 weights=[0.5, 0.3, 0.2]
             )[0]
-            
+
             if sentiment_type == 'positive':
                 body = random.choice(TEXTOS_POSITIVOS)
             elif sentiment_type == 'negative':
                 body = random.choice(TEXTOS_NEGATIVOS)
             else:
                 body = random.choice(TEXTOS_NEUTRALES)
-            
+
             # Fecha aleatoria en los últimos 90 días
             days_ago = random.randint(0, 90)
             occurred_at = timezone.now() - timedelta(days=days_ago, hours=random.randint(0, 23))
-            
+
             interaction = Interaction.objects.create(
                 contact=contact,
                 agent=random.choice(users) if users else None,
@@ -383,20 +400,20 @@ def generate_interactions(contacts, interactions_per_contact=(1, 8)):
                 occurred_at=occurred_at,
             )
             interactions_created.append(interaction)
-            
+
             # Crear análisis de sentimiento automático
             score_map = {
                 'positive': random.uniform(0.7, 1.0),
                 'neutral': random.uniform(0.4, 0.6),
                 'negative': random.uniform(0.0, 0.3),
             }
-            
+
             SentimentAnalysis.objects.create(
                 interaction=interaction,
                 label=sentiment_type,
                 score=round(score_map[sentiment_type], 2),
             )
-    
+
     print(f"✅ {len(interactions_created)} interacciones creadas con análisis de sentimiento")
     return interactions_created
 
@@ -485,12 +502,12 @@ def main(n=DEFAULT_CONTACTS):
 
     # Dev: garantiza que exista el usuario demo antes de generar datos
     ensure_demo_user()
-    
+
     print(f"📝 Creando {n} contactos...")
-    
+
     # Generar contactos
     contacts = generate_contacts(n)
-    
+
     if contacts:
         # Generar interacciones
         generate_interactions(contacts)
@@ -498,8 +515,8 @@ def main(n=DEFAULT_CONTACTS):
         users = list(User.objects.all())
         generate_tasks(contacts, users)
 
-    
-    
+
+
     print("-" * 50)
     print(f"📊 Resumen:")
     print(f"   - Contactos totales: {Contact.objects.count()}")

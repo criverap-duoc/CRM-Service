@@ -122,7 +122,7 @@ class ContactViewSet(viewsets.ModelViewSet):
 
         # Guardar el agente anterior
         previous_agent = contact.assigned_to
-        
+
         contact.assigned_to = agent
         contact.save(update_fields=["assigned_to", "updated_at"])
 
@@ -169,6 +169,6 @@ class ContactViewSet(viewsets.ModelViewSet):
                 logger.info("Email enviado a %s", agent.email)
             except Exception as e:
                 logger.error("Error al enviar email: %s", e)
-        
+
         serializer = ContactSerializer(contact, context={"request": request})
         return Response(serializer.data)

@@ -1,8 +1,8 @@
 from django.urls import path
 from .views import (
     LeadScoreView,
-    SegmentStatsView, 
-    SentimentAnalysisView, 
+    SegmentStatsView,
+    SentimentAnalysisView,
     SentimentStatsView,
     ExportContactsCSVView,
     ExportInteractionsCSVView,
