@@ -29,7 +29,12 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
-    if (error.response?.status === 401) {
+    // Un 401 en los endpoints de auth (login / refresh) NO debe recargar la
+    // página: eso destruiría el mensaje de error del formulario de login.
+    const requestUrl = String(error.config?.url || '');
+    const isAuthEndpoint =
+      requestUrl.includes('/auth/token') || requestUrl.includes('/auth/demo');
+    if (error.response?.status === 401 && !isAuthEndpoint) {
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
       window.location.href = '/login';
@@ -41,6 +46,13 @@ apiClient.interceptors.response.use(
 export const auth = {
   login: async (username: string, password: string) => {
     const response = await apiClient.post('/auth/token/', { username, password });
+    const { access, refresh } = response.data;
+    localStorage.setItem('access_token', access);
+    localStorage.setItem('refresh_token', refresh);
+    return response.data;
+  },
+  loginAsDemo: async () => {
+    const response = await apiClient.post('/auth/demo/');
     const { access, refresh } = response.data;
     localStorage.setItem('access_token', access);
     localStorage.setItem('refresh_token', refresh);

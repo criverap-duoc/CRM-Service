@@ -5,10 +5,12 @@ import { useRouter } from 'next/navigation';
 import { isAxiosError } from 'axios';
 import { useAuth } from '@/context/AuthContext';
 import { products as productsApi } from '@/lib/api-client';
+import { PRODUCT_CATEGORY_DOT } from '@/lib/badge-colors';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/StatusBadge';
 import {
   Dialog,
   DialogContent,
@@ -33,14 +35,6 @@ interface Product {
   interested_count: number;
   created_at: string;
 }
-
-const CATEGORY_COLORS: Record<string, { bg: string; text: string }> = {
-  software: { bg: 'bg-blue-100', text: 'text-blue-700' },
-  hardware: { bg: 'bg-slate-100', text: 'text-slate-700' },
-  service: { bg: 'bg-violet-100', text: 'text-violet-700' },
-  training: { bg: 'bg-amber-100', text: 'text-amber-700' },
-  other: { bg: 'bg-gray-100', text: 'text-gray-700' },
-};
 
 interface ApiErrorResponse {
   error?: { message?: string };
@@ -387,7 +381,6 @@ export default function ProductsPage() {
             <p className="col-span-full text-center text-[var(--color-subtle)] py-12 text-sm">No hay productos registrados</p>
           ) : (
             filteredProducts.map((product) => {
-              const colors = CATEGORY_COLORS[product.category] || CATEGORY_COLORS.other;
               return (
                 <Card
                   key={product.id}
@@ -425,9 +418,7 @@ export default function ProductsPage() {
                     </div>
 
                     <div className="flex items-center gap-2 mb-3">
-                      <Badge className={`border-0 font-medium rounded-full px-2.5 py-0.5 text-xs ${colors.bg} ${colors.text}`}>
-                        {product.category}
-                      </Badge>
+                      <StatusBadge label={product.category} dotClass={PRODUCT_CATEGORY_DOT[product.category]} />
                       {!product.active && (
                         <Badge className="border-0 font-medium rounded-full px-2.5 py-0.5 text-xs bg-gray-100 text-[var(--color-subtle)]">
                           Inactivo

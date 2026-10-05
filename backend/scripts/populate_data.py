@@ -14,7 +14,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'crm_service.settings.dev')
 django.setup()
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Group, User
 from django.utils import timezone
 from apps.contacts.models import Contact
 from apps.interactions.models import Interaction
@@ -453,12 +453,38 @@ def generate_tasks(contacts, users, tasks_per_contact=(0, 3)):
     print(f"✅ {len(tasks_created)} tareas creadas")
     return tasks_created
 
+# Usuario demo (dev): permite "Entrar como demo" desde el login
+def ensure_demo_user():
+    """Crea el usuario demo si no existe. Solo para desarrollo."""
+    demo, created = User.objects.get_or_create(
+        username="demo",
+        defaults={
+            "email": "demo@crm-service.com",
+            "is_active": True,
+        },
+    )
+    if created:
+        demo.set_password("demo")
+        demo.save()
+
+    managers, _ = Group.objects.get_or_create(name="managers")
+    demo.groups.add(managers)
+
+    if created:
+        print("✅ Usuario demo creado (username=demo, password=demo)")
+    else:
+        print("✅ Usuario demo verificado")
+
+
 # Número fijo de contactos para datos de prueba consistentes
 DEFAULT_CONTACTS = 60
 
 def main(n=DEFAULT_CONTACTS):
     print("🚀 Generando datos de prueba para CRM Service V3...")
     print("-" * 50)
+
+    # Dev: garantiza que exista el usuario demo antes de generar datos
+    ensure_demo_user()
     
     print(f"📝 Creando {n} contactos...")
     

@@ -5,10 +5,12 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { contacts, interactions, integrations, tags as tagsApi, tasks as tasksApi, products as productsApi } from '@/lib/api-client';
+import { CONTACT_STATUS_DOT, TASK_PRIORITY_DOT } from '@/lib/badge-colors';
 import { TopNavbar } from '@/components/TopNavbar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/StatusBadge';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Save, Sparkles, Mail, Phone, Building, User, TrendingUp, CircleUserRound, X, Plus as PlusIcon, CheckCircle2, Clock, XCircle, AlertTriangle, CheckSquare, Brain } from 'lucide-react';
@@ -261,16 +263,6 @@ const fetchSegment = async () => {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-      lead: 'bg-blue-100 text-blue-800 border-0 font-medium',
-      prospect: 'bg-yellow-100 text-yellow-800 border-0 font-medium',
-      customer: 'bg-green-100 text-green-800 border-0 font-medium',
-      churned: 'bg-red-100 text-red-800 border-0 font-medium',
-    };
-    return colors[status] || 'bg-gray-100 text-[var(--color-ink)] border-0 font-medium';
-  };
-
   const getChurnColor = (prob: number) => {
     if (prob >= 70) return { text: 'text-rose-600', bg: 'bg-rose-100', label: 'Alto' };
     if (prob >= 40) return { text: 'text-amber-600', bg: 'bg-amber-100', label: 'Medio' };
@@ -294,16 +286,6 @@ const fetchSegment = async () => {
       cancelled: 'bg-gray-100 text-[var(--color-subtle)]',
     };
     return colors[status] || 'bg-gray-100 text-gray-700';
-  };
-
-  const getTaskPriorityColor = (priority: string) => {
-    const colors: Record<string, string> = {
-      low: 'bg-slate-100 text-slate-600',
-      medium: 'bg-blue-100 text-blue-700',
-      high: 'bg-orange-100 text-orange-700',
-      urgent: 'bg-rose-100 text-rose-700',
-    };
-    return colors[priority] || 'bg-gray-100 text-gray-700';
   };
 
   const TASK_STATUS_LABELS: Record<string, string> = {
@@ -637,9 +619,7 @@ const fetchSegment = async () => {
                 <CardTitle className="text-[var(--color-ink)]">Estado</CardTitle>
               </CardHeader>
               <CardContent>
-                <Badge className={getStatusColor(contact.status)}>
-                  {contact.status}
-                </Badge>
+                <StatusBadge label={contact.status} dotClass={CONTACT_STATUS_DOT[contact.status]} />
                 <div className="mt-4 space-y-1 text-sm">
                   <p className="text-[var(--color-subtle)]">
                     <span className="font-medium text-gray-700">Creado:</span> {new Date(contact.created_at).toLocaleDateString()}
@@ -751,9 +731,11 @@ const fetchSegment = async () => {
                             <Badge className={`${getTaskStatusColor(task.status)} border-0 text-[10px] px-1.5 py-0`}>
                               {TASK_STATUS_LABELS[task.status]}
                             </Badge>
-                            <Badge className={`${getTaskPriorityColor(task.priority)} border-0 text-[10px] px-1.5 py-0`}>
-                              {TASK_PRIORITY_LABELS[task.priority]}
-                            </Badge>
+                            <StatusBadge
+                              label={TASK_PRIORITY_LABELS[task.priority]}
+                              dotClass={TASK_PRIORITY_DOT[task.priority]}
+                              size="xs"
+                            />
                             {task.due_date && (
                               <span className={`text-[10px] ${task.is_overdue ? 'text-rose-600 font-semibold' : 'text-[var(--color-subtle)]'}`}>
                                 {new Date(task.due_date).toLocaleDateString('es-CL', { day: '2-digit', month: 'short' })}

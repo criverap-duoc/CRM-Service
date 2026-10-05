@@ -4,10 +4,12 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { tasks as tasksApi, contacts as contactsApi } from '@/lib/api-client';
+import { TASK_PRIORITY_DOT } from '@/lib/badge-colors';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/StatusBadge';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter,
 } from '@/components/ui/dialog';
@@ -76,13 +78,6 @@ const STATUS_COLORS: Record<string, string> = {
   in_progress: 'bg-amber-100 text-amber-700',
   completed: 'bg-emerald-100 text-emerald-700',
   cancelled: 'bg-gray-100 text-[var(--color-subtle)]',
-};
-
-const PRIORITY_COLORS: Record<string, string> = {
-  low: 'bg-slate-100 text-slate-600',
-  medium: 'bg-blue-100 text-blue-700',
-  high: 'bg-orange-100 text-orange-700',
-  urgent: 'bg-rose-100 text-rose-700',
 };
 
 export default function TasksPage() {
@@ -494,9 +489,7 @@ export default function TasksPage() {
                           </Badge>
                         </TableCell>
                         <TableCell>
-                          <Badge className={`${PRIORITY_COLORS[task.priority]} border-0 font-medium text-xs`}>
-                            {PRIORITY_LABELS[task.priority]}
-                          </Badge>
+                          <StatusBadge label={PRIORITY_LABELS[task.priority]} dotClass={TASK_PRIORITY_DOT[task.priority]} />
                         </TableCell>
                         <TableCell className={`hidden lg:table-cell text-xs ${task.is_overdue ? 'text-rose-600 font-semibold' : 'text-[var(--color-subtle)]'}`}>
                           {formatDate(task.due_date)}

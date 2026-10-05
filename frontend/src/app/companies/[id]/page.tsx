@@ -5,9 +5,11 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { companies, contacts } from '@/lib/api-client';
+import { CONTACT_STATUS_DOT } from '@/lib/badge-colors';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/StatusBadge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Building2, Globe, MapPin, DollarSign, Users, Activity, TrendingUp, CircleUserRound } from 'lucide-react';
 
@@ -127,16 +129,6 @@ export default function CompanyDetailPage() {
     if (score >= 70) return { text: 'text-emerald-600', bg: 'bg-emerald-500', label: 'Saludable' };
     if (score >= 40) return { text: 'text-amber-600', bg: 'bg-amber-500', label: 'En riesgo' };
     return { text: 'text-rose-600', bg: 'bg-rose-500', label: 'Crítico' };
-  };
-
-  const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-      lead: 'bg-blue-100 text-blue-700',
-      prospect: 'bg-amber-100 text-amber-700',
-      customer: 'bg-emerald-100 text-emerald-700',
-      churned: 'bg-rose-100 text-rose-700',
-    };
-    return colors[status] || 'bg-gray-100 text-gray-700';
   };
 
   if (isLoading || loading) {
@@ -341,9 +333,7 @@ export default function CompanyDetailPage() {
                           <p className="text-xs text-[var(--color-subtle)]">{contact.email}</p>
                         </div>
                       </div>
-                      <Badge className={`${getStatusColor(contact.status)} border-0 text-xs`}>
-                        {contact.status}
-                      </Badge>
+                      <StatusBadge label={contact.status} dotClass={CONTACT_STATUS_DOT[contact.status]} />
                     </div>
                   ))}
                 </div>

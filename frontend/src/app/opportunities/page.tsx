@@ -5,10 +5,12 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { opportunities, contacts as contactsApi } from '@/lib/api-client';
+import { OPPORTUNITY_STAGE_DOT } from '@/lib/badge-colors';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/StatusBadge';
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from '@/components/ui/dialog';
@@ -93,6 +95,7 @@ const STAGE_LABELS: Record<string, string> = {
   lost: 'Perdida',
 };
 
+// Solo para los chips del filtro de etapas; los badges usan OPPORTUNITY_STAGE_DOT
 const STAGE_COLORS: Record<string, string> = {
   discovery: 'bg-slate-100 text-slate-700',
   proposal: 'bg-blue-100 text-blue-700',
@@ -404,9 +407,7 @@ export default function OpportunitiesPage() {
               <div key={stage} className="bg-[var(--color-surface)] border border-[var(--color-line)] rounded-2xl p-3 min-h-[220px] flex flex-col">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2 min-w-0">
-                    <Badge className={`${STAGE_COLORS[stage]} border-0 font-medium text-xs`}>
-                      {STAGE_LABELS[stage]}
-                    </Badge>
+                    <StatusBadge label={STAGE_LABELS[stage]} dotClass={OPPORTUNITY_STAGE_DOT[stage]} />
                     <span className="text-xs text-[var(--color-subtle)] font-semibold">{items.length}</span>
                   </div>
                   <span className="text-xs font-semibold text-gray-700 shrink-0">{formatCLP(total)}</span>
@@ -472,7 +473,7 @@ export default function OpportunitiesPage() {
                   {pipelineData.stages.map((row) => (
                     <TableRow key={row.stage} className="border-gray-200/20">
                       <TableCell>
-                        <Badge className={`${STAGE_COLORS[row.stage]} border-0 text-xs font-medium`}>{row.label}</Badge>
+                        <StatusBadge label={row.label} dotClass={OPPORTUNITY_STAGE_DOT[row.stage]} />
                       </TableCell>
                       <TableCell className="text-right text-sm text-gray-700">{row.count}</TableCell>
                       <TableCell className="text-right text-sm text-gray-700">{formatCLP(row.total_amount)}</TableCell>

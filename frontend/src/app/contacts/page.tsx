@@ -6,10 +6,12 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { contacts } from '@/lib/api-client';
 import { analytics } from '@/lib/analytics-client';
+import { CONTACT_STATUS_DOT } from '@/lib/badge-colors';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/StatusBadge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -117,16 +119,6 @@ export default function ContactsPage() {
     } catch (error) {
       console.error('Error exporting:', error);
     }
-  };
-
-  const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-      lead: 'bg-blue-100 text-blue-700 border-blue-200',
-      prospect: 'bg-amber-100 text-amber-700 border-amber-200',
-      customer: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-      churned: 'bg-rose-100 text-rose-700 border-rose-200',
-    };
-    return colors[status] || 'bg-gray-100 text-gray-700 border-gray-200';
   };
 
   const getScoreColor = (score: number) => {
@@ -310,9 +302,7 @@ export default function ContactsPage() {
                         <TableCell className="text-gray-600">{contact.email}</TableCell>
                         <TableCell className="text-[var(--color-subtle)] hidden md:table-cell">{contact.company || '-'}</TableCell>
                         <TableCell>
-                          <Badge className={`${getStatusColor(contact.status)} border font-medium rounded-full px-2.5 py-0.5 text-xs`}>
-                            {contact.status}
-                          </Badge>
+                          <StatusBadge label={contact.status} dotClass={CONTACT_STATUS_DOT[contact.status]} />
                         </TableCell>
                         <TableCell>
                           {leadScores[contact.id] ? (

@@ -5,16 +5,22 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Sparkles } from 'lucide-react';
+import { ShieldCheck, Brain, Zap, FlaskConical, CircleUserRound, GitBranch, Sparkles } from 'lucide-react';
+
+const FEATURES = [
+  { icon: ShieldCheck, label: 'Autenticación JWT con roles (Manager/Agent)' },
+  { icon: Brain, label: '3 modelos ML: lead scoring, churn, segmentación' },
+  { icon: Zap, label: 'Notificaciones en tiempo real con WebSockets' },
+  { icon: FlaskConical, label: '32 features ML, 105 tests automatizados' },
+];
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, loginAsDemo } = useAuth();
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -32,66 +38,122 @@ export default function LoginPage() {
     }
   };
 
-  return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-950 to-purple-900">
-      {/* Fondo con patrón de puntos y animación sutil */}
-      <div className="absolute inset-0 opacity-20" style={{ 
-        backgroundImage: 'radial-gradient(circle at 1px 1px, rgba(255,255,255,0.15) 1px, transparent 0)',
-        backgroundSize: '24px 24px'
-      }}></div>
-      
-      {/* Círculos decorativos flotantes */}
-      <div className="absolute top-10 left-10 w-72 h-72 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-10 right-10 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl"></div>
+  const handleDemoLogin = async () => {
+    setError('');
+    setIsLoading(true);
 
-      <Card className="relative z-10 w-full max-w-md border border-white/10 shadow-2xl backdrop-blur-xl bg-white/5">
-        <CardHeader className="text-center space-y-1">
-          <div className="flex justify-center mb-2">
-            <div className="p-3 rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/10 backdrop-blur-sm">
-              <Sparkles className="h-8 w-8 text-white/80" />
+    try {
+      await loginAsDemo();
+      router.push('/dashboard');
+    } catch {
+      setError('No se pudo iniciar sesión como demo. ¿Ejecutaste populate_data.py?');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex">
+      {/* Columna izquierda: informativa del proyecto (solo desktop) */}
+      <div className="hidden lg:flex lg:w-1/2 bg-[var(--color-bg)] p-12 flex-col justify-between">
+        <div className="space-y-10">
+          {/* Logo + nombre del proyecto */}
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 rounded-lg bg-[var(--color-brand)] shadow-sm">
+              <CircleUserRound className="h-4 w-4 text-white" />
             </div>
+            <span className="text-base font-bold text-[var(--color-ink)] tracking-tight">
+              CRM Service
+            </span>
           </div>
-          <CardTitle className="text-3xl font-bold tracking-tight bg-gradient-to-r from-blue-200 via-white to-purple-200 bg-clip-text text-transparent">
-            CRM Service
-          </CardTitle>
-          <CardDescription className="text-white/60 text-sm">
-            Inicia sesión para acceder al sistema
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+
+          <div className="space-y-6">
+            <p className="max-w-md text-2xl font-bold tracking-tight text-[var(--color-ink)]">
+              CRM completo con Django REST, Next.js y Machine Learning.
+            </p>
+
+            <ul className="max-w-md space-y-3">
+              {FEATURES.map(({ icon: Icon, label }) => (
+                <li
+                  key={label}
+                  className="flex items-center gap-3 rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-4 py-3"
+                >
+                  <div className="p-2 rounded-lg bg-[var(--color-bg)] border border-[var(--color-line)] shrink-0">
+                    <Icon className="h-4 w-4 text-[var(--color-brand)]" />
+                  </div>
+                  <span className="text-sm text-[var(--color-ink)]">{label}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <a
+          href="https://github.com/criverap-duoc/CRM-Service"
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-2 w-fit text-sm text-[var(--color-subtle)] hover:text-[var(--color-brand)] transition-colors"
+        >
+          <GitBranch className="h-4 w-4" />
+          github.com/criverap-duoc/CRM-Service
+        </a>
+      </div>
+
+      {/* Columna derecha: formulario de login */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-[var(--color-surface)]">
+        <div className="w-full max-w-md">
+          <h1 className="text-2xl font-bold text-[var(--color-ink)]">Iniciar sesión</h1>
+          <p className="mt-1 text-sm text-[var(--color-subtle)]">
+            Accede a tu cuenta de CRM Service.
+          </p>
+
+          <form onSubmit={handleSubmit} className="mt-8 space-y-5">
             {error && (
-              <Alert variant="destructive" className="bg-red-500/10 border-red-500/20 text-red-300">
-                <AlertDescription>{error}</AlertDescription>
+              <Alert
+                variant="destructive"
+                className="rounded-xl border-[var(--color-danger)]!"
+              >
+                <AlertDescription className="text-[var(--color-danger)]!">
+                  {error}
+                </AlertDescription>
               </Alert>
             )}
+
             <div className="space-y-2">
-              <label className="text-sm font-medium text-white/70">Usuario</label>
+              <label htmlFor="username" className="text-sm font-medium text-[var(--color-ink)]">
+                Usuario
+              </label>
               <Input
+                id="username"
                 type="text"
                 placeholder="Ingresa tu usuario"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-blue-400/50 focus:ring-4 focus:ring-blue-400/10 transition-all rounded-xl h-11 backdrop-blur-sm"
+                className="h-11 rounded-xl border-[var(--color-line)] focus-visible:border-[var(--color-brand)] focus-visible:ring-4 focus-visible:ring-[var(--color-brand)]/10 transition-all"
               />
             </div>
+
             <div className="space-y-2">
-              <label className="text-sm font-medium text-white/70">Contraseña</label>
+              <label htmlFor="password" className="text-sm font-medium text-[var(--color-ink)]">
+                Contraseña
+              </label>
               <Input
+                id="password"
                 type="password"
                 placeholder="Ingresa tu contraseña"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="bg-white/5 border-white/10 text-white placeholder:text-white/30 focus:border-blue-400/50 focus:ring-4 focus:ring-blue-400/10 transition-all rounded-xl h-11 backdrop-blur-sm"
+                className="h-11 rounded-xl border-[var(--color-line)] focus-visible:border-[var(--color-brand)] focus-visible:ring-4 focus-visible:ring-[var(--color-brand)]/10 transition-all"
               />
             </div>
-            <Button 
-              type="submit" 
-              className="w-full h-11 rounded-xl bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 hover:from-blue-600 hover:via-indigo-600 hover:to-purple-600 text-white font-semibold shadow-lg hover:shadow-blue-500/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+
+            <Button
+              type="submit"
               disabled={isLoading}
+              className="w-full h-11 rounded-xl bg-[var(--color-brand)] hover:bg-[var(--color-brand-hover)] font-semibold shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
             >
               {isLoading ? (
                 <span className="flex items-center gap-2">
@@ -99,12 +161,36 @@ export default function LoginPage() {
                   Cargando...
                 </span>
               ) : (
-                'Iniciar sesión'
+                'Ingresar'
               )}
             </Button>
+
+            {/* Divisor con "o" */}
+            <div className="relative my-4">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-[var(--color-line)]" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-[var(--color-surface)] px-2 text-[var(--color-subtle)]">
+                  o
+                </span>
+              </div>
+            </div>
+
+            {/* Acceso de demo: no requiere credenciales */}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleDemoLogin}
+              disabled={isLoading}
+              className="w-full h-11 rounded-xl border-[var(--color-line)]! hover:bg-[var(--color-line)]/30! text-[var(--color-ink)] transition-all duration-200"
+            >
+              <Sparkles className="h-4 w-4 mr-2" />
+              Entrar como demo
+            </Button>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }

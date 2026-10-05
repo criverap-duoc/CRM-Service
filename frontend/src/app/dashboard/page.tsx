@@ -4,9 +4,11 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { contacts, tasks as tasksApi, opportunities as opportunitiesApi } from '@/lib/api-client';
+import { CONTACT_STATUS_DOT } from '@/lib/badge-colors';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/StatusBadge';
 import { Users, UserPlus, TrendingUp, Clock, CheckSquare, AlertTriangle, Target } from 'lucide-react';
 import { TopNavbar } from '@/components/TopNavbar';
 
@@ -120,16 +122,6 @@ export default function DashboardPage() {
     { title: 'Tasa Conversión', value: '12%', icon: TrendingUp, gradient: 'from-violet-500 to-purple-400', shadow: 'shadow-violet-500/20' },
     { title: 'Tiempo Promedio', value: '2.5h', icon: Clock, gradient: 'from-amber-500 to-orange-400', shadow: 'shadow-amber-500/20' },
   ];
-
-  const getStatusColor = (status: string) => {
-    const colors: Record<string, string> = {
-      lead: 'bg-blue-100 text-blue-700 border-blue-200',
-      prospect: 'bg-amber-100 text-amber-700 border-amber-200',
-      customer: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-      churned: 'bg-rose-100 text-rose-700 border-rose-200',
-    };
-    return colors[status] || 'bg-gray-100 text-gray-700 border-gray-200';
-  };
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)]">
@@ -342,9 +334,7 @@ export default function DashboardPage() {
                       <p className="text-sm text-[var(--color-subtle)]">{contact.email}</p>
                     </div>
                     <div className="flex items-center gap-3">
-                      <Badge className={`${getStatusColor(contact.status)} border font-medium rounded-full px-2.5 py-0.5 text-xs`}>
-                        {contact.status}
-                      </Badge>
+                      <StatusBadge label={contact.status} dotClass={CONTACT_STATUS_DOT[contact.status]} />
                       <span className="text-xs text-[var(--color-subtle)] font-medium">{contact.source}</span>
                     </div>
                   </div>

@@ -5,10 +5,12 @@ import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { opportunities } from '@/lib/api-client';
+import { OPPORTUNITY_STAGE_DOT } from '@/lib/badge-colors';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { StatusBadge } from '@/components/StatusBadge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
@@ -63,14 +65,6 @@ const STAGE_LABELS: Record<string, string> = {
   negotiation: 'Negociación',
   won: 'Ganada',
   lost: 'Perdida',
-};
-
-const STAGE_COLORS: Record<string, string> = {
-  discovery: 'bg-slate-100 text-slate-700 border-slate-200',
-  proposal: 'bg-blue-100 text-blue-700 border-blue-200',
-  negotiation: 'bg-violet-100 text-violet-700 border-violet-200',
-  won: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-  lost: 'bg-rose-100 text-rose-700 border-rose-200',
 };
 
 const formatCLP = (value: number | string | null | undefined) =>
@@ -303,9 +297,10 @@ export default function OpportunityDetailPage() {
                 <div>
                   <div className="flex items-center gap-3 flex-wrap">
                     <h2 className="text-2xl font-bold text-[var(--color-ink)] tracking-tight">{opp.name}</h2>
-                    <Badge className={`${STAGE_COLORS[opp.stage] || 'bg-gray-100 text-gray-700 border-gray-200'} border font-medium rounded-full px-2.5 py-0.5 text-xs`}>
-                      {STAGE_LABELS[opp.stage] || opp.stage}
-                    </Badge>
+                    <StatusBadge
+                      label={STAGE_LABELS[opp.stage] || opp.stage}
+                      dotClass={OPPORTUNITY_STAGE_DOT[opp.stage] || 'bg-gray-400'}
+                    />
                     {opp.is_overdue && (
                       <Badge className="bg-rose-100 text-rose-700 border border-rose-200 font-medium rounded-full px-2.5 py-0.5 text-xs flex items-center gap-1">
                         <AlertTriangle className="h-3 w-3" />
