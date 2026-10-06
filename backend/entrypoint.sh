@@ -39,5 +39,6 @@ python manage.py migrate --noinput
 echo "📦 Recolectando estáticos..."
 python manage.py collectstatic --noinput --clear
 
-echo "🚀 Iniciando Daphne en 0.0.0.0:8000..."
-exec daphne -b 0.0.0.0 -p 8000 crm_service.asgi:application
+# Usar $PORT si está definida (Render la inyecta), sino 8000 (Docker local)
+echo "🚀 Iniciando Daphne en 0.0.0.0:${PORT:-8000}..."
+exec daphne -b 0.0.0.0 -p "${PORT:-8000}" crm_service.asgi:application
