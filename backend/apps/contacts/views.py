@@ -4,6 +4,7 @@ import logging
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.core.cache import cache
 from django.db.models import Count
 from drf_spectacular.utils import extend_schema, extend_schema_view
 
@@ -55,11 +56,31 @@ class ContactViewSet(viewsets.ModelViewSet):
             return ContactListSerializer
         return ContactSerializer
 
+    def _invalidate_segment_cache(self):
+        """Descartar el cache de /segment/stats/ tras mutar contactos.
+
+        Las features del modelo de segmentación incluyen datos por
+        contacto (source, empresa, tags, tareas, interacciones,
+        oportunidades), así que crear/editar/borrar un contacto puede
+        mover el conteo de un segmento. La clave es la misma que
+        SegmentStatsView.CACHE_KEY (apps/analytics/views.py).
+        """
+        cache.delete("segment_stats_v3")
+
     def perform_create(self, serializer):
         if not serializer.validated_data.get("assigned_to"):
             serializer.save(assigned_to=self.request.user)
         else:
             serializer.save()
+        self._invalidate_segment_cache()
+
+    def perform_update(self, serializer):
+        serializer.save()
+        self._invalidate_segment_cache()
+
+    def perform_destroy(self, instance):
+        instance.delete()
+        self._invalidate_segment_cache()
 
     @extend_schema(
         summary="Change contact status",

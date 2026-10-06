@@ -62,6 +62,32 @@ CHANNEL_LAYERS = {
     },
 }
 
+# Cache compartida en Redis (el mismo servicio que usa el channel
+# layer). Se usa el backend nativo de Django, que habla con redis-py
+# directo (no requiere django-redis).
+#
+# LocMemCache (default) vive en la memoria del proceso: se pierde
+# cada vez que el worker se reinicia y no se comparte entre workers,
+# lo que anularía el cache de /segment/stats/. Con Redis, el valor
+# sobrevive al reinicio del contenedor.
+#
+# Database 0, igual que el channel layer: las claves no colisionan
+# (channels usa el prefijo "asgi:", el cache ":1:"), pero se puede
+# mover a /1 si en el futuro se quiere aislar.
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": (
+            f"redis://{os.environ.get('REDIS_HOST', 'redis')}:"
+            f"{os.environ.get('REDIS_PORT', '6379')}/0"
+        ),
+        "OPTIONS": {
+            "socket_timeout": 5,
+            "socket_connect_timeout": 5,
+        },
+    }
+}
+
 # CORS: el frontend corre en otro contenedor
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",

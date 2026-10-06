@@ -531,6 +531,19 @@ def main(n=DEFAULT_CONTACTS):
         users = list(User.objects.all())
         generate_tasks(contacts, users)
 
+    # Invalidar el cache de /segment/stats/: los conteos por segmento
+    # cambiaron con los datos recién creados. La clave es la misma que
+    # SegmentStatsView.CACHE_KEY (apps/analytics/views.py).
+    #
+    # OJO: este delete sólo llega al cache real si el settings activo
+    # apunta a Redis. Con settings.dev (LocMemCache) sólo limpia la
+    # memoria de este proceso; para invalidar producción, correr el
+    # script con DJANGO_SETTINGS_MODULE=crm_service.settings.prod y
+    # REDIS_URL exportados (o dentro del contenedor de backend).
+    from django.core.cache import cache
+    cache.delete("segment_stats_v3")
+    print("✅ Cache de /segment/stats/ invalidado")
+
 
 
     print("-" * 50)

@@ -12,3 +12,11 @@ if __name__ == "__main__":
     print("=" * 60)
     model = SegmentationModelV3()
     model.train()
+
+    # Invalidar el cache de /segment/stats/: los clusters y sus stats
+    # cambiaron con el reentrenamiento. Con Redis como backend el
+    # delete alcanza al worker que sirve la API; con LocMemCache sólo
+    # afectaría a la memoria de este proceso.
+    from django.core.cache import cache
+    cache.delete("segment_stats_v3")
+    print("✅ Cache de /segment/stats/ invalidado")

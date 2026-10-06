@@ -83,6 +83,21 @@ LOGGING = {
     },
 }
 
+# Cache compartida en Redis (Upstash). Sobrevive reinicios del
+# worker y funciona con >1 worker. Requerido para que el cache de
+# /segment/stats/ sea efectivo en Render Free (que reinicia el
+# worker tras spin-down).
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": config("REDIS_URL"),
+        "OPTIONS": {
+            "socket_timeout": 5,
+            "socket_connect_timeout": 5,
+        },
+    }
+}
+
 # Channel layer con Redis (Upstash o similar).
 # Upstash usa rediss:// (TLS). Django Channels acepta la URL completa.
 # socket_timeout evita el bug de redis-py 8.x que desconectaba la
