@@ -8,6 +8,7 @@ from django.db.models import Avg, Count, Q
 from django.utils import timezone
 from datetime import timedelta
 from django.apps import apps
+from django.core.cache import cache
 from django.http import HttpResponse
 from apps.analytics.ml.features import build_features_for_contact
 from apps.analytics.ml.lead_scoring_v3 import model_lead_v3
@@ -473,18 +474,28 @@ class LeadSegmentationView(APIView):
 class SegmentStatsView(APIView):
     permission_classes = [IsAuthenticated]
 
+    CACHE_KEY = "segment_stats_v3"
+    CACHE_TTL = 900  # 15 minutos
+
     @extend_schema(
         summary="Estadísticas de segmentos",
-        description="Distribución de contactos por cluster (K-Means V3).",
+        description="Distribución de contactos por cluster (K-Means V3). "
+                    "Cacheado por 15 minutos.",
         tags=["Analytics"],
     )
     def get(self, request):
+        # Intentar leer del cache primero
+        cached = cache.get(self.CACHE_KEY)
+        if cached is not None:
+            return Response(cached)
+
+        # Si no hay cache, calcular
         Contact = apps.get_model("contacts", "Contact")
 
         contacts = (
             Contact.objects
             .select_related("company")
-            .prefetch_related("tags", "tasks", "interactions")
+            .prefetch_related("tags", "tasks", "interests", "opportunities", "interactions")
         )
 
         counts = {0: 0, 1: 0, 2: 0}
@@ -520,10 +531,15 @@ class SegmentStatsView(APIView):
                 "avg_interactions_7d": s.get("avg_interactions_7d", 0),
             })
 
-        return Response({
+        result = {
             "clusters": clusters,
             "total_analyzed": analyzed,
-        })
+        }
+
+        # Guardar en cache por 15 minutos
+        cache.set(self.CACHE_KEY, result, timeout=self.CACHE_TTL)
+
+        return Response(result)
 
 class AgentDashboardView(APIView):
     permission_classes = [IsAuthenticated]

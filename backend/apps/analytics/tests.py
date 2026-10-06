@@ -17,6 +17,8 @@ from apps.analytics.models import SentimentAnalysis
 from apps.products.models import Product
 from apps.opportunities.models import Opportunity
 from apps.analytics.ml.features import build_features_for_contact
+from apps.analytics.views import SegmentStatsView
+from django.core.cache import cache
 
 
 # ============================================================
@@ -301,6 +303,13 @@ class TestSentimentStatsEndpoint:
 @pytest.mark.django_db
 class TestSegmentStatsEndpoint:
 
+    @pytest.fixture(autouse=True)
+    def clear_segment_stats_cache(self):
+        """Aísla cada test: LocMemCache persiste entre tests del mismo proceso."""
+        cache.delete(SegmentStatsView.CACHE_KEY)
+        yield
+        cache.delete(SegmentStatsView.CACHE_KEY)
+
     def test_requires_authentication(self, api_client):
         response = api_client.get("/api/v3/segment/stats/")
         assert response.status_code == 401
@@ -326,6 +335,20 @@ class TestSegmentStatsEndpoint:
         data = response.json()
         total_from_clusters = sum(c["count"] for c in data["clusters"])
         assert total_from_clusters == data["total_analyzed"]
+
+    def test_result_is_cached(self, auth_client, contact_with_data):
+        """La primera request calcula y guarda; la segunda sale del cache."""
+        first = auth_client.get("/api/v3/segment/stats/")
+        assert first.status_code == 200
+        assert cache.get(SegmentStatsView.CACHE_KEY) == first.json()
+
+        # Sin cache, la segunda request recalcularía sobre 0 contactos
+        Contact.objects.all().delete()
+        second = auth_client.get("/api/v3/segment/stats/")
+
+        assert second.status_code == 200
+        assert second.json() == first.json()
+        assert second.json()["total_analyzed"] == first.json()["total_analyzed"]
 
 
 # ============================================================
