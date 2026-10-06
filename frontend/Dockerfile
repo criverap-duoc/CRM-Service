@@ -33,6 +33,9 @@ COPY . .
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
+# Activar standalone SOLO en Docker (Vercel no lo usa y lo rompe)
+ENV NEXT_STANDALONE=true
+
 ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN pnpm build
