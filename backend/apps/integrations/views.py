@@ -6,10 +6,10 @@ from django.conf import settings
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
-from rest_framework.throttling import AnonRateThrottle
 from rest_framework import status
 from drf_spectacular.utils import extend_schema
 
+from crm_service.throttling import FailOpenAnonRateThrottle
 from apps.contacts.models import Contact
 from apps.interactions.models import Interaction
 from .clients import MetaClient, OpenAIClient
@@ -24,7 +24,9 @@ from .serializers import (
 logger = logging.getLogger(__name__)
 
 
-class WebhookRateThrottle(AnonRateThrottle):
+class WebhookRateThrottle(FailOpenAnonRateThrottle):
+    """Rate limit del webhook de Meta, fail open si Redis no responde."""
+
     scope = "webhook"
 
 

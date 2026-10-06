@@ -92,8 +92,8 @@ REST_FRAMEWORK = {
     "EXCEPTION_HANDLER": "crm_service.exceptions.custom_exception_handler",
 
     "DEFAULT_THROTTLE_CLASSES": [
-        "rest_framework.throttling.AnonRateThrottle",
-        "rest_framework.throttling.UserRateThrottle",
+        "crm_service.throttling.FailOpenAnonRateThrottle",
+        "crm_service.throttling.FailOpenUserRateThrottle",
     ],
     "DEFAULT_THROTTLE_RATES": {
         "anon": "100/day",       # usuarios no autenticados
@@ -101,6 +101,14 @@ REST_FRAMEWORK = {
         "webhook": "200/hour",   # tasa específica para webhooks
     },
 }
+
+# El throttling de DRF cuenta las requests en el cache por defecto, que
+# en Docker/prod es Redis. Si Redis no responde, check_throttles() corre
+# ANTES de la vista y propaga la ConnectionError: TODA la API responde
+# 500 (no sólo los endpoints que cachean). Con True el throttle deja
+# pasar la request y registra un warning (crm_service/throttling.py).
+# Poner False para el comportamiento estricto (fail closed).
+THROTTLE_FAIL_OPEN = True
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
