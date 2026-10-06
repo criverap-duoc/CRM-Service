@@ -35,11 +35,21 @@ except Exception as e:
     echo "✅ $name disponible"
 }
 
-# Esperar PostgreSQL
-wait_for_service "PostgreSQL" "${DB_HOST:-db}" "${DB_PORT:-5432}"
+# En PaaS (Render) las conexiones se hacen vía URLs completas
+# (DATABASE_URL / REDIS_URL), y no hay un host/puerto TCP simple
+# disponible. En ese caso, salteamos las esperas: el propio Django
+# fallará con un error claro si la conexión no funciona.
+if [ -z "${DATABASE_URL}" ]; then
+    wait_for_service "PostgreSQL" "${DB_HOST:-db}" "${DB_PORT:-5432}"
+else
+    echo "ℹ️  DATABASE_URL definida, salteando espera de PostgreSQL (se conecta en migrate)"
+fi
 
-# Esperar Redis
-wait_for_service "Redis" "${REDIS_HOST:-redis}" "${REDIS_PORT:-6379}"
+if [ -z "${REDIS_URL}" ]; then
+    wait_for_service "Redis" "${REDIS_HOST:-redis}" "${REDIS_PORT:-6379}"
+else
+    echo "ℹ️  REDIS_URL definida, salteando espera de Redis (se conecta al arrancar Channels)"
+fi
 
 echo "🚀 Aplicando migraciones..."
 python manage.py migrate --noinput

@@ -36,6 +36,11 @@ SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 X_FRAME_OPTIONS = "DENY"
 SECURE_SSL_REDIRECT = True
+# Render (y la mayoría de PaaS) terminan TLS en el load balancer y
+# reenvían la request por HTTP al contenedor. Sin este header, Django
+# cree que la request es HTTP (no HTTPS) y SECURE_SSL_REDIRECT entra
+# en loop infinito de 301.
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 
@@ -57,6 +62,10 @@ CORS_ALLOWED_ORIGINS = [
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = False
 
+# Estáticos: collectstatic los guarda aquí. En Docker/Render la
+# carpeta se crea automáticamente.
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
 # Logs a consola (Docker/Render capturan stdout/stderr y los
 # persisten externamente). No usar FileHandler porque el directorio
 # logs/ no existe en el contenedor.
@@ -76,11 +85,19 @@ LOGGING = {
 
 # Channel layer con Redis (Upstash o similar).
 # Upstash usa rediss:// (TLS). Django Channels acepta la URL completa.
+# socket_timeout evita el bug de redis-py 8.x que desconectaba la
+# conexión y provocaba el parpadeo "En vivo / Desconectado"
+# (mismo blindaje que docker.py).
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [config("REDIS_URL", default="redis://127.0.0.1:6379/0")],
+            "hosts": [{
+                "address": config("REDIS_URL", default="redis://127.0.0.1:6379/0"),
+                "socket_timeout": 30,
+                "socket_connect_timeout": 5,
+                "health_check_interval": 30,
+            }],
         },
     },
 }
