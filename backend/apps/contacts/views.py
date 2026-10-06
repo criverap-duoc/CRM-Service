@@ -40,10 +40,23 @@ class ContactViewSet(viewsets.ModelViewSet):
         return [IsAgentOrManager()]
 
     def get_queryset(self):
+        """Queryset del listado sin N+1.
+
+        - select_related: company y assigned_to (el detalle del listado los lee).
+        - prefetch_related: tags (TagSerializer en el listado).
+        - annotate: los 3 contadores del ContactListSerializer se resuelven
+          en la misma query en lugar de un .count() por contacto.
+        """
         user = self.request.user
         base_qs = (
-            Contact.objects.select_related("assigned_to")
-            .annotate(interaction_count=Count("interactions"))
+            Contact.objects
+            .select_related("company", "assigned_to")
+            .prefetch_related("tags", "interests", "opportunities")
+            .annotate(
+                interaction_count=Count("interactions", distinct=True),
+                interest_count=Count("interests", distinct=True),
+                opportunity_count=Count("opportunities", distinct=True),
+            )
         )
         # Managers ven todos los contactos
         if user.is_superuser or user.groups.filter(name="managers").exists():

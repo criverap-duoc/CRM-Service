@@ -10,7 +10,10 @@ from datetime import timedelta
 from django.apps import apps
 from django.core.cache import cache
 from django.http import HttpResponse
-from apps.analytics.ml.features import build_features_for_contact
+from apps.analytics.ml.features import (
+    build_features_for_contact,
+    build_features_for_contacts,
+)
 from apps.analytics.ml.lead_scoring_v3 import model_lead_v3
 from apps.analytics.ml.churn_prediction_v3 import model_churn_v3
 from apps.analytics.ml.segmentation_v3 import model_segmentation_v3
@@ -492,17 +495,21 @@ class SegmentStatsView(APIView):
         # Si no hay cache, calcular
         Contact = apps.get_model("contacts", "Contact")
 
-        contacts = (
-            Contact.objects
-            .select_related("company")
-            .prefetch_related("tags", "tasks", "interests", "opportunities", "interactions")
+        contacts = list(
+            Contact.objects.select_related("company").all()
         )
+
+        # Features en bulk: 7 queries fijas en total, en lugar de ~13 por
+        # contacto (807 queries con 61 contactos).
+        features_by_contact = build_features_for_contacts(contacts)
 
         counts = {0: 0, 1: 0, 2: 0}
         analyzed = 0
 
         for contact in contacts:
-            features = build_features_for_contact(contact)
+            features = features_by_contact.get(contact.id)
+            if features is None:
+                continue
             try:
                 segment = model_segmentation_v3.predict(features)
                 if segment is None:

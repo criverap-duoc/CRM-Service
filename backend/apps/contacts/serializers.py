@@ -89,22 +89,19 @@ class ContactSerializer(serializers.ModelSerializer):
 
 
 class ContactListSerializer(serializers.ModelSerializer):
+    # Los 3 contadores llegan anotados desde ContactViewSet.get_queryset()
+    # (annotate en la misma query), no se calculan con .count() por contacto.
     full_name = serializers.CharField(read_only=True)
     company = serializers.CharField(source="company.name", read_only=True, default="")
     tags = TagSerializer(many=True, read_only=True)
-    interest_count = serializers.SerializerMethodField()
-    opportunity_count = serializers.SerializerMethodField()
-
-    def get_interest_count(self, obj):
-        return obj.interests.count()
-
-    def get_opportunity_count(self, obj):
-        return obj.opportunities.count()
+    interaction_count = serializers.IntegerField(read_only=True)
+    interest_count = serializers.IntegerField(read_only=True)
+    opportunity_count = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Contact
         fields = [
             "id", "full_name", "email", "company", "tags",
-            "interest_count", "opportunity_count",
+            "interaction_count", "interest_count", "opportunity_count",
             "status", "source", "created_at",
         ]
