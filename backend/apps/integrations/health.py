@@ -2,7 +2,6 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django.db import connection
-from django.db.utils import OperationalError
 from drf_spectacular.utils import extend_schema
 
 
@@ -12,6 +11,10 @@ class HealthCheckView(APIView):
     Usado por load balancers y sistemas de monitoreo.
     """
     permission_classes = [AllowAny]
+    # Los health checks (Docker/Render) hacen polling cada pocos segundos:
+    # sin esto heredan el AnonRateThrottle de base.py (100/día) y el
+    # contenedor cae a "unhealthy" por HTTP 429 a los ~17 minutos.
+    throttle_classes = []
 
     @extend_schema(
         summary="Health check",
