@@ -4,9 +4,10 @@ import logging
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.core.cache import cache
 from django.db.models import Count
 from drf_spectacular.utils import extend_schema, extend_schema_view
+
+from apps.analytics.cache_utils import invalidate_segment_stats_cache
 
 from .models import Contact
 from .serializers import ContactSerializer, ContactListSerializer
@@ -75,10 +76,10 @@ class ContactViewSet(viewsets.ModelViewSet):
         Las features del modelo de segmentación incluyen datos por
         contacto (source, empresa, tags, tareas, interacciones,
         oportunidades), así que crear/editar/borrar un contacto puede
-        mover el conteo de un segmento. La clave es la misma que
-        SegmentStatsView.CACHE_KEY (apps/analytics/views.py).
+        mover el conteo de un segmento. La clave y el manejo de un
+        Redis caído viven en apps/analytics/cache_utils.py.
         """
-        cache.delete("segment_stats_v3")
+        invalidate_segment_stats_cache()
 
     def perform_create(self, serializer):
         if not serializer.validated_data.get("assigned_to"):

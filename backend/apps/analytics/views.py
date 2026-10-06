@@ -1,4 +1,5 @@
 import csv
+import logging
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -10,6 +11,7 @@ from datetime import timedelta
 from django.apps import apps
 from django.core.cache import cache
 from django.http import HttpResponse
+from apps.analytics.cache_utils import SEGMENT_STATS_CACHE_KEY
 from apps.analytics.ml.features import (
     build_features_for_contact,
     build_features_for_contacts,
@@ -17,6 +19,9 @@ from apps.analytics.ml.features import (
 from apps.analytics.ml.lead_scoring_v3 import model_lead_v3
 from apps.analytics.ml.churn_prediction_v3 import model_churn_v3
 from apps.analytics.ml.segmentation_v3 import model_segmentation_v3
+
+logger = logging.getLogger(__name__)
+
 
 class LeadScoreView(APIView):
     permission_classes = [IsAuthenticated]
@@ -477,7 +482,9 @@ class LeadSegmentationView(APIView):
 class SegmentStatsView(APIView):
     permission_classes = [IsAuthenticated]
 
-    CACHE_KEY = "segment_stats_v3"
+    # Clave compartida con los viewsets que invalidan el cache tras
+    # mutar datos (apps/analytics/cache_utils.py).
+    CACHE_KEY = SEGMENT_STATS_CACHE_KEY
     CACHE_TTL = 900  # 15 minutos
 
     @extend_schema(
@@ -487,8 +494,14 @@ class SegmentStatsView(APIView):
         tags=["Analytics"],
     )
     def get(self, request):
-        # Intentar leer del cache primero
-        cached = cache.get(self.CACHE_KEY)
+        # Intentar leer del cache primero. Si Redis esta caido o el
+        # backend falla, se trata como cache miss: recalcular es
+        # preferible a devolver un 500.
+        try:
+            cached = cache.get(self.CACHE_KEY)
+        except Exception as exc:
+            logger.warning("Cache get de %s fallo: %s", self.CACHE_KEY, exc)
+            cached = None
         if cached is not None:
             return Response(cached)
 
@@ -543,8 +556,12 @@ class SegmentStatsView(APIView):
             "total_analyzed": analyzed,
         }
 
-        # Guardar en cache por 15 minutos
-        cache.set(self.CACHE_KEY, result, timeout=self.CACHE_TTL)
+        # Guardar en cache por 15 minutos. Si Redis esta caido se
+        # devuelve el resultado igual: el proximo GET recalcula.
+        try:
+            cache.set(self.CACHE_KEY, result, timeout=self.CACHE_TTL)
+        except Exception as exc:
+            logger.warning("Cache set de %s fallo: %s", self.CACHE_KEY, exc)
 
         return Response(result)
 

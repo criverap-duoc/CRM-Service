@@ -87,10 +87,28 @@ LOGGING = {
 # worker y funciona con >1 worker. Requerido para que el cache de
 # /segment/stats/ sea efectivo en Render Free (que reinicia el
 # worker tras spin-down).
+def _redis_url_with_db(url: str, db: int) -> str:
+    """Apuntar `url` a la DB `db` de Redis sin tocar el resto de la URL.
+
+    REDIS_URL puede venir sin índice (Upstash: "rediss://host:6379"),
+    con uno ("rediss://host:6379/0") o con barra final. Sólo se
+    reemplaza el último segmento si es un número puro, para no
+    confundirlo con el puerto (":6379") ni con un host.
+    """
+    clean = url.rstrip("/")
+    base, sep, last = clean.rpartition("/")
+    if sep and last.isdigit():
+        return f"{base}/{db}"
+    return f"{clean}/{db}"
+
+
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": config("REDIS_URL"),
+        # DB 1: aislada del channel layer (DB 0, claves "asgi:"), para
+        # que un FLUSHDB o una evicción LRU del cache no se lleve por
+        # delante las colas de los WebSockets (y viceversa).
+        "LOCATION": _redis_url_with_db(config("REDIS_URL"), 1),
         "OPTIONS": {
             "socket_timeout": 5,
             "socket_connect_timeout": 5,

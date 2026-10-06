@@ -4,6 +4,8 @@ from rest_framework.permissions import IsAuthenticated
 from django_filters import rest_framework as filters
 from drf_spectacular.utils import extend_schema, extend_schema_view
 
+from apps.analytics.cache_utils import invalidate_segment_stats_cache
+
 from .models import Interaction
 from .serializers import InteractionSerializer, InteractionListSerializer
 
@@ -42,8 +44,27 @@ class InteractionViewSet(viewsets.ModelViewSet):
             return InteractionListSerializer
         return InteractionSerializer
 
+    def _invalidate_segment_cache(self):
+        """Descartar el cache de /segment/stats/ tras mutar interacciones.
+
+        total_interactions, interactions_7d, sentiment_avg y
+        response_rate se calculan desde Interaction, así que loguear,
+        editar o borrar una interacción puede mover el segmento de un
+        contacto (apps/analytics/ml/features.py).
+        """
+        invalidate_segment_stats_cache()
+
     def perform_create(self, serializer):
         if not serializer.validated_data.get("agent"):
             serializer.save(agent=self.request.user)
         else:
             serializer.save()
+        self._invalidate_segment_cache()
+
+    def perform_update(self, serializer):
+        serializer.save()
+        self._invalidate_segment_cache()
+
+    def perform_destroy(self, instance):
+        instance.delete()
+        self._invalidate_segment_cache()

@@ -24,3 +24,10 @@ scikit-learn==1.9.0
 pandas==3.0.5
 numpy==2.5.2
 scipy==1.18.1
+
+# redis-py: llega como dependencia transitiva de channels-redis, pero
+# se pinea explícito porque crm_service/settings/{docker,prod}.py
+# ajustan socket_timeout/health_check_interval asumiendo el
+# comportamiento de redis-py 8.x (DEFAULT_SOCKET_TIMEOUT = 5, ver el
+# comentario del CHANNEL_LAYERS en docker.py). Instalado en Render: 8.1.0.
+redis>=8.0,<9.0

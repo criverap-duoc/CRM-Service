@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from django.db.models import Count, Q
 from django.utils import timezone
 
+from apps.analytics.cache_utils import invalidate_segment_stats_cache
+
 from .models import Task
 from .serializers import TaskListSerializer, TaskSerializer
 from .filters import TaskFilter
@@ -34,8 +36,25 @@ class TaskViewSet(viewsets.ModelViewSet):
             return TaskListSerializer
         return TaskSerializer
 
+    def _invalidate_segment_cache(self):
+        """Descartar el cache de /segment/stats/ tras mutar tareas.
+
+        total_tasks y overdue_tasks entran en las features de
+        segmentación (apps/analytics/ml/features.py).
+        """
+        invalidate_segment_stats_cache()
+
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+        self._invalidate_segment_cache()
+
+    def perform_update(self, serializer):
+        serializer.save()
+        self._invalidate_segment_cache()
+
+    def perform_destroy(self, instance):
+        instance.delete()
+        self._invalidate_segment_cache()
 
     @action(detail=False, methods=["get"], url_path="overdue")
     def overdue(self, request):

@@ -7,6 +7,8 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from apps.analytics.cache_utils import invalidate_segment_stats_cache
+
 from .models import Opportunity
 from .serializers import OpportunityListSerializer, OpportunitySerializer
 from .filters import OpportunityFilter
@@ -36,8 +38,26 @@ class OpportunityViewSet(viewsets.ModelViewSet):
             return OpportunityListSerializer
         return OpportunitySerializer
 
+    def _invalidate_segment_cache(self):
+        """Descartar el cache de /segment/stats/ tras mutar oportunidades.
+
+        opportunity_count_*, pipeline_value_*, avg_deal_probability y
+        has_won_deal/has_lost_deal salen de Opportunity
+        (apps/analytics/ml/features.py).
+        """
+        invalidate_segment_stats_cache()
+
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+        self._invalidate_segment_cache()
+
+    def perform_update(self, serializer):
+        serializer.save()
+        self._invalidate_segment_cache()
+
+    def perform_destroy(self, instance):
+        instance.delete()
+        self._invalidate_segment_cache()
 
     @action(detail=False, methods=["get"], url_path="pipeline")
     def pipeline(self, request):
