@@ -17,9 +17,9 @@
 
 ## Recorrido visual
 
-!(docs/gifs/CRM-Service1.gif)
+![Login, Dashboard, Contactos, Empresas, Oportunidades, Tareas](docs/gifs/CRM-Service1.gif)
 
-!(docs/gifs/CRM-Service2.gif)
+![Analítica, Productos, Tags, Notificaciones, Manual de Usuario](docs/gifs/CRM-Service2.gif)
 
 ---
 
