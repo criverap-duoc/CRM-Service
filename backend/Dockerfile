@@ -32,7 +32,10 @@ RUN useradd -m -u 1000 appuser && chown -R appuser:appuser /app
 USER appuser
 
 # Puerto
-EXPOSE 8000
+# Nota: no usar EXPOSE. Render escanea el puerto $PORT (10000 por
+# defecto). Si EXPOSE está presente, Render lo usa como override
+# e ignora $PORT. En Docker local, el puerto se configura vía
+# docker-compose.yml (8000:8000).
 
 # Entrypoint
 ENTRYPOINT ["/app/entrypoint.sh"]
