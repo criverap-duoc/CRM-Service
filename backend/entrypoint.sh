@@ -1,37 +1,45 @@
 #!/bin/bash
 set -e
 
-echo "⏳ Esperando a que PostgreSQL esté disponible..."
-while ! python -c "
-import socket, os, sys
-host = os.environ.get('DB_HOST', 'db')
-port = int(os.environ.get('DB_PORT', '5432'))
+# Timeout para esperar servicios (segundos)
+WAIT_TIMEOUT=60
+
+wait_for_service() {
+    local name=$1
+    local host=$2
+    local port=$3
+    local elapsed=0
+
+    echo "⏳ Esperando a que $name esté disponible ($host:$port)..."
+
+    while ! python -c "
+import socket, sys
 try:
-    s = socket.create_connection((host, port), timeout=2)
+    s = socket.create_connection(('$host', $port), timeout=2)
     s.close()
-except Exception:
+except Exception as e:
+    print(f'Error: {e}', file=sys.stderr)
     sys.exit(1)
 " 2>/dev/null; do
-  sleep 1
-done
+        if [ $elapsed -ge $WAIT_TIMEOUT ]; then
+            echo "❌ $name no está disponible después de ${WAIT_TIMEOUT}s. Abortando."
+            echo "   Host: $host"
+            echo "   Puerto: $port"
+            echo "   Verificar: variables de entorno, firewall, certificados TLS."
+            exit 1
+        fi
+        sleep 2
+        elapsed=$((elapsed + 2))
+    done
 
-echo "✅ PostgreSQL disponible"
+    echo "✅ $name disponible"
+}
 
-echo "⏳ Esperando a que Redis esté disponible..."
-while ! python -c "
-import socket, os, sys
-host = os.environ.get('REDIS_HOST', 'redis')
-port = int(os.environ.get('REDIS_PORT', '6379'))
-try:
-    s = socket.create_connection((host, port), timeout=2)
-    s.close()
-except Exception:
-    sys.exit(1)
-" 2>/dev/null; do
-  sleep 1
-done
+# Esperar PostgreSQL
+wait_for_service "PostgreSQL" "${DB_HOST:-db}" "${DB_PORT:-5432}"
 
-echo "✅ Redis disponible"
+# Esperar Redis
+wait_for_service "Redis" "${REDIS_HOST:-redis}" "${REDIS_PORT:-6379}"
 
 echo "🚀 Aplicando migraciones..."
 python manage.py migrate --noinput
