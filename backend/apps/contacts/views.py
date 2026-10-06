@@ -52,7 +52,7 @@ class ContactViewSet(viewsets.ModelViewSet):
         base_qs = (
             Contact.objects
             .select_related("company", "assigned_to")
-            .prefetch_related("tags", "interests", "opportunities")
+            .prefetch_related("tags")
             .annotate(
                 interaction_count=Count("interactions", distinct=True),
                 interest_count=Count("interests", distinct=True),

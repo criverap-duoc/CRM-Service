@@ -3,6 +3,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
+from apps.analytics.cache_utils import invalidate_segment_stats_cache
 from apps.contacts.models import Contact
 from apps.interactions.models import Interaction
 from apps.analytics.models import SentimentAnalysis
@@ -36,8 +37,26 @@ class CompanyViewSet(viewsets.ModelViewSet):
             return CompanyListSerializer
         return CompanySerializer
 
+    def _invalidate_segment_cache(self):
+        """Descartar el cache de /segment/stats/ tras mutar empresas.
+
+        company_industry y company_size son features de segmentación
+        (apps/analytics/ml/features.py): editar una empresa mueve las
+        features de todos sus contactos.
+        """
+        invalidate_segment_stats_cache()
+
     def perform_create(self, serializer):
         serializer.save(created_by=self.request.user)
+        self._invalidate_segment_cache()
+
+    def perform_update(self, serializer):
+        serializer.save()
+        self._invalidate_segment_cache()
+
+    def perform_destroy(self, instance):
+        instance.delete()
+        self._invalidate_segment_cache()
 
     @action(detail=True, methods=["get"], url_path="health")
     def health(self, request, pk=None):

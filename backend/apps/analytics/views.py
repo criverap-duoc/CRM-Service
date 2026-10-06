@@ -6,8 +6,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from drf_spectacular.utils import extend_schema
 from django.db.models import Avg, Count, Q
-from django.utils import timezone
-from datetime import timedelta
 from django.apps import apps
 from django.core.cache import cache
 from django.http import HttpResponse
