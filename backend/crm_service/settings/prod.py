@@ -47,6 +47,11 @@ CSRF_COOKIE_SECURE = True
 # Hosts permitidos y CSRF/CORS para frontend en Vercel
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "*").split(",")
 
+# Demo login: el endpoint /api/v1/auth/demo/ solo funciona si esta
+# variable está en True. Se controla por variable de entorno para
+# poder deshabilitarlo en producción sin tocar código.
+ALLOW_DEMO_LOGIN = config("ALLOW_DEMO_LOGIN", default=False, cast=bool)
+
 # CSRF: necesario para que Django acepte requests desde el frontend
 # en Vercel (dominio distinto al del backend en Render).
 CSRF_TRUSTED_ORIGINS = [
