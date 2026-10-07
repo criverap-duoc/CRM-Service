@@ -71,17 +71,17 @@ CHANNEL_LAYERS = {
 # lo que anularía el cache de /segment/stats/. Con Redis, el valor
 # sobrevive al reinicio del contenedor.
 #
-# Database 1, aislada del channel layer (que queda en la 0): las
-# claves no colisionan (channels usa el prefijo "asgi:", el cache
-# ":1:"), pero con DBs separadas un FLUSHDB o una evicción LRU del
-# cache no puede sacar las colas de los WebSockets. Igual que
-# settings/prod.py, para que dev y prod se comporten igual.
+# DB 0 (la misma que el channel layer): las claves no colisionan
+# porque channels usa el prefijo "asgi:" y el cache ":1:". Usar una
+# DB separada no es fiable en proveedores gestionados (Upstash solo
+# soporta DB 0), por eso la separación es por prefijo de clave.
+# Igual que settings/prod.py, para que dev y prod se comporten igual.
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": (
             f"redis://{os.environ.get('REDIS_HOST', 'redis')}:"
-            f"{os.environ.get('REDIS_PORT', '6379')}/1"
+            f"{os.environ.get('REDIS_PORT', '6379')}/0"
         ),
         "OPTIONS": {
             "socket_timeout": 5,
