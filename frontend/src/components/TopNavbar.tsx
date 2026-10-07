@@ -1,11 +1,19 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { CircleUserRound, ChevronRight, HelpCircle } from 'lucide-react';
+import { CircleUserRound, ChevronRight, HelpCircle, Menu } from 'lucide-react';
 import { NotificationBell } from '@/components/NotificationBell';
 import { ConnectionIndicator } from '@/components/ConnectionIndicator';
 import { CatalogDropdown } from '@/components/CatalogDropdown';
 import { AvatarMenu } from '@/components/AvatarMenu';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from '@/components/ui/sheet';
 
 interface BreadcrumbItem {
   label: string;
@@ -28,6 +36,7 @@ const NAV_ITEMS = [
 export function TopNavbar({ breadcrumb }: TopNavbarProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isItemActive = (href: string) => {
     if (href === '/dashboard') return pathname === '/dashboard';
@@ -79,11 +88,90 @@ export function TopNavbar({ breadcrumb }: TopNavbarProps) {
 
           {/* Zona derecha */}
           <div className="flex items-center gap-3 shrink-0">
+            {/* Botón hamburguesa: solo mobile */}
+            <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+              <SheetTrigger asChild>
+                <button
+                  className="md:hidden h-8 w-8 rounded-lg flex items-center justify-center text-[var(--color-subtle)] hover:text-[var(--color-ink)] hover:bg-[var(--color-line)]/50 transition-colors"
+                  aria-label="Menú"
+                >
+                  <Menu className="h-4 w-4" />
+                </button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[280px] sm:w-[320px]">
+                <SheetHeader>
+                  <SheetTitle>Menú</SheetTitle>
+                </SheetHeader>
+                <nav className="flex flex-col gap-1 mt-6">
+                  {NAV_ITEMS.map((item) => {
+                    const active = isItemActive(item.href);
+                    return (
+                      <button
+                        key={item.href}
+                        onClick={() => {
+                          router.push(item.href);
+                          setMobileMenuOpen(false);
+                        }}
+                        className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                          active
+                            ? 'bg-[var(--color-brand)]/8 text-[var(--color-brand)]'
+                            : 'text-[var(--color-subtle)] hover:text-[var(--color-ink)] hover:bg-[var(--color-line)]/50'
+                        }`}
+                      >
+                        {item.label}
+                      </button>
+                    );
+                  })}
+                  {/* Separador */}
+                  <div className="my-2 border-t border-[var(--color-line)]" />
+                  {/* Links del catálogo directamente */}
+                  <button
+                    onClick={() => {
+                      router.push('/products');
+                      setMobileMenuOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                      pathname.startsWith('/products')
+                        ? 'bg-[var(--color-brand)]/8 text-[var(--color-brand)]'
+                        : 'text-[var(--color-subtle)] hover:text-[var(--color-ink)] hover:bg-[var(--color-line)]/50'
+                    }`}
+                  >
+                    Productos
+                  </button>
+                  <button
+                    onClick={() => {
+                      router.push('/tags');
+                      setMobileMenuOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                      pathname.startsWith('/tags')
+                        ? 'bg-[var(--color-brand)]/8 text-[var(--color-brand)]'
+                        : 'text-[var(--color-subtle)] hover:text-[var(--color-ink)] hover:bg-[var(--color-line)]/50'
+                    }`}
+                  >
+                    Tags
+                  </button>
+                  {/* Separador */}
+                  <div className="my-2 border-t border-[var(--color-line)]" />
+                  {/* Botón de ayuda */}
+                  <button
+                    onClick={() => {
+                      router.push('/help');
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full text-left px-3 py-2.5 rounded-lg text-sm font-medium text-[var(--color-subtle)] hover:text-[var(--color-ink)] hover:bg-[var(--color-line)]/50 transition-colors"
+                  >
+                    Ayuda
+                  </button>
+                </nav>
+              </SheetContent>
+            </Sheet>
+
             <ConnectionIndicator />
             <NotificationBell />
             <button
               onClick={() => router.push('/help')}
-              className="h-8 w-8 rounded-lg flex items-center justify-center text-[var(--color-subtle)] hover:text-[var(--color-ink)] hover:bg-[var(--color-line)]/50 transition-colors"
+              className="hidden md:flex h-8 w-8 rounded-lg items-center justify-center text-[var(--color-subtle)] hover:text-[var(--color-ink)] hover:bg-[var(--color-line)]/50 transition-colors"
               aria-label="Ayuda"
               title="Manual de usuario"
             >
