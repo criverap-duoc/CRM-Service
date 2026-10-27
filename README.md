@@ -251,8 +251,8 @@ El proyecto está desplegado en:
 - `ALLOWED_HOSTS=crm-service-backend-3h0e.onrender.com`
 - `DATABASE_URL` (de Neon, con `?sslmode=require`)
 - `REDIS_URL` (de Upstash, con `rediss://`)
-- `CSRF_TRUSTED_ORIGINS=https://crm-service.vercel.app`
-- `CORS_ALLOWED_ORIGINS=https://crm-service.vercel.app`
+- `CSRF_TRUSTED_ORIGINS=https://crm-service-rust.vercel.app`
+- `CORS_ALLOWED_ORIGINS=https://crm-service-rust.vercel.app`
 
 **Variables de entorno necesarias en Vercel:**
 
